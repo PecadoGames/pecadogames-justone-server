@@ -72,4 +72,28 @@ public class UserService {
             throw new SopraServiceException(String.format(baseErrorMessage, "name", "is"));
         }
     }
+
+    public User loginUser(User user) {
+        user.setToken(UUID.randomUUID().toString());
+        user.setStatus(UserStatus.ONLINE);
+
+        User userByUsername = userRepository.findByUsername(user.getUsername());
+
+        if(userByUsername == null){
+            throw new SopraServiceException("Can't find matching username and password.");
+        }
+
+        String enteredPassword = user.getPassword();
+        String storedPassword = userRepository.findByUsername(user.getUsername()).getPassword();
+
+        if(!enteredPassword.equals(storedPassword)){
+            throw new SopraServiceException("Can't find matching username and password.");
+        }
+
+        // saves the given entity but data is only persisted in the database once flush() is called
+
+        log.debug("User {} has logged in.", user);
+        return user;
+    }
+
 }
