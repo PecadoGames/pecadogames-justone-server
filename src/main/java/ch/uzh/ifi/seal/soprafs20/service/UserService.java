@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -38,6 +39,7 @@ public class UserService {
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.ONLINE);
+        newUser.setCreationDate();
 
         checkIfUserExists(newUser);
 
@@ -93,6 +95,20 @@ public class UserService {
         // saves the given entity but data is only persisted in the database once flush() is called
 
         log.debug("User {} has logged in.", user);
+        return user;
+    }
+
+    public User logoutUser(User findUser){
+        User user;
+        Long id = findUser.getId();
+        Optional<User> optional = userRepository.findById(id);
+        if(optional.isPresent()){
+            user = optional.get();
+            user.setStatus(UserStatus.OFFLINE);
+        }
+        else{
+            throw new SopraServiceException("Can't find matching user.");
+        }
         return user;
     }
 
