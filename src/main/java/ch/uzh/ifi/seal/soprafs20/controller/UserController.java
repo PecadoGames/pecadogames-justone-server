@@ -70,7 +70,7 @@ public class UserController {
     }
 
     @PutMapping("/logout")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public UserGetDTO logoutUser(@RequestBody UserPutDTO userPutDTO){
         // convert API user to internal representation

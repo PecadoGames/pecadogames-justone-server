@@ -104,7 +104,13 @@ public class UserService {
         Optional<User> optional = userRepository.findById(id);
         if(optional.isPresent()){
             user = optional.get();
-            user.setStatus(UserStatus.OFFLINE);
+            if(user.getToken().equals(findUser.getToken())){
+                user.setStatus(UserStatus.OFFLINE);
+                user.setToken(null);
+            }
+            else{
+                throw new SopraServiceException("Wrong token.");
+            }
         }
         else{
             throw new SopraServiceException("Can't find matching user.");
