@@ -36,6 +36,19 @@ public class UserService {
         return this.userRepository.findAll();
     }
 
+    public User getUser(Long id){
+        User user;
+        Optional<User> optional = userRepository.findById(id);
+        if(optional.isPresent()){
+            user = optional.get();
+            return user;
+        }
+        else{
+            String baseErrorMessage = "User with ID {} not found.";
+            throw new SopraServiceException(String.format(baseErrorMessage, id));
+        }
+    }
+
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.ONLINE);

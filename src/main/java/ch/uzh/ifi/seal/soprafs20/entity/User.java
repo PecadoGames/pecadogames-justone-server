@@ -39,7 +39,10 @@ public class User implements Serializable {
     private String password;
 
 	@Column(nullable = false)
-    private Date date;
+    private Date creationDate;
+
+	@Column(nullable = true)
+    private Date birthday;
 
 	public Long getId() {
 		return id;
@@ -85,6 +88,15 @@ public class User implements Serializable {
 
 	public String getPassword(){return password;}
 
-	public void setCreationDate(){this.date = new java.util.Date();}
+	public void setCreationDate(){this.creationDate = new java.util.Date();}
 
+	public Date getCreationDate(){return creationDate;}
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
 }
