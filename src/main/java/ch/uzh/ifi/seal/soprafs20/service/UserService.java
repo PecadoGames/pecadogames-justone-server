@@ -111,6 +111,11 @@ public class UserService {
         return user;
     }
 
+    public boolean isAlreadyLoggedIn(String username){
+        User user = userRepository.findByUsername(username);
+        return user.getStatus() == UserStatus.ONLINE;
+    }
+
     public User logoutUser(User findUser){
         User user;
         Long id = findUser.getId();

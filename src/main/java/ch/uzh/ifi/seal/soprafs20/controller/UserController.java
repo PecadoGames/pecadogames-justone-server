@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.SopraServiceException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
@@ -8,6 +9,7 @@ import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,15 +68,27 @@ public class UserController {
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserGetDTO loginUser(@RequestBody UserPostDTO userPostDTO) {
+    public void login(@RequestBody UserPostDTO userPostDTO) {
+        User createdUser;
+
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+        try {
+            if (userService.isAlreadyLoggedIn(userInput.getUsername())) {
+                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "User is already logged in.");
+            }
+        }
+        catch (NullPointerException error){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credentials are incorrect", error);
+        }
 
-        // check password
-        User createdUser = userService.loginUser(userInput);
-
-        // convert internal representation of user back to API
-        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+        try{
+            // check password
+            createdUser = userService.loginUser(userInput);
+        }
+        catch (SopraServiceException error){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credentials are incorrect", error);
+        }
     }
 
     @PutMapping("/logout")
