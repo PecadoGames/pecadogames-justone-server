@@ -2,15 +2,19 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.SopraServiceException;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.LoginPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,28 +55,43 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
+    @PutMapping("/users/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void updateUser(@PathVariable long id, @RequestBody UserPutDTO userPutDTO) {
+        User user = userService.getUser(id);
+        userService.updateUser(user, userPutDTO);
+    }
+
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserGetDTO createUser(@RequestBody UserPostDTO userPostDTO) {
+    public ResponseEntity<Object> createUser(@RequestBody UserPostDTO userPostDTO) {
+        User createdUser;
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
         // create user
-        User createdUser = userService.createUser(userInput);
+        try{
+            createdUser = userService.createUser(userInput);
+        }
+        catch(SopraServiceException error){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists", error);
+        }
 
         // convert internal representation of user back to API
-        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(createdUser.getId()).toUri();
+        return ResponseEntity.created(location).build();
     }
 
-    @PostMapping("/login")
+    @PutMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void login(@RequestBody UserPostDTO userPostDTO) {
-        User createdUser;
+    public void login(@RequestBody LoginPutDTO loginPutDTO) {
 
         // convert API user to internal representation
-        User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+        User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
         try {
             if (userService.isAlreadyLoggedIn(userInput.getUsername())) {
                 throw new ResponseStatusException(HttpStatus.NO_CONTENT, "User is already logged in.");
@@ -84,7 +103,7 @@ public class UserController {
 
         try{
             // check password
-            createdUser = userService.loginUser(userInput);
+            userService.loginUser(userInput);
         }
         catch (SopraServiceException error){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credentials are incorrect", error);

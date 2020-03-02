@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.SopraServiceException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class UserService {
             return user;
         }
         else{
-            String baseErrorMessage = "User with ID {} not found.";
+            String baseErrorMessage = "User with ID %d not found.";
             throw new SopraServiceException(String.format(baseErrorMessage, id));
         }
     }
@@ -74,31 +75,25 @@ public class UserService {
      */
     private void checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-        User userByName = userRepository.findByName(userToBeCreated.getName());
 
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-        if (userByUsername != null && userByName != null) {
-            throw new SopraServiceException(String.format(baseErrorMessage, "username and the name", "are"));
-        }
-        else if (userByUsername != null) {
+        if (userByUsername != null) {
             throw new SopraServiceException(String.format(baseErrorMessage, "username", "is"));
-        }
-        else if (userByName != null) {
-            throw new SopraServiceException(String.format(baseErrorMessage, "name", "is"));
         }
     }
 
-    public User loginUser(User user) {
-        user.setToken(UUID.randomUUID().toString());
-        user.setStatus(UserStatus.ONLINE);
+    public void loginUser(User user) {
 
-        User userByUsername = userRepository.findByUsername(user.getUsername());
+        User foundUser = userRepository.findByUsername(user.getUsername());
 
-        if(userByUsername == null){
+        foundUser.setToken(UUID.randomUUID().toString());
+        foundUser.setStatus(UserStatus.ONLINE);
+
+        if(foundUser.getId() == null){
             throw new SopraServiceException("Can't find matching username and password.");
         }
 
-        String enteredPassword = user.getPassword();
+        String enteredPassword = foundUser.getPassword();
         String storedPassword = userRepository.findByUsername(user.getUsername()).getPassword();
 
         if(!enteredPassword.equals(storedPassword)){
@@ -108,7 +103,6 @@ public class UserService {
         // saves the given entity but data is only persisted in the database once flush() is called
 
         log.debug("User {} has logged in.", user);
-        return user;
     }
 
     public boolean isAlreadyLoggedIn(String username){
@@ -136,4 +130,15 @@ public class UserService {
         return user;
     }
 
+    public void updateUser(User user, UserPutDTO receivedValues){
+        if(userRepository.findByUsername(receivedValues.getUsername()) != null){
+            throw new SopraServiceException("This username already exists.");
+        }
+        if(!user.getToken().equals(receivedValues.getToken())){
+            throw new SopraServiceException("Wrong token.");
+        }
+        if(receivedValues.getUsername() != null){user.setUsername(receivedValues.getUsername());}
+        if(receivedValues.getPassword() != null){user.setPassword(receivedValues.getPassword());}
+        if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
+    }
 }
