@@ -76,7 +76,7 @@ public class UserController {
             createdUser = userService.createUser(userInput);
         }
         catch(SopraServiceException error){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists", error);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
         }
 
         // convert internal representation of user back to API
