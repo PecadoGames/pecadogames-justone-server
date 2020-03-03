@@ -60,6 +60,7 @@ public class UserController {
         userService.updateUser(user, userPutDTO);
     }
 
+    @CrossOrigin(exposedHeaders = "Location")
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
