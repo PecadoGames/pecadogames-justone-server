@@ -110,7 +110,7 @@ public class UserService {
         return user.getStatus() == UserStatus.ONLINE;
     }
 
-    public User logoutUser(User findUser){
+    public void logoutUser(User findUser){
         User user;
         Long id = findUser.getId();
         Optional<User> optional = userRepository.findById(id);
@@ -127,7 +127,6 @@ public class UserService {
         else{
             throw new SopraServiceException("Can't find matching user.");
         }
-        return user;
     }
 
     public void updateUser(User user, UserPutDTO receivedValues){
