@@ -82,7 +82,7 @@ public class UserService {
         }
     }
 
-    public void loginUser(User user) {
+    public User loginUser(User user) {
 
         User foundUser = userRepository.findByUsername(user.getUsername());
 
@@ -103,6 +103,8 @@ public class UserService {
         // saves the given entity but data is only persisted in the database once flush() is called
 
         log.debug("User {} has logged in.", user);
+
+        return foundUser;
     }
 
     public boolean isAlreadyLoggedIn(String username){
@@ -137,7 +139,6 @@ public class UserService {
             throw new SopraServiceException("Wrong token.");
         }
         if(receivedValues.getUsername() != null){user.setUsername(receivedValues.getUsername());}
-        if(receivedValues.getPassword() != null){user.setPassword(receivedValues.getPassword());}
         if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
     }
 }

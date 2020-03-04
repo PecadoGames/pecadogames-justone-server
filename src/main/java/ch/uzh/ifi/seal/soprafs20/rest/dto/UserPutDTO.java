@@ -7,7 +7,6 @@ import java.util.Date;
 public class UserPutDTO {
 
     private String username;
-    private String password;
     private Date birthday;
     private String token;
 
@@ -17,17 +16,14 @@ public class UserPutDTO {
         this.username = username;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
     public void setBirthday(String birthday) throws ParseException {
+        if(birthday == null){
+            this.birthday = null;
+        }
+        else{
         birthday = birthday+" 01:00:00";
         this.birthday = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").parse(birthday);
+        }
     }
 
     public Date getBirthday() {

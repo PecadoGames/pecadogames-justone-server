@@ -56,8 +56,17 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void updateUser(@PathVariable long id, @RequestBody UserPutDTO userPutDTO) {
-        User user = userService.getUser(id);
-        userService.updateUser(user, userPutDTO);
+        User user;
+        try{
+            user = userService.getUser(id);
+        }catch (SopraServiceException error){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Couldn't find user.");
+        }
+        try{
+            userService.updateUser(user, userPutDTO);
+        }catch (SopraServiceException error){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error during the update of the user");
+        }
     }
 
     @CrossOrigin(exposedHeaders = "Location")
@@ -83,10 +92,12 @@ public class UserController {
         return ResponseEntity.created(location).build();
     }
 
+    @CrossOrigin(exposedHeaders = "Location")
     @PutMapping("/login")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void login(@RequestBody LoginPutDTO loginPutDTO) {
+    public ResponseEntity<Object> login(@RequestBody LoginPutDTO loginPutDTO) {
+        User user;
 
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
@@ -101,11 +112,14 @@ public class UserController {
 
         try{
             // check password
-            userService.loginUser(userInput);
+            user = userService.loginUser(userInput);
         }
         catch (SopraServiceException error){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credentials are incorrect", error);
         }
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{id}")
+                .buildAndExpand(user.getId()).toUri();
+        return ResponseEntity.created(location).build();
     }
 
     @PutMapping("/logout")
