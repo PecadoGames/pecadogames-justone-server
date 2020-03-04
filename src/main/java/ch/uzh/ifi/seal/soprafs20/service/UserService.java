@@ -118,7 +118,7 @@ public class UserService {
         Optional<User> optional = userRepository.findById(id);
         if(optional.isPresent()){
             user = optional.get();
-            if(user.getToken().equals(findUser.getToken())){
+            if(user.getStatus() == UserStatus.OFFLINE || user.getToken().equals(findUser.getToken())){
                 user.setStatus(UserStatus.OFFLINE);
                 user.setToken(null);
             }
