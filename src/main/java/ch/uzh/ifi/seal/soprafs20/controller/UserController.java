@@ -29,7 +29,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/users")
+    @GetMapping(path = "/users", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<UserGetDTO> getAllUsers() {
@@ -44,7 +44,7 @@ public class UserController {
         return userGetDTOs;
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping(path = "/users/{id}", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public UserGetDTO getUser(@PathVariable long id) {
@@ -52,25 +52,27 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
-    @PutMapping("/users/{id}")
+    @PutMapping(path = "/users/{id}", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void updateUser(@PathVariable long id, @RequestBody UserPutDTO userPutDTO) {
         User user;
         try{
             user = userService.getUser(id);
-        }catch (SopraServiceException error){
+        }
+        catch (SopraServiceException error){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Couldn't find user.");
         }
         try{
             userService.updateUser(user, userPutDTO);
-        }catch (SopraServiceException error){
+        }
+        catch (SopraServiceException error){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error during the update of the user");
         }
     }
 
     @CrossOrigin(exposedHeaders = "Location")
-    @PostMapping("/users")
+    @PostMapping(path = "/users", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResponseEntity<Object> createUser(@RequestBody UserPostDTO userPostDTO) {
@@ -93,7 +95,7 @@ public class UserController {
     }
 
     @CrossOrigin(exposedHeaders = "Location")
-    @PutMapping("/login")
+    @PutMapping(path = "/login", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public ResponseEntity<Object> login(@RequestBody LoginPutDTO loginPutDTO) {
@@ -122,7 +124,7 @@ public class UserController {
         return ResponseEntity.created(location).build();
     }
 
-    @PutMapping("/logout")
+    @PutMapping(path = "/logout", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void logoutUser(@RequestBody LogoutPutDTO logoutPutDTO){
