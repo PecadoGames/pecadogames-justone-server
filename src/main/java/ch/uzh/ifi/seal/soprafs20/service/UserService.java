@@ -93,7 +93,7 @@ public class UserService {
             throw new SopraServiceException("Can't find matching username and password.");
         }
 
-        String enteredPassword = foundUser.getPassword();
+        String enteredPassword = user.getPassword();
         String storedPassword = userRepository.findByUsername(user.getUsername()).getPassword();
 
         if(!enteredPassword.equals(storedPassword)){
