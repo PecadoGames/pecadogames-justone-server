@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.Null;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,15 +40,18 @@ public class UserService {
 
     public User getUser(Long id){
         User user;
-        Optional<User> optional = userRepository.findById(id);
-        if(optional.isPresent()){
-            user = optional.get();
-            return user;
+        try{
+            Optional<User> optional = userRepository.findById(id);
+            if(optional.isPresent()){
+                user = optional.get();
+                return user;
+            }
         }
-        else{
+        catch (NullPointerException error){
             String baseErrorMessage = "User with ID %d not found.";
             throw new SopraServiceException(String.format(baseErrorMessage, id));
         }
+        return null;
     }
 
     public User createUser(User newUser) {
@@ -86,12 +90,15 @@ public class UserService {
 
         User foundUser = userRepository.findByUsername(user.getUsername());
 
-        foundUser.setToken(UUID.randomUUID().toString());
-        foundUser.setStatus(UserStatus.ONLINE);
-
-        if(foundUser.getId() == null){
+        try{
+            foundUser.getId();
+        }
+        catch (NullPointerException error){
             throw new SopraServiceException("Can't find matching username and password.");
         }
+
+        foundUser.setToken(UUID.randomUUID().toString());
+        foundUser.setStatus(UserStatus.ONLINE);
 
         String enteredPassword = user.getPassword();
         String storedPassword = userRepository.findByUsername(user.getUsername()).getPassword();

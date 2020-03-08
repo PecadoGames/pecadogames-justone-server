@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.SopraServiceException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPostDTO;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -16,15 +17,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * UserControllerTest
@@ -44,9 +46,12 @@ public class UserControllerTest {
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
         // given
         User user = new User();
-        user.setName("Firstname Lastname");
+        Date birthday = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").parse("01.01.2001 01:00:00");
         user.setUsername("firstname@lastname");
         user.setStatus(UserStatus.OFFLINE);
+        user.setBirthday(birthday);
+        user.setCreationDate();
+        user.setToken("1");
 
         List<User> allUsers = Collections.singletonList(user);
 
@@ -59,9 +64,13 @@ public class UserControllerTest {
         // then
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name", is(user.getName())))
                 .andExpect(jsonPath("$[0].username", is(user.getUsername())))
-                .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+                .andExpect(jsonPath("$[0].logged_in", is(user.getStatus() == UserStatus.ONLINE)))
+                .andExpect(jsonPath("$[0].creation_date", is(
+                        user.getCreationDate().toInstant().toString().replace("Z", "+0000"))))
+                .andExpect(jsonPath(("$[0].birthday"), is(
+                        user.getBirthday().toInstant().toString().replace("Z", ".000+0000"))))
+                .andExpect(jsonPath("$[0].token", is(user.getToken())));
     }
 
     @Test
@@ -71,12 +80,13 @@ public class UserControllerTest {
         user.setId(1L);
         user.setName("Test User");
         user.setUsername("testUsername");
+        user.setPassword("test");
         user.setToken("1");
         user.setStatus(UserStatus.ONLINE);
 
         UserPostDTO userPostDTO = new UserPostDTO();
-        userPostDTO.setName("Test User");
         userPostDTO.setUsername("testUsername");
+        userPostDTO.setPassword("test");
 
         given(userService.createUser(Mockito.any())).willReturn(user);
 
@@ -88,10 +98,7 @@ public class UserControllerTest {
         // then
         mockMvc.perform(postRequest)
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", is(user.getId().intValue())))
-                .andExpect(jsonPath("$.name", is(user.getName())))
-                .andExpect(jsonPath("$.username", is(user.getUsername())))
-                .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
+                .andExpect(header().exists("Location"));
     }
 
     /**
