@@ -29,6 +29,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping(path = "/users", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -44,6 +45,7 @@ public class UserController {
         return userGetDTOs;
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping(path = "/users/{id}", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -52,6 +54,7 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
+    @CrossOrigin(origins = "*")
     @PutMapping(path = "/users/{id}", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
@@ -71,7 +74,7 @@ public class UserController {
         }
     }
 
-    @CrossOrigin(exposedHeaders = "Location")
+    @CrossOrigin(exposedHeaders = "Location", origins = "*")
     @PostMapping(path = "/users", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
@@ -94,7 +97,7 @@ public class UserController {
         return ResponseEntity.created(location).build();
     }
 
-    @CrossOrigin(exposedHeaders = "Location")
+    @CrossOrigin(exposedHeaders = "Location", origins = "*")
     @PutMapping(path = "/login", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
@@ -124,6 +127,7 @@ public class UserController {
         return ResponseEntity.created(location).build();
     }
 
+    @CrossOrigin(origins = "*")
     @PutMapping(path = "/logout", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
