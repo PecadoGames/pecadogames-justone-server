@@ -108,8 +108,13 @@ public class UserService {
     }
 
     public boolean isAlreadyLoggedIn(String username){
+        try{
         User user = userRepository.findByUsername(username);
         return user.getStatus() == UserStatus.ONLINE;
+        }
+        catch (NullPointerException error){
+            throw new SopraServiceException("Can't find matching user.");
+        }
     }
 
     public void logoutUser(User findUser){
