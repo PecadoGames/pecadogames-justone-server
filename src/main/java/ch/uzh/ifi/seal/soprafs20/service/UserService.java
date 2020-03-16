@@ -61,12 +61,13 @@ public class UserService {
         return newUser;
     }
 
-    private void checkIfUserExists(User userToBeCreated) {
+    private boolean checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
         if (userByUsername != null) {
             throw new ConflictException(String.format(baseErrorMessage, "username", "is"));
         }
+        return true;
     }
 
     public User loginUser(User user) {
@@ -90,10 +91,11 @@ public class UserService {
         return foundUser;
     }
 
-    public void isAlreadyLoggedIn(User user){
+    public boolean isAlreadyLoggedIn(User user){
         if (user.getStatus() == UserStatus.ONLINE){
             throw new NoContentException("User already logged in!");
         }
+        return true;
     }
 
     public void logoutUser(User findUser){

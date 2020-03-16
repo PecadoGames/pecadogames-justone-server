@@ -125,11 +125,11 @@ public class UserServiceTest {
         // when -> any object is being save in the userRepository -> return the dummy testUser
         User createdUser = userService.createUser(testUser);
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
-        assertTrue(userService.isAlreadyLoggedIn(createdUser.getUsername()));
+        assertTrue(userService.isAlreadyLoggedIn(createdUser));
 
         userService.logoutUser(createdUser);
 
-        assertFalse(userService.isAlreadyLoggedIn(createdUser.getUsername()));
+        assertTrue(userService.isAlreadyLoggedIn(createdUser));
     }
 
     @Test
