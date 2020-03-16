@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.exceptions;
 
+import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.servlet.http.HttpServletRequest;
 
-@ControllerAdvice
+@ControllerAdvice(annotations = RestController.class)
 public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
 
     private final Logger log = LoggerFactory.getLogger(GlobalExceptionAdvice.class);
@@ -26,24 +27,60 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.CONFLICT, request);
     }
 
-    @ExceptionHandler(SopraServiceException.class)
+    @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public SopraServiceException handleBadRequestException(SopraServiceException ex) {
-        log.error(String.format("SopraServiceException raised:%s", ex));
-        return ex;
+    public ResponseEntity handleBadRequestException(BadRequestException ex) {
+        log.error(String.format("BadRequestException raised:%s", ex));
+        return new ResponseEntity(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity handleBadRequestException(UnauthorizedException ex) {
+        log.error(String.format("BadRequestException raised:%s", ex));
+        return new ResponseEntity(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(NoContentException.class)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity handleBadRequestException(NoContentException ex) {
+        log.error(String.format("AlreadyLogInException raised:%s", ex));
+        return new ResponseEntity(ex.getMessage(), HttpStatus.NO_CONTENT);
+    }
+
+    @ExceptionHandler(NotAcceptableException.class)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity handleBadRequestException(NotAcceptableException ex) {
+        log.error(String.format("AlreadyLogInException raised:%s", ex));
+        return new ResponseEntity(ex.getMessage(), HttpStatus.NO_CONTENT);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity handleBadRequestException(NotFoundException ex) {
+        log.error(String.format("ChangeUserException raised:%s", ex));
+        return new ResponseEntity(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity handleBadRequestException(ConflictException ex) {
+        log.error(String.format("ChangeUserException raised:%s", ex));
+        return new ResponseEntity(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(TransactionSystemException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public void handleTransactionSystemException(Exception ex, HttpServletRequest request) {
+    public ResponseEntity handleTransactionSystemException(Exception ex, HttpServletRequest request) {
         log.error(String.format("Request: %s raised %s", request.getRequestURL(), ex));
+        return new ResponseEntity(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    // Keep this one disable for all testing purposes -> it shows more detail with this one disabled
+    //Keep this one disable for all testing purposes -> it shows more detail with this one disabled
     @ExceptionHandler(HttpServerErrorException.InternalServerError.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Exception handleException(Exception ex) {
+    public ResponseEntity handleException(Exception ex) {
         log.error(String.format("Exception raised:%s", ex));
-        return ex;
+        return new ResponseEntity(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

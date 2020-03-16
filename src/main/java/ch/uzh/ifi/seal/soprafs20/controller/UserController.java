@@ -1,7 +1,8 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.SopraServiceException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
@@ -57,18 +58,8 @@ public class UserController {
     @ResponseBody
     public void updateUser(@PathVariable long id, @RequestBody UserPutDTO userPutDTO) {
         User user;
-        try{
-            user = userService.getUser(id);
-        }
-        catch (SopraServiceException error){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Couldn't find user.");
-        }
-        try{
-            userService.updateUser(user, userPutDTO);
-        }
-        catch (SopraServiceException error){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error during the update of the user");
-        }
+        user = userService.getUser(id);
+        userService.updateUser(user, userPutDTO);
     }
 
     @CrossOrigin(exposedHeaders = "Location")
@@ -81,12 +72,7 @@ public class UserController {
         User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
         // create user
-        try{
-            createdUser = userService.createUser(userInput);
-        }
-        catch(SopraServiceException error){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
-        }
+        createdUser = userService.createUser(userInput);
 
         // convert internal representation of user back to API
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -103,22 +89,10 @@ public class UserController {
 
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
-        try {
-            if (userService.isAlreadyLoggedIn(userInput.getUsername())) {
-                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "User is already logged in.");
-            }
-        }
-        catch (SopraServiceException error){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credentials are incorrect");
-        }
 
-        try{
-            // check password
-            user = userService.loginUser(userInput);
-        }
-        catch (SopraServiceException error){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credentials are incorrect");
-        }
+        // check password
+        user = userService.loginUser(userInput);
+
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{id}")
                 .buildAndExpand(user.getId()).toUri();
         return ResponseEntity.created(location).build();

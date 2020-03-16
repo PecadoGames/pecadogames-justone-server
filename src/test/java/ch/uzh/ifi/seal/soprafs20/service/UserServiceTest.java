@@ -2,7 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.SopraServiceException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,7 +63,7 @@ public class UserServiceTest {
 
         // then -> attempt to create second user with same user -> check that an error is thrown
         String exceptionMessage = "The username provided is not unique. Therefore, the user could not be created!";
-        SopraServiceException exception = assertThrows(SopraServiceException.class, () -> userService.createUser(testUser), exceptionMessage);
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> userService.createUser(testUser), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
     }
 
@@ -78,7 +77,7 @@ public class UserServiceTest {
 
         // then -> attempt to create second user with same user -> check that an error is thrown
         String exceptionMessage = "User with ID 1 not found.";
-        SopraServiceException exception = assertThrows(SopraServiceException.class, () -> userService.getUser(1L), exceptionMessage);
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> userService.getUser(1L), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
     }
 
@@ -117,7 +116,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(null);
 
         String exceptionMessage = "Can't find matching username and password.";
-        SopraServiceException exception = assertThrows(SopraServiceException.class, () -> userService.loginUser(testUser), exceptionMessage);
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> userService.loginUser(testUser), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
     }
 
@@ -144,7 +143,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
 
         String exceptionMessage = "Wrong token.";
-        SopraServiceException exception = assertThrows(SopraServiceException.class, () -> userService.logoutUser(testUser2), exceptionMessage);
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> userService.logoutUser(testUser2), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
 
     }

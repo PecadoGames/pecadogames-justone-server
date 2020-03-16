@@ -2,7 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.SopraServiceException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import org.slf4j.Logger;
@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.validation.constraints.Null;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,25 +38,19 @@ public class UserService {
 
     public User getUser(Long id){
         User user;
-        try{
-            Optional<User> optional = userRepository.findById(id);
-            if(optional.isPresent()){
-                user = optional.get();
-                return user;
-            }
+        Optional<User> optional = userRepository.findById(id);
+        if(optional.isPresent()){
+            user = optional.get();
+            return user;
         }
-        catch (NullPointerException error){
-            String baseErrorMessage = "User with ID %d not found.";
-            throw new SopraServiceException(String.format(baseErrorMessage, id));
+        else{throw new NotFoundException("Couldn't find user.");
         }
-        return null;
     }
 
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.ONLINE);
         newUser.setCreationDate();
-
         checkIfUserExists(newUser);
 
         // saves the given entity but data is only persisted in the database once flush() is called
@@ -69,58 +61,38 @@ public class UserService {
         return newUser;
     }
 
-    /**
-     * This is a helper method that will check the uniqueness criteria of the username and the name
-     * defined in the User entity. The method will do nothing if the input is unique and throw an error otherwise.
-     *
-     * @param userToBeCreated
-     * @throws SopraServiceException
-     * @see ch.uzh.ifi.seal.soprafs20.entity.User
-     */
     private void checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
         if (userByUsername != null) {
-            throw new SopraServiceException(String.format(baseErrorMessage, "username", "is"));
+            throw new ConflictException(String.format(baseErrorMessage, "username", "is"));
         }
     }
 
     public User loginUser(User user) {
-
         User foundUser = userRepository.findByUsername(user.getUsername());
-
-        try{
-            foundUser.getId();
+        if(foundUser == null){
+            throw new NotFoundException("Can't find matching username and password.");
         }
-        catch (NullPointerException error){
-            throw new SopraServiceException("Can't find matching username and password.");
-        }
-
-        foundUser.setToken(UUID.randomUUID().toString());
-        foundUser.setStatus(UserStatus.ONLINE);
 
         String enteredPassword = user.getPassword();
         String storedPassword = userRepository.findByUsername(user.getUsername()).getPassword();
 
         if(!enteredPassword.equals(storedPassword)){
-            throw new SopraServiceException("Can't find matching username and password.");
+            throw new NotFoundException("Can't find matching username and password.");
         }
+        isAlreadyLoggedIn(foundUser);
 
-        // saves the given entity but data is only persisted in the database once flush() is called
-
+        foundUser.setToken(UUID.randomUUID().toString());
+        foundUser.setStatus(UserStatus.ONLINE);
         log.debug("User {} has logged in.", user);
 
         return foundUser;
     }
 
-    public boolean isAlreadyLoggedIn(String username){
-        try{
-        User user = userRepository.findByUsername(username);
-        return user.getStatus() == UserStatus.ONLINE;
-        }
-        catch (NullPointerException error){
-            throw new SopraServiceException("Can't find matching user.");
+    public void isAlreadyLoggedIn(User user){
+        if (user.getStatus() == UserStatus.ONLINE){
+            throw new NoContentException("User already logged in!");
         }
     }
 
@@ -130,25 +102,26 @@ public class UserService {
         Optional<User> optional = userRepository.findById(id);
         if(optional.isPresent()){
             user = optional.get();
-            if(user.getStatus() == UserStatus.OFFLINE || user.getToken().equals(findUser.getToken())){
+            if(user.getStatus() == UserStatus.ONLINE && user.getToken().equals(findUser.getToken())){
                 user.setStatus(UserStatus.OFFLINE);
                 user.setToken(null);
             }
             else{
-                throw new SopraServiceException("Wrong token.");
+                throw new UnauthorizedException("Wrong token.");
             }
         }
         else{
-            throw new SopraServiceException("Can't find matching user.");
+            throw new NotFoundException("Can't find matching user.");
         }
     }
 
     public void updateUser(User user, UserPutDTO receivedValues){
+
         if(userRepository.findByUsername(receivedValues.getUsername()) != null){
-            throw new SopraServiceException("This username already exists.");
+            throw new ConflictException("This username already exists.");
         }
         if(!user.getToken().equals(receivedValues.getToken())){
-            throw new SopraServiceException("Wrong token.");
+            throw new UnauthorizedException("You are not allowed to change this user!.");
         }
         if(receivedValues.getUsername() != null){user.setUsername(receivedValues.getUsername());}
         if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
