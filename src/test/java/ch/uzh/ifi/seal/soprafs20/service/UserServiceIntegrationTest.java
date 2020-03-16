@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,7 +71,7 @@ public class UserServiceIntegrationTest {
 
         // check that an error is thrown
         String exceptionMessage = "The username provided is not unique. Therefore, the user could not be created!";
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> userService.createUser(testUser2), exceptionMessage);
+        ConflictException exception = assertThrows(ConflictException.class, () -> userService.createUser(testUser2), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
     }
 }
