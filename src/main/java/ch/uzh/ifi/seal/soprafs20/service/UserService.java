@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,7 @@ public class UserService {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.ONLINE);
         newUser.setCreationDate();
+        checkUsername(newUser.getUsername());
         checkIfUserExists(newUser);
 
         // saves the given entity but data is only persisted in the database once flush() is called
@@ -108,14 +110,9 @@ public class UserService {
                 user.setStatus(UserStatus.OFFLINE);
                 user.setToken(null);
             }
-            else{
-                throw new UnauthorizedException("Wrong token.");
-            }
-        }
-        else{
-            throw new NotFoundException("Can't find matching user.");
         }
     }
+
 
     public void updateUser(User user, UserPutDTO receivedValues){
 
@@ -125,7 +122,16 @@ public class UserService {
         if(!user.getToken().equals(receivedValues.getToken())){
             throw new UnauthorizedException("You are not allowed to change this user!.");
         }
+        if(receivedValues.getUsername()!=null){
+        checkUsername(receivedValues.getUsername());}
         if(receivedValues.getUsername() != null){user.setUsername(receivedValues.getUsername());}
         if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
+    }
+
+    public void checkUsername(String username){
+        if (username.contains(" ") || username.isEmpty() || username.length() > 20 || username.trim().isEmpty() ) {
+            throw new NotAcceptableException("This is an invalid username. Please max. 20 digits and no spaces.");
+        }
+
     }
 }

@@ -107,6 +107,7 @@ public class UserController {
 
         //logout user
         userService.logoutUser(userInput);
+
     }
 
 }

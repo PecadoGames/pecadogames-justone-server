@@ -77,7 +77,6 @@ public class UserControllerTest {
         // given
         User user = new User();
         user.setId(1L);
-        user.setName("Test User");
         user.setUsername("testUsername");
         user.setPassword("test");
         user.setToken("1");

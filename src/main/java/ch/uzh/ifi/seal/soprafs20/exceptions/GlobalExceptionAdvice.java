@@ -37,35 +37,35 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity handleBadRequestException(UnauthorizedException ex) {
-        log.error(String.format("BadRequestException raised:%s", ex));
+        log.error(String.format("UnauthorizedException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(NoContentException.class)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity handleBadRequestException(NoContentException ex) {
-        log.error(String.format("AlreadyLogInException raised:%s", ex));
+        log.error(String.format("NoContentException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler(NotAcceptableException.class)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     public ResponseEntity handleBadRequestException(NotAcceptableException ex) {
-        log.error(String.format("AlreadyLogInException raised:%s", ex));
-        return new ResponseEntity(ex.getMessage(), HttpStatus.NO_CONTENT);
+        log.error(String.format("NotAcceptableException raised:%s", ex));
+        return new ResponseEntity(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity handleBadRequestException(NotFoundException ex) {
-        log.error(String.format("ChangeUserException raised:%s", ex));
+        log.error(String.format("NotFoundException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity handleBadRequestException(ConflictException ex) {
-        log.error(String.format("ChangeUserException raised:%s", ex));
+        log.error(String.format("ConflictException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
