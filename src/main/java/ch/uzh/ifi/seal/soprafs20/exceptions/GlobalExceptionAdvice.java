@@ -36,35 +36,35 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity handleBadRequestException(UnauthorizedException ex) {
+    public ResponseEntity handleUnauthorizedException(UnauthorizedException ex) {
         log.error(String.format("UnauthorizedException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(NoContentException.class)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity handleBadRequestException(NoContentException ex) {
+    public ResponseEntity handleNoContentException(NoContentException ex) {
         log.error(String.format("NoContentException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler(NotAcceptableException.class)
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    public ResponseEntity handleBadRequestException(NotAcceptableException ex) {
+    public ResponseEntity handleNotAcceptableException(NotAcceptableException ex) {
         log.error(String.format("NotAcceptableException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity handleBadRequestException(NotFoundException ex) {
+    public ResponseEntity handleNotFoundException(NotFoundException ex) {
         log.error(String.format("NotFoundException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity handleBadRequestException(ConflictException ex) {
+    public ResponseEntity handleConflictException(ConflictException ex) {
         log.error(String.format("ConflictException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.CONFLICT);
     }
