@@ -41,6 +41,9 @@ public class User implements Serializable {
 	@Column(nullable = true)
     private Date birthday;
 
+	@Column
+    private int score;
+
 	public Long getId() {
 		return id;
 	}
@@ -88,4 +91,8 @@ public class User implements Serializable {
     public Date getBirthday() {
         return birthday;
     }
+
+    public int getScore(){return score;}
+
+    public void setScore(int score){this.score = score;}
 }
