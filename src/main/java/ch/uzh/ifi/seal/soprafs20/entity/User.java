@@ -32,8 +32,6 @@ public class User implements Serializable {
 	private String username;
 
 
-    @NotBlank
-    @NotEmpty
 	@Column(nullable = true, unique = true)
 	private String token;
 
