@@ -3,6 +3,8 @@ package ch.uzh.ifi.seal.soprafs20.entity;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -22,16 +24,25 @@ public class User implements Serializable {
 	@Id
 	@GeneratedValue
 	private Long id;
-	
+
+
+    @NotBlank
+    @NotEmpty
 	@Column(nullable = false, unique = true) 
 	private String username;
-	
+
+
+    @NotBlank
+    @NotEmpty
 	@Column(nullable = true, unique = true)
 	private String token;
 
 	@Column(nullable = false)
 	private UserStatus status;
 
+
+    @NotBlank
+    @NotEmpty
 	@Column(nullable = false)
     private String password;
 
