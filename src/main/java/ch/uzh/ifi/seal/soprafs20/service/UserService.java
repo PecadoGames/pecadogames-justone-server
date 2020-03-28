@@ -132,6 +132,5 @@ public class UserService {
         if (username.contains(" ") || username.isEmpty() || username.length() > 20 || username.trim().isEmpty() ) {
             throw new NotAcceptableException("This is an invalid username. Please max. 20 digits and no spaces.");
         }
-
     }
 }

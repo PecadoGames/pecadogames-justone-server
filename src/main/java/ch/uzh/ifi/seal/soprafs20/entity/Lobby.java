@@ -16,13 +16,10 @@ public class Lobby implements Serializable {
     @GeneratedValue
     private Long lobbyId;
 
-    @NotBlank
-    @NotEmpty
     @Column(nullable = false)
     String lobbyName;
 
-    @NotBlank
-    @NotEmpty
+
     @Column(nullable = false)
     Integer numberOfPlayers;
 
@@ -34,14 +31,11 @@ public class Lobby implements Serializable {
     long userId; //user id of lobby creator
 
 
-    @NotBlank
-    @NotEmpty
     @Column(nullable = false)
     String userToken;
 
-    @NotBlank
-    @NotEmpty
-    @Column(nullable = false)
+
+    @Column
     Integer numberOfBots;
 
     @Column
@@ -117,5 +111,9 @@ public class Lobby implements Serializable {
 
     public void setLobbyScore(Long lobbyScore) {
         this.lobbyScore = lobbyScore;
+    }
+
+    public void setLobbyId(Long lobbyId) {
+        this.lobbyId = lobbyId;
     }
 }

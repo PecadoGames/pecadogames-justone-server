@@ -57,7 +57,7 @@ public class LobbyService {
         Optional<Lobby> lobbyById = lobbyRepository.findByLobbyId(newLobby.getLobbyId());
 
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the lobby could not be created!";
-        if (!lobbyById.isPresent()) {
+        if (lobbyById.isPresent()) {
             throw new ConflictException(String.format(baseErrorMessage, "lobbyId", "is"));
         }
         return true;
