@@ -19,21 +19,17 @@ public class Lobby implements Serializable {
     @Column(nullable = false)
     String lobbyName;
 
-
     @Column(nullable = false)
     Integer numberOfPlayers;
-
 
     @Column(nullable = false)
     boolean voiceChat;
 
     @Column(nullable = false)
-    long userId; //user id of lobby creator
-
+    Long userId; //user id of lobby creator
 
     @Column(nullable = false)
     String userToken;
-
 
     @Column
     Integer numberOfBots;
@@ -73,7 +69,7 @@ public class Lobby implements Serializable {
         this.voiceChat = voiceChat;
     }
 
-    public long getUserId() {
+    public Long getUserId() {
         return userId;
     }
 

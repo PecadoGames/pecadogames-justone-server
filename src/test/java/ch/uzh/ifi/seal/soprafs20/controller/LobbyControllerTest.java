@@ -19,12 +19,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.Collections;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
 
@@ -38,13 +40,28 @@ public class LobbyControllerTest {
     @MockBean
     private LobbyService lobbyService;
 
-    private String asJsonString(final Object object) {
-        try {
-            return new ObjectMapper().writeValueAsString(object);
-        }
-        catch (JsonProcessingException e) {
-            throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
-        }
+    @Test
+    public void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
+        Lobby lobby = new Lobby();
+        lobby.setId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setNumberOfPlayers(5);
+        lobby.setVoiceChat(false);
+        lobby.setUserId(1234);
+
+        List<Lobby> allLobbies = Collections.singletonList(lobby);
+
+        given(lobbyService.getLobbies()).willReturn(allLobbies);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies").contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].lobbyId", is(lobby.getLobbyId().intValue())))
+                .andExpect(jsonPath("$[0].lobbyName", is(lobby.getLobbyName())))
+                .andExpect(jsonPath("$[0].numberOfPlayers", is(lobby.getNumberOfPlayers())))
+                .andExpect(jsonPath("$[0].voiceChat", is(lobby.isVoiceChat())))
+                .andExpect(jsonPath(("$[0].userId"), is(lobby.getUserId().intValue())));
     }
 
     @Test
@@ -101,5 +118,14 @@ public class LobbyControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isNoContent());
+    }
+
+    private String asJsonString(final Object object) {
+        try {
+            return new ObjectMapper().writeValueAsString(object);
+        }
+        catch (JsonProcessingException e) {
+            throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
+        }
     }
 }

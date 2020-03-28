@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -29,6 +30,21 @@ public class LobbyService {
         this.lobbyRepository = lobbyRepository;
     }
 
+    public List<Lobby> getLobbies() {
+        return this.lobbyRepository.findAll();
+    }
+
+    public Lobby getLobby(Long lobbyId){
+        Lobby lobby;
+        Optional<Lobby> optionalLobby = lobbyRepository.findByLobbyId(lobbyId);
+        if(optionalLobby.isPresent()){
+            lobby = optionalLobby.get();
+            return lobby;
+        } else {
+            throw new NotFoundException("Could not find lobby!");
+        }
+    }
+
     public Lobby createLobby(Lobby newLobby){
         checkLobbyName(newLobby.getLobbyName());
         checkIfLobbyExists(newLobby);
@@ -36,7 +52,6 @@ public class LobbyService {
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();
         return newLobby;
-
     }
 
     public Lobby updateLobby(Lobby lobby, LobbyPutDTO receivedValues){
@@ -68,17 +83,5 @@ public class LobbyService {
             throw new NotAcceptableException("This is an invalid username. Please max. 20 digits and no spaces.");
         }
     }
-
-    public Lobby getLobby(Long lobbyId){
-        Lobby lobby;
-        Optional<Lobby> optionalLobby = lobbyRepository.findByLobbyId(lobbyId);
-        if(optionalLobby.isPresent()){
-            lobby = optionalLobby.get();
-            return lobby;
-        } else {
-            throw new NotFoundException("Could not find lobby!");
-        }
-    }
-
 
 }

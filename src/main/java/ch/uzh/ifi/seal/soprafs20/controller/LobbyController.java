@@ -42,6 +42,21 @@ public class LobbyController {
         return ResponseEntity.created(location).build();
     }
 
+    @GetMapping(path = "/lobbies", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<LobbyGetDTO> getAllLobbies() {
+        // fetch all lobbies in the internal representation
+        List<Lobby> lobbies = lobbyService.getLobbies();
+        List<LobbyGetDTO> lobbyGetDTOs = new ArrayList<>();
+
+        // convert each lobby to the API representation
+        for (Lobby lobby : lobbies) {
+            lobbyGetDTOs.add(DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+        }
+        return lobbyGetDTOs;
+    }
+
 
     @PutMapping(path = "/lobbies/{lobbyId}", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)

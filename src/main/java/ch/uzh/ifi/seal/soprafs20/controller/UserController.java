@@ -30,6 +30,24 @@ public class UserController {
         this.userService = userService;
     }
 
+    @CrossOrigin(exposedHeaders = "Location")
+    @PostMapping(path = "/users", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public ResponseEntity<Object> createUser(@RequestBody UserPostDTO userPostDTO) {
+        User createdUser;
+        // convert API user to internal representation
+        User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+
+        // create user
+        createdUser = userService.createUser(userInput);
+
+        // convert internal representation of user back to API
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(createdUser.getId()).toUri();
+        return ResponseEntity.created(location).build();
+    }
+
     @GetMapping(path = "/users", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -60,24 +78,6 @@ public class UserController {
         User user;
         user = userService.getUser(id);
         userService.updateUser(user, userPutDTO);
-    }
-
-    @CrossOrigin(exposedHeaders = "Location")
-    @PostMapping(path = "/users", consumes = "application/json")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public ResponseEntity<Object> createUser(@RequestBody UserPostDTO userPostDTO) {
-        User createdUser;
-        // convert API user to internal representation
-        User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
-
-        // create user
-        createdUser = userService.createUser(userInput);
-
-        // convert internal representation of user back to API
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(createdUser.getId()).toUri();
-        return ResponseEntity.created(location).build();
     }
 
     @CrossOrigin(exposedHeaders = "Location")

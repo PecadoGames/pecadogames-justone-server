@@ -38,6 +38,14 @@ public interface DTOMapper {
     @Mapping(source = "id", target = "id")
     User convertLogoutPutDTOtoEntity(LogoutPutDTO logoutPutDTO);
 
+    @Mapping(source = "lobbyName", target = "lobbyName")
+    @Mapping(source = "numberOfPlayers", target = "numberOfPlayers")
+    @Mapping(source = "numberOfBots", target = "numberOfBots")
+    @Mapping(source = "voiceChat", target = "voiceChat")
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "token", target = "token")
+    @Mapping(source = "lobbyId", target = "lobbyId")
+    LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
 
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "numberOfPlayers", target = "numberOfPlayers")
