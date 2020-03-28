@@ -31,7 +31,7 @@ public class LobbyService {
 
     public Lobby createLobby(Lobby newLobby){
         checkLobbyName(newLobby.getLobbyName());
-        checkIfLobbyExists(newLobby);
+//        checkIfLobbyExists(newLobby);
 
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();

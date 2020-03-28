@@ -9,8 +9,8 @@ public class LobbyPostDTO {
 
     private Long userId;
 
-    private String token;
-    private Long lobbyId;
+    private String token; //user token!
+
 
 
     public String getLobbyName() {
@@ -53,11 +53,4 @@ public class LobbyPostDTO {
         this.token = token;
     }
 
-    public Long getLobbyId() {
-        return lobbyId;
-    }
-
-    public void setLobbyId(Long lobbyId) {
-        this.lobbyId = lobbyId;
-    }
 }

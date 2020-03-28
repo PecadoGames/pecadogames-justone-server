@@ -4,6 +4,8 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.CardReader;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
@@ -76,8 +78,41 @@ public class LobbyControllerTest {
                 .andExpect(header().exists("Location"));
     }
 
+
+
     @Test
-    public void updateExistingLobby() throws Exception {
+    public void updateExistingLobby_existingLobby() throws Exception {
+        Lobby lobby = new Lobby();
+        lobby.setId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setNumberOfPlayers(6);
+        lobby.setNumberOfBots(1);
+        lobby.setVoiceChat(true);
+        lobby.setUserId(1234);
+        lobby.setToken("2020");
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setLobbyName("Badbunny");
+        lobbyPutDTO.setNumberOfPlayers(6);
+        lobbyPutDTO.setVoiceChat(true);
+        lobbyPutDTO.setNumberOfBots(1);
+        lobbyPutDTO.setToken("2020");
+
+
+        when(lobbyService.updateLobby(Mockito.any(), Mockito.any())).thenReturn(lobby);
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}",lobby.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isNoContent());
+    }
+
+
+    @Test
+    public void updateExistingLobby_NotFound() throws Exception {
+        //given
         Lobby lobby = new Lobby();
         lobby.setId(1L);
         lobby.setLobbyName("Badbunny");
@@ -92,14 +127,34 @@ public class LobbyControllerTest {
         lobbyPutDTO.setVoiceChat(true);
         lobbyPutDTO.setNumberOfBots(1);
 
+        given(lobbyService.getLobby(Mockito.anyLong())).willThrow(new NotFoundException("Could not find lobby!"));
 
-        when(lobbyService.updateLobby(Mockito.any(), Mockito.any())).thenReturn(lobby);
-
-        MockHttpServletRequestBuilder putRequest = put("/lobbies/1")
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(lobbyPutDTO));
 
         mockMvc.perform(putRequest)
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void updateExistingLobby_wrongUser() throws Exception {
+        //given => nothing as lobby does not exist
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setLobbyName("Badbunny");
+        lobbyPutDTO.setNumberOfPlayers(6);
+        lobbyPutDTO.setVoiceChat(true);
+        lobbyPutDTO.setNumberOfBots(1);
+        lobbyPutDTO.setToken("0000");
+
+        given(lobbyService.updateLobby(Mockito.any(),Mockito.any())).willThrow(new UnauthorizedException("You are not allowed to change the settings of this lobby!"));
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}","1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isUnauthorized());
     }
 }
