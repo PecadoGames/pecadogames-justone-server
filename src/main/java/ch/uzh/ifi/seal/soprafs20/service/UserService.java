@@ -72,17 +72,17 @@ public class UserService {
         return true;
     }
 
-    public User loginUser(User user) {
+    public boolean loginUser(User user) {
         User foundUser = userRepository.findByUsername(user.getUsername());
         if(foundUser == null){
-            throw new NotFoundException("Can't find matching username and password.");
+            return false;
         }
 
         String enteredPassword = user.getPassword();
         String storedPassword = userRepository.findByUsername(user.getUsername()).getPassword();
 
         if(!enteredPassword.equals(storedPassword)){
-            throw new NotFoundException("Can't find matching username and password.");
+            return false;
         }
         isAlreadyLoggedIn(foundUser);
 
@@ -90,7 +90,7 @@ public class UserService {
         foundUser.setStatus(UserStatus.ONLINE);
         log.debug("User {} has logged in.", user);
 
-        return foundUser;
+        return true;
     }
 
     public boolean isAlreadyLoggedIn(User user){
@@ -100,7 +100,7 @@ public class UserService {
         return true;
     }
 
-    public void logoutUser(User findUser){
+    public boolean logoutUser(User findUser){
         User user;
         Long id = findUser.getId();
         Optional<User> optional = userRepository.findById(id);
@@ -110,7 +110,15 @@ public class UserService {
                 user.setStatus(UserStatus.OFFLINE);
                 user.setToken(null);
             }
+            else {
+                throw new UnauthorizedException("Logout is not allowed!");
+            }
         }
+        else {
+            String message = String.format("user with ID %s not found!", id.toString());
+            throw new NotFoundException(message);
+        }
+        return true;
     }
 
 

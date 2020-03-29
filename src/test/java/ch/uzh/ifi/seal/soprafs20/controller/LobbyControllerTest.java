@@ -126,16 +126,6 @@ public class LobbyControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-    private String asJsonString(final Object object) {
-        try {
-            return new ObjectMapper().writeValueAsString(object);
-        }
-        catch (JsonProcessingException e) {
-            throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
-        }
-    }
-
-
     @Test
     public void updateExistingLobby_NotFound() throws Exception {
         //given
@@ -182,5 +172,14 @@ public class LobbyControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isUnauthorized());
+    }
+
+    private String asJsonString(final Object object) {
+        try {
+            return new ObjectMapper().writeValueAsString(object);
+        }
+        catch (JsonProcessingException e) {
+            throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
+        }
     }
 }

@@ -25,12 +25,10 @@ public class User implements Serializable {
 	@GeneratedValue
 	private Long id;
 
-
     @NotBlank
     @NotEmpty
 	@Column(nullable = false, unique = true) 
 	private String username;
-
 
 	@Column(nullable = true, unique = true)
 	private String token;

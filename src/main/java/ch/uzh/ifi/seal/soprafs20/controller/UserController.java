@@ -80,28 +80,25 @@ public class UserController {
         userService.updateUser(user, userPutDTO);
     }
 
-    @CrossOrigin(exposedHeaders = "Location")
     @PutMapping(path = "/login", consumes = "application/json")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ResponseEntity<Object> login(@RequestBody LoginPutDTO loginPutDTO) {
-        User user;
+    public void login(@RequestBody LoginPutDTO loginPutDTO) {
 
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
 
         // check password
-        user = userService.loginUser(userInput);
+        if(!userService.loginUser(userInput)) {
+            throw new NotFoundException("user credentials are incorrect!");
+        }
 
-        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{id}")
-                .buildAndExpand(user.getId()).toUri();
-        return ResponseEntity.created(location).build();
     }
 
     @PutMapping(path = "/logout", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void logoutUser(@RequestBody LogoutPutDTO logoutPutDTO){
+    public void logout(@RequestBody LogoutPutDTO logoutPutDTO){
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertLogoutPutDTOtoEntity(logoutPutDTO);
 
