@@ -89,9 +89,7 @@ public class UserController {
         User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
 
         // check password
-        if(!userService.loginUser(userInput)) {
-            throw new NotFoundException("user credentials are incorrect!");
-        }
+        userService.loginUser(userInput);
 
     }
 

@@ -75,14 +75,14 @@ public class UserService {
     public boolean loginUser(User user) {
         User foundUser = userRepository.findByUsername(user.getUsername());
         if(foundUser == null){
-            return false;
+            throw new NotFoundException("user credentials are incorrect!");
         }
 
         String enteredPassword = user.getPassword();
         String storedPassword = userRepository.findByUsername(user.getUsername()).getPassword();
 
         if(!enteredPassword.equals(storedPassword)){
-            return false;
+            throw new NotFoundException("user credentials are incorrect!");
         }
         isAlreadyLoggedIn(foundUser);
 

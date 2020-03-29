@@ -109,12 +109,12 @@ public class UserServiceTest {
     }
 
     @Test
-    public void loginUser_invalidCredentials_success() {
+    public void loginUser_invalidCredentials_unsuccessful() {
         // when -> any object is being save in the userRepository -> return the dummy testUser
 
-        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(null);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
 
-        String exceptionMessage = "Can't find matching username and password.";
+        String exceptionMessage = "user credentials are incorrect!";
         NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.loginUser(testUser), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
     }
@@ -140,7 +140,7 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
 
-        String exceptionMessage = "Wrong token.";
+        String exceptionMessage = "Logout is not allowed!";
         UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser2), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
 
