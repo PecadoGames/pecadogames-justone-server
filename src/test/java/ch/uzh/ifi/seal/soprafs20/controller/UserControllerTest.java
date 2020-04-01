@@ -7,7 +7,6 @@ import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LoginPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LogoutPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPostDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,25 +14,21 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -161,8 +156,6 @@ public class UserControllerTest {
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
 
-        given(userService.loginUser(Mockito.any())).willReturn(true);
-
         MockHttpServletRequestBuilder putRequest = put("/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(loginPutDTO));
@@ -184,7 +177,7 @@ public class UserControllerTest {
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
 
-        given(userService.loginUser(Mockito.any())).willThrow(new NoContentException("message"));
+        Mockito.doThrow(new NoContentException("message")).when(userService).loginUser(Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -200,7 +193,7 @@ public class UserControllerTest {
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
 
-        given(userService.loginUser(Mockito.any())).willThrow(new NotFoundException("message"));
+        Mockito.doThrow(new NotFoundException("message")).when(userService).loginUser(Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -239,7 +232,7 @@ public class UserControllerTest {
         logoutPutDTO.setId(1L);
         logoutPutDTO.setToken("1");
 
-        given(userService.logoutUser(Mockito.any())).willThrow(new UnauthorizedException("message"));
+        Mockito.doThrow(new UnauthorizedException("message")).when(userService).logoutUser(Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/logout")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -255,7 +248,7 @@ public class UserControllerTest {
         logoutPutDTO.setId(1L);
         logoutPutDTO.setToken("1");
 
-        given(userService.logoutUser(Mockito.any())).willThrow(new NotFoundException("message"));
+        Mockito.doThrow(new NotFoundException("message")).when(userService).logoutUser(Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/logout")
                 .contentType(MediaType.APPLICATION_JSON)

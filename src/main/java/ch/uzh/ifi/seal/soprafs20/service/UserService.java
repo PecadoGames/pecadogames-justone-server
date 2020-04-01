@@ -63,7 +63,7 @@ public class UserService {
         return newUser;
     }
 
-    public boolean loginUser(User user) {
+    public void loginUser(User user) {
         User foundUser = userRepository.findByUsername(user.getUsername());
         if(foundUser == null){
             throw new NotFoundException("user credentials are incorrect!");
@@ -80,11 +80,9 @@ public class UserService {
         foundUser.setToken(UUID.randomUUID().toString());
         foundUser.setStatus(UserStatus.ONLINE);
         log.debug("User {} has logged in.", user);
-
-        return true;
     }
 
-    public boolean logoutUser(User findUser){
+    public void logoutUser(User findUser){
         User user;
         Long id = findUser.getId();
         Optional<User> optional = userRepository.findById(id);
@@ -102,7 +100,6 @@ public class UserService {
             String message = String.format("user with ID %s not found!", id.toString());
             throw new NotFoundException(message);
         }
-        return true;
     }
 
 
