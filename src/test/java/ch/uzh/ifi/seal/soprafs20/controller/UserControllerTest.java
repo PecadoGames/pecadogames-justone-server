@@ -161,7 +161,7 @@ public class UserControllerTest {
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
 
-        given(userService.loginUser(Mockito.any())).willReturn(true);
+        given(userService.loginUser(Mockito.any())).willReturn(user);
 
         MockHttpServletRequestBuilder putRequest = put("/login")
                 .contentType(MediaType.APPLICATION_JSON)
