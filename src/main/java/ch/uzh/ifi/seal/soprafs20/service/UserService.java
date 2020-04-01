@@ -72,7 +72,7 @@ public class UserService {
         return true;
     }
 
-    public boolean loginUser(User user) {
+    public User loginUser(User user) {
         User foundUser = userRepository.findByUsername(user.getUsername());
         if(foundUser == null){
             throw new NotFoundException("user credentials are incorrect!");
@@ -90,7 +90,7 @@ public class UserService {
         foundUser.setStatus(UserStatus.ONLINE);
         log.debug("User {} has logged in.", user);
 
-        return true;
+        return foundUser;
     }
 
     public boolean isAlreadyLoggedIn(User user){
@@ -109,6 +109,7 @@ public class UserService {
             if(user.getStatus() == UserStatus.ONLINE && user.getToken().equals(findUser.getToken())){
                 user.setStatus(UserStatus.OFFLINE);
                 user.setToken(null);
+                userRepository.save(user);
             }
             else {
                 throw new UnauthorizedException("Logout is not allowed!");

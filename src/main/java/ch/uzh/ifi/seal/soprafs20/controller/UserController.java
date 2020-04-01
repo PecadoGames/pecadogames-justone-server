@@ -80,17 +80,22 @@ public class UserController {
         userService.updateUser(user, userPutDTO);
     }
 
+    @CrossOrigin(exposedHeaders = "Location")
     @PutMapping(path = "/login", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void login(@RequestBody LoginPutDTO loginPutDTO) {
+    public ResponseEntity<Object> login(@RequestBody LoginPutDTO loginPutDTO) {
+        User user;
 
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
 
         // check password
-        userService.loginUser(userInput);
+        user = userService.loginUser(userInput);
 
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{id}")
+                .buildAndExpand(user.getId()).toUri();
+        return ResponseEntity.created(location).build();
     }
 
     @PutMapping(path = "/logout", consumes = "application/json")
