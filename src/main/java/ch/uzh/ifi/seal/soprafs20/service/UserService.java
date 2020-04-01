@@ -5,12 +5,12 @@ import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -63,15 +63,6 @@ public class UserService {
         return newUser;
     }
 
-    private boolean checkIfUserExists(User userToBeCreated) {
-        User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-        String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-        if (userByUsername != null) {
-            throw new ConflictException(String.format(baseErrorMessage, "username", "is"));
-        }
-        return true;
-    }
-
     public boolean loginUser(User user) {
         User foundUser = userRepository.findByUsername(user.getUsername());
         if(foundUser == null){
@@ -90,13 +81,6 @@ public class UserService {
         foundUser.setStatus(UserStatus.ONLINE);
         log.debug("User {} has logged in.", user);
 
-        return true;
-    }
-
-    public boolean isAlreadyLoggedIn(User user){
-        if (user.getStatus() == UserStatus.ONLINE){
-            throw new NoContentException("User already logged in!");
-        }
         return true;
     }
 
@@ -134,6 +118,22 @@ public class UserService {
         checkUsername(receivedValues.getUsername());}
         if(receivedValues.getUsername() != null){user.setUsername(receivedValues.getUsername());}
         if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
+    }
+
+    private boolean checkIfUserExists(User userToBeCreated) {
+        User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
+        String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+        if (userByUsername != null) {
+            throw new ConflictException(String.format(baseErrorMessage, "username", "is"));
+        }
+        return true;
+    }
+
+    public boolean isAlreadyLoggedIn(User user){
+        if (user.getStatus() == UserStatus.ONLINE){
+            throw new NoContentException("User already logged in!");
+        }
+        return true;
     }
 
     public void checkUsername(String username){
