@@ -2,7 +2,10 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.*;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NoContentException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import javax.validation.constraints.Null;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -109,11 +110,25 @@ public class UserServiceTest {
     }
 
     @Test
-    public void loginUser_invalidCredentials_unsuccessful() {
+    public void loginUser_invalidInput_throwsException() {
         // when -> any object is being save in the userRepository -> return the dummy testUser
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
 
+        String exceptionMessage = "user credentials are incorrect!";
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.loginUser(testUser), exceptionMessage);
+        assertEquals(exceptionMessage, exception.getMessage());
+    }
+
+    @Test
+    public void loginUser_invalidCredentials_throwsException() {
+        User createdUser = userService.createUser(testUser);
+        createdUser.setStatus(UserStatus.OFFLINE);
+        User falseUser = new User();
+        falseUser.setUsername("testUsername");
+        falseUser.setPassword("password");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(falseUser);
         String exceptionMessage = "user credentials are incorrect!";
         NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.loginUser(testUser), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
