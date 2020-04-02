@@ -132,6 +132,7 @@ public class UserServiceTest {
         String exceptionMessage = "user credentials are incorrect!";
         NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.loginUser(testUser), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
+        assertEquals(testUser.getStatus(), UserStatus.OFFLINE);
     }
 
     @Test
