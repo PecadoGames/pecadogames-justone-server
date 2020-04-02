@@ -112,9 +112,11 @@ public class UserService {
         if(!user.getToken().equals(receivedValues.getToken())){
             throw new UnauthorizedException("You are not allowed to change this user!.");
         }
-        if(receivedValues.getUsername()!=null){
-        checkUsername(receivedValues.getUsername());}
-        if(receivedValues.getUsername() != null){user.setUsername(receivedValues.getUsername());}
+        if(receivedValues.getUsername()!=null && !receivedValues.getUsername().isBlank() && !receivedValues.getUsername().isEmpty()
+                && receivedValues.getUsername().length() < 20 && receivedValues.getUsername().matches("[a-zA-Z_0-9]*")){
+            checkUsername(receivedValues.getUsername());
+            user.setUsername(receivedValues.getUsername());
+        }
         if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
     }
 
