@@ -91,6 +91,7 @@ public class UserService {
             if(user.getStatus() == UserStatus.ONLINE && user.getToken().equals(findUser.getToken())){
                 user.setStatus(UserStatus.OFFLINE);
                 user.setToken(null);
+                log.debug("User {} has logged out.", user);
             }
             else {
                 throw new UnauthorizedException("Logout is not allowed!");
