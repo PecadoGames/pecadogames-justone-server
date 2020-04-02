@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
@@ -136,18 +138,18 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testAlreadyLoggedIn() {
-        // when -> any object is being save in the userRepository -> return the dummy testUser
-        User createdUser = userService.createUser(testUser);
-        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+    public void logoutUser_invalidInput_throwsException() {
 
-        assertThrows(NoContentException.class, () ->userService.isAlreadyLoggedIn(createdUser));
-        userService.logoutUser(createdUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
+        String exceptionMessage = "not found";
+        String exceptionMessage2 = "user with ID";
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.logoutUser(testUser), exceptionMessage);
+        assertTrue(exception.getMessage().contains(exceptionMessage) && exception.getMessage().contains(exceptionMessage2));
     }
 
     @Test
-    public void logoutUser_invalidToken_unsuccessful() {
+    public void logoutUser_invalidToken_throwsException() {
         // when -> any object is being save in the userRepository -> return the dummy testUser
         User testUser2 = new User();
         testUser2.setId(1L);
@@ -159,6 +161,16 @@ public class UserServiceTest {
         String exceptionMessage = "Logout is not allowed!";
         UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser2), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
+        assertEquals(testUser2.getStatus(), UserStatus.ONLINE);
+    }
+
+    @Test
+    public void testAlreadyLoggedIn() {
+        // when -> any object is being save in the userRepository -> return the dummy testUser
+        User createdUser = userService.createUser(testUser);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+
+        assertThrows(NoContentException.class, () -> userService.isAlreadyLoggedIn(createdUser));
 
     }
 
