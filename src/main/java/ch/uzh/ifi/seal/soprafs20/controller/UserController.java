@@ -1,15 +1,12 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -75,8 +72,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void updateUser(@PathVariable long id, @RequestBody UserPutDTO userPutDTO) {
-        User user;
-        user = userService.getUser(id);
+        User user = userService.getUser(id);
         userService.updateUser(user, userPutDTO);
     }
 

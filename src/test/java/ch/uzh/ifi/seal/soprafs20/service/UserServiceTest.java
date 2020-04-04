@@ -7,6 +7,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.NoContentException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.text.ParseException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -162,6 +164,18 @@ public class UserServiceTest {
         UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser2), exceptionMessage);
         assertEquals(exceptionMessage, exception.getMessage());
         assertEquals(testUser2.getStatus(), UserStatus.ONLINE);
+    }
+
+    @Test
+    public void updateUser_validInput_success() throws ParseException {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("changedUsername");
+        userPutDTO.setBirthday("30.08.1997");
+        userPutDTO.setToken("testToken");
+
+        userService.updateUser(testUser, userPutDTO);
+        assertEquals(testUser.getUsername(), userPutDTO.getUsername());
+        assertEquals(testUser.getBirthday(), userPutDTO.getBirthday());
     }
 
     @Test

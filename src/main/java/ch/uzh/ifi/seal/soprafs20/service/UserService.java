@@ -103,7 +103,6 @@ public class UserService {
         }
     }
 
-
     public void updateUser(User user, UserPutDTO receivedValues){
 
         if(userRepository.findByUsername(receivedValues.getUsername()) != null){
