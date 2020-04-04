@@ -6,6 +6,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LoginPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LogoutPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.UserGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPostDTO;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,9 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -50,9 +49,15 @@ public class UserControllerTest {
 
     @Test
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
+        Calendar calndr = Calendar.getInstance();
+        String tmZ = calndr.getTimeZone().getDisplayName();
+
         // given
         User user = new User();
-        String birthday = "01.01.1998";
+        SimpleDateFormat sF = new SimpleDateFormat( "dd.MM.yyyy");
+        sF.setTimeZone(TimeZone.getTimeZone(tmZ));
+
+        Date birthday = sF.parse( "20.05.2010");
         user.setUsername("firstname@lastname");
         user.setStatus(UserStatus.OFFLINE);
         user.setBirthday(birthday);
@@ -66,6 +71,9 @@ public class UserControllerTest {
 
         // when
         MockHttpServletRequestBuilder getRequest = get("/users").contentType(MediaType.APPLICATION_JSON);
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
+        format.setTimeZone(TimeZone.getTimeZone(tmZ));
 
         // then
         mockMvc.perform(getRequest).andExpect(status().isOk())
@@ -75,8 +83,9 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].creation_date", is(
                         user.getCreationDate().toInstant().toString().replace("Z", "+0000"))))
                 .andExpect(jsonPath(("$[0].birthday"), is(
-                        user.getBirthday().toInstant().toString().replace("Z", ".000+0000"))))
+                        format.format(user.getBirthday()))))
                 .andExpect(jsonPath("$[0].token", is(user.getToken())));
+        System.out.println(jsonPath("$[0].birthday"));
     }
 
     @Test
@@ -87,6 +96,8 @@ public class UserControllerTest {
         user.setPassword("test");
         user.setToken("1");
         user.setStatus(UserStatus.ONLINE);
+        user.setCreationDate();
+
 
         given(userService.getUser(user.getId())).willReturn(user);
 

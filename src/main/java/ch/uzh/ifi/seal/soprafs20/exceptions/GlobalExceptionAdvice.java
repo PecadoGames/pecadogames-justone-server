@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.exceptions;
 
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,15 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity handleBadRequestException(BadRequestException ex) {
         log.error(String.format("BadRequestException raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+
+    //created to handle case where birthday input of client does not match needed input
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @Override
+    public ResponseEntity handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request){
+        log.error(String.format("HttpMessageNotReadable raised %s","Invalid date!"));
+        return new ResponseEntity("Invalid date!",HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
@@ -83,4 +93,8 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         log.error(String.format("Exception raised:%s", ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+
+
+
 }

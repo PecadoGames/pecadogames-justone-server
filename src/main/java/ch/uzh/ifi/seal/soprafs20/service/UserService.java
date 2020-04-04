@@ -5,12 +5,16 @@ import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
@@ -104,7 +108,7 @@ public class UserService {
         }
     }
 
-    public void updateUser(User user, UserPutDTO receivedValues) throws ParseException {
+    public void updateUser(User user, UserPutDTO receivedValues) throws JsonParseException {
 
         if(userRepository.findByUsername(receivedValues.getUsername()) != null){
             throw new ConflictException("This username already exists.");
@@ -112,12 +116,15 @@ public class UserService {
         if(!user.getToken().equals(receivedValues.getToken())){
             throw new UnauthorizedException("You are not allowed to change this user!.");
         }
-        if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
 
+        if (receivedValues.getBirthday() != null) {
+            user.setBirthday(receivedValues.getBirthday());
+        }
         if(receivedValues.getUsername()!=null){
             checkUsername(receivedValues.getUsername());
             user.setUsername(receivedValues.getUsername());
         }
+        userRepository.save(user);
 
     }
 
@@ -136,7 +143,7 @@ public class UserService {
     }
 
     public void checkUsername(String username){
-        if (username.contains(" ") || username.isEmpty() || username.isBlank() || username.length() > 20 || username.trim().isEmpty() || username.matches("[a-zA-Z_0-9]*")) {
+        if (username.contains(" ") || username.isEmpty() || username.isBlank() || username.length() > 20 || username.trim().isEmpty() || !username.matches("[a-zA-Z_0-9]*")) {
             throw new NotAcceptableException("This is an invalid username. Please max. 20 digits and no spaces.");
         }
     }

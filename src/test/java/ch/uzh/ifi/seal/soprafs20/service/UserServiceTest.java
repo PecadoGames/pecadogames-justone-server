@@ -15,7 +15,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -167,13 +169,15 @@ public class UserServiceTest {
     }
 
     @Test
-    public void updateUser_validInput_success() throws ParseException {
+    public void updateUser_validInput_success() throws Exception {
+
         UserPutDTO userPutDTO = new UserPutDTO();
         userPutDTO.setUsername("changedUsername");
-        userPutDTO.setBirthday("30.08.1997");
+        userPutDTO.setBirthday(new SimpleDateFormat( "dd.MM.yyyy" ).parse( "20.05.2010" ));
         userPutDTO.setToken("testToken");
 
         userService.updateUser(testUser, userPutDTO);
+
         assertEquals(testUser.getUsername(), userPutDTO.getUsername());
         assertEquals(testUser.getBirthday(), userPutDTO.getBirthday());
     }
