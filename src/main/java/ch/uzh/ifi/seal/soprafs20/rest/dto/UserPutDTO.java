@@ -1,5 +1,11 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
+import ch.uzh.ifi.seal.soprafs20.exceptions.GlobalExceptionAdvice;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -7,7 +13,7 @@ import java.util.Date;
 public class UserPutDTO {
 
     private String username;
-    private Date birthday;
+    private String birthday;
     private String token;
 
     public String getUsername(){return this.username;}
@@ -17,16 +23,10 @@ public class UserPutDTO {
     }
 
     public void setBirthday(String birthday) throws ParseException {
-        if(birthday == null){
-            this.birthday = null;
-        }
-        else{
-        birthday = birthday+" 01:00:00";
-        this.birthday = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").parse(birthday);
-        }
+        this.birthday = birthday;
     }
 
-    public Date getBirthday() {
+    public String getBirthday() {
         return birthday;
     }
 

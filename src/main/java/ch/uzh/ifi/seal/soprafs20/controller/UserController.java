@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class UserController {
     @PutMapping(path = "/users/{id}", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void updateUser(@PathVariable long id, @RequestBody UserPutDTO userPutDTO) {
+    public void updateUser(@PathVariable long id, @RequestBody UserPutDTO userPutDTO) throws ParseException {
         User user = userService.getUser(id);
         userService.updateUser(user, userPutDTO);
     }

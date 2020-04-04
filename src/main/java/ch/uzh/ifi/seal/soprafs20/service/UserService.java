@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -103,7 +104,7 @@ public class UserService {
         }
     }
 
-    public void updateUser(User user, UserPutDTO receivedValues){
+    public void updateUser(User user, UserPutDTO receivedValues) throws ParseException {
 
         if(userRepository.findByUsername(receivedValues.getUsername()) != null){
             throw new ConflictException("This username already exists.");
@@ -111,12 +112,14 @@ public class UserService {
         if(!user.getToken().equals(receivedValues.getToken())){
             throw new UnauthorizedException("You are not allowed to change this user!.");
         }
+        if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
+
         if(receivedValues.getUsername()!=null && !receivedValues.getUsername().isBlank() && !receivedValues.getUsername().isEmpty()
                 && receivedValues.getUsername().length() < 20 && receivedValues.getUsername().matches("[a-zA-Z_0-9]*")){
             checkUsername(receivedValues.getUsername());
             user.setUsername(receivedValues.getUsername());
         }
-        if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
+
     }
 
     private void checkIfUserExists(User userToBeCreated) {

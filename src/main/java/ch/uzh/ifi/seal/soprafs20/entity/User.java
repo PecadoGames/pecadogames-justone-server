@@ -1,11 +1,14 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -88,9 +91,21 @@ public class User implements Serializable {
 
 	public Date getCreationDate(){return creationDate;}
 
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
+    public void setBirthday(String birthday) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+        try {
+            if (birthday.matches("^(1[0-2]|0[1-9]).(3[01]|[12][0-9]|0[1-9]).[0-9]{4}$")) {
+//                birthday = birthday + " 01:00:00";
+                this.birthday = formatter.parse(birthday);
+            } else {
+                throw new NotFoundException("Invalid date!");
+            }
+        } catch (ParseException pa){
+            throw new NotFoundException("Invalid date!");
+        }
+//        throw new NotFoundException("Invalid date!");
     }
+
 
     public Date getBirthday() {
         return birthday;
