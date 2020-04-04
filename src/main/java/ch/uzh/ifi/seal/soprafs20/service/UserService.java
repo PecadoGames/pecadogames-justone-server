@@ -114,8 +114,7 @@ public class UserService {
         }
         if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
 
-        if(receivedValues.getUsername()!=null && !receivedValues.getUsername().isBlank() && !receivedValues.getUsername().isEmpty()
-                && receivedValues.getUsername().length() < 20 && receivedValues.getUsername().matches("[a-zA-Z_0-9]*")){
+        if(receivedValues.getUsername()!=null){
             checkUsername(receivedValues.getUsername());
             user.setUsername(receivedValues.getUsername());
         }
@@ -137,7 +136,7 @@ public class UserService {
     }
 
     public void checkUsername(String username){
-        if (username.contains(" ") || username.isEmpty() || username.length() > 20 || username.trim().isEmpty() ) {
+        if (username.contains(" ") || username.isEmpty() || username.isBlank() || username.length() > 20 || username.trim().isEmpty() || username.matches("[a-zA-Z_0-9]*")) {
             throw new NotAcceptableException("This is an invalid username. Please max. 20 digits and no spaces.");
         }
     }

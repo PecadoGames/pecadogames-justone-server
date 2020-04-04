@@ -52,7 +52,7 @@ public class UserControllerTest {
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
         // given
         User user = new User();
-        Date birthday = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").parse("01.01.2001 01:00:00");
+        String birthday = "01.01.1998";
         user.setUsername("firstname@lastname");
         user.setStatus(UserStatus.OFFLINE);
         user.setBirthday(birthday);

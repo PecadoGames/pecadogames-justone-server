@@ -40,7 +40,7 @@ public class DTOMapperTest {
         user.setUsername("firstname@lastname");
         user.setStatus(UserStatus.OFFLINE);
         user.setCreationDate();
-        user.setBirthday(new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").parse("01.01.2001 01:00:00"));
+        user.setBirthday(new String("01.01.1998"));
         user.setToken("1");
 
         // MAP -> Create UserGetDTO
