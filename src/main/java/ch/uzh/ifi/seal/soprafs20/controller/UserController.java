@@ -1,11 +1,9 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
-import com.fasterxml.jackson.core.JsonParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,7 +12,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +78,14 @@ public class UserController {
         userService.updateUser(user, userPutDTO);
     }
 
+    @GetMapping(path = "/users/{id}/requests", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public RequestGetDTO getFriendRequests(@PathVariable long id) {
+        User user = userService.getUser(id);
+        return DTOMapper.INSTANCE.convertEntityToRequestGetDTO(user);
+    }
+
     @PutMapping(path = "/login", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -105,5 +110,7 @@ public class UserController {
         userService.logoutUser(userInput);
 
     }
+
+
 
 }

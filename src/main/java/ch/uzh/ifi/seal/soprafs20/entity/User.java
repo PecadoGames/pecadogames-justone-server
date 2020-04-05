@@ -1,23 +1,16 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.hibernate.jdbc.Expectation;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Internal User Representation
@@ -34,6 +27,7 @@ public class User implements Serializable {
 
 	@Id
 	@GeneratedValue
+    @Column(name="id")
 	private Long id;
 
     @NotBlank
@@ -53,13 +47,20 @@ public class User implements Serializable {
 	@Column(nullable = false)
     private Date creationDate;
 
-	@Column(nullable = true)
-
     @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
 
 	@Column
     private int score;
+
+	@ManyToMany
+    @JsonIgnore
+    private Set<User> friendRequests;
+
+	@ManyToMany
+    @JsonIgnore
+    @JoinColumn(referencedColumnName = "id")
+    private Set<User> friendList;
 
 
 
@@ -108,7 +109,6 @@ public class User implements Serializable {
             this.birthday = birthday;
     }
 
-
     public Date getBirthday() {
 	    return birthday;
     }
@@ -116,4 +116,12 @@ public class User implements Serializable {
     public int getScore(){return score;}
 
     public void setScore(int score){this.score = score;}
+
+    public void addFriendRequest(User user) { friendRequests.add(user); }
+
+    public Set<User> getFriendRequests() { return friendRequests; }
+
+    public void addFriend(User user) { friendList.add(user); }
+
+    public Set<User> getFriendList() { return friendList; }
 }
