@@ -186,6 +186,8 @@ public class UserServiceTest {
         String exceptionMessage = "You are not allowed to change this user's information";
         UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
         assertTrue(exception.getMessage().contains(exceptionMessage));
+
+        assertEquals(testUser.getUsername(), "testUsername");
     }
 
     @Test
@@ -201,6 +203,8 @@ public class UserServiceTest {
         String exceptionMessage = "This username already exists";
         ConflictException exception = assertThrows(ConflictException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
         assertTrue(exception.getMessage().contains(exceptionMessage));
+
+        assertEquals(testUser.getUsername(), "testUsername");
     }
 
     @Test
@@ -212,6 +216,8 @@ public class UserServiceTest {
         String exceptionMessage = "This is an invalid username";
         NotAcceptableException exception = assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
         assertTrue(exception.getMessage().contains(exceptionMessage));
+
+        assertEquals(testUser.getUsername(), "testUsername");
     }
 
     @Test
@@ -223,6 +229,8 @@ public class UserServiceTest {
         String exceptionMessage = "This is an invalid username";
         NotAcceptableException exception = assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
         assertTrue(exception.getMessage().contains(exceptionMessage));
+
+        assertEquals(testUser.getUsername(), "testUsername");
     }
 
     @Test
