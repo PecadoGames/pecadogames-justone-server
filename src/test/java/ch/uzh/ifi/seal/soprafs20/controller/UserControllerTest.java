@@ -6,8 +6,8 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LoginPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LogoutPutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.UserGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPostDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -267,6 +267,25 @@ public class UserControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void updateUser_validInput() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testUsername");
+        user.setToken("testToken");
+
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("updatedUsername");
+        userPutDTO.setToken("testToken");
+
+        MockHttpServletRequestBuilder putRequest = put("/users/" + user.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isNoContent());
     }
 
     /**
