@@ -2,7 +2,6 @@ package ch.uzh.ifi.seal.soprafs20.entity;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParseException;
 
 import javax.persistence.*;
@@ -10,7 +9,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * Internal User Representation
@@ -46,6 +44,8 @@ public class User implements Serializable {
 
 	@Column(nullable = false)
     private Date creationDate;
+
+	@Column(nullable = true)
 
     @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
@@ -104,10 +104,11 @@ public class User implements Serializable {
 
 	public Date getCreationDate(){return creationDate;}
 
-
+    @JsonFormat(pattern="dd.MM.yyyy")
     public void setBirthday(Date birthday) throws JsonParseException {
             this.birthday = birthday;
     }
+
 
     public Date getBirthday() {
 	    return birthday;

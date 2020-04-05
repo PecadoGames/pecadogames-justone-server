@@ -29,6 +29,7 @@ public class UserPutDTO {
         this.username = username;
     }
 
+    @JsonFormat(pattern="dd.MM.yyyy")
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
