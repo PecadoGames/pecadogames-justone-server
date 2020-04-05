@@ -2,10 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NoContentException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +12,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
 
@@ -108,11 +103,11 @@ public class UserServiceTest {
     @Test
     public void loginUser_validInputs_success() {
         // when -> any object is being save in the userRepository -> return the dummy testUser
-        User createdUser = userService.createUser(testUser);
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        testUser.setStatus(UserStatus.OFFLINE);
 
-        assertNotNull(createdUser.getToken());
-        assertEquals(UserStatus.ONLINE, createdUser.getStatus());
+        userService.loginUser(testUser);
+        assertEquals(UserStatus.ONLINE, testUser.getStatus());
     }
 
     @Test
@@ -180,6 +175,54 @@ public class UserServiceTest {
 
         assertEquals(testUser.getUsername(), userPutDTO.getUsername());
         assertEquals(testUser.getBirthday(), userPutDTO.getBirthday());
+    }
+
+    @Test
+    public void updateUser_invalidToken_throwsException() {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("changedUsername");
+        userPutDTO.setToken("wrongToken");
+
+        String exceptionMessage = "You are not allowed to change this user's information";
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
+        assertTrue(exception.getMessage().contains(exceptionMessage));
+    }
+
+    @Test
+    public void updateUser_userNameTaken_throwsException() {
+        User user = new User();
+        user.setUsername("anyUsername");
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("anyUsername");
+        userPutDTO.setToken("testToken");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(user);
+
+        String exceptionMessage = "This username already exists";
+        ConflictException exception = assertThrows(ConflictException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
+        assertTrue(exception.getMessage().contains(exceptionMessage));
+    }
+
+    @Test
+    public void updateUser_newUsernameTooLong_throwsException() {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("thisUsernameIsTooLong");
+        userPutDTO.setToken("testToken");
+
+        String exceptionMessage = "This is an invalid username";
+        NotAcceptableException exception = assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
+        assertTrue(exception.getMessage().contains(exceptionMessage));
+    }
+
+    @Test
+    public void updateUser_newUsernameInvalid_throwsException() {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("invalidU$ername");
+        userPutDTO.setToken("testToken");
+
+        String exceptionMessage = "This is an invalid username";
+        NotAcceptableException exception = assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
+        assertTrue(exception.getMessage().contains(exceptionMessage));
     }
 
     @Test
