@@ -61,8 +61,6 @@ public class User implements Serializable {
 	@Column
     private int score;
 
-
-
     public Long getId() {
 		return id;
 	}
@@ -103,11 +101,10 @@ public class User implements Serializable {
 
 	public Date getCreationDate(){return creationDate;}
 
-
+    @JsonFormat(pattern="dd.MM.yyyy")
     public void setBirthday(Date birthday) throws JsonParseException {
             this.birthday = birthday;
     }
-
 
     public Date getBirthday() {
 	    return birthday;

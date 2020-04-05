@@ -11,6 +11,8 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -26,6 +28,7 @@ import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -57,7 +60,7 @@ public class UserControllerTest {
         SimpleDateFormat sF = new SimpleDateFormat( "dd.MM.yyyy");
         sF.setTimeZone(TimeZone.getTimeZone(tmZ));
 
-        Date birthday = sF.parse( "20.05.2010");
+        Date birthday = sF.parse( "20.05.2010 ");
         user.setUsername("firstname@lastname");
         user.setStatus(UserStatus.OFFLINE);
         user.setBirthday(birthday);
@@ -85,7 +88,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath(("$[0].birthday"), is(
                         format.format(user.getBirthday()))))
                 .andExpect(jsonPath("$[0].token", is(user.getToken())));
-        System.out.println(jsonPath("$[0].birthday"));
     }
 
     @Test
@@ -268,6 +270,16 @@ public class UserControllerTest {
         mockMvc.perform(putRequest)
                 .andExpect(status().isNotFound());
     }
+
+
+    @Test
+    public void updateUser_invalidBirthday() throws InvalidFormatException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{\"token\" : \"1\", \"birthday\" : \"123\"}";
+
+        assertThrows(InvalidFormatException.class,() ->{UserPutDTO userPutDTO = objectMapper.readValue(json,UserPutDTO.class);});
+    }
+
 
     @Test
     public void updateUser_validInput() throws Exception {
