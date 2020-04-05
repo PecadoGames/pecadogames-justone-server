@@ -3,7 +3,8 @@ package ch.uzh.ifi.seal.soprafs20.rest.mapper;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -39,8 +40,12 @@ public interface DTOMapper {
     User convertLogoutPutDTOtoEntity(LogoutPutDTO logoutPutDTO);
 
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "friendRequests", target = "friendRequests")
+    @Mapping(source = "username", target = "username")
     RequestGetDTO convertEntityToRequestGetDTO(User user);
+
+    @Mapping(source = "token", target = "token")
+    @Mapping(source = "senderID", target = "id")
+    User convertRequestPutDTOtoEntity(RequestPutDTO requestPutDTO);
 
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "numberOfPlayers", target = "numberOfPlayers")

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User Controller
@@ -81,9 +82,24 @@ public class UserController {
     @GetMapping(path = "/users/{id}/requests", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public RequestGetDTO getFriendRequests(@PathVariable long id) {
+    public List<RequestGetDTO> getFriendRequests(@PathVariable long id) {
         User user = userService.getUser(id);
-        return DTOMapper.INSTANCE.convertEntityToRequestGetDTO(user);
+        Set<User> requests = user.getFriendRequests();
+        List<RequestGetDTO> requestGetDTOs = new ArrayList<>();
+
+        for (User request : requests) {
+            requestGetDTOs.add(DTOMapper.INSTANCE.convertEntityToRequestGetDTO(request));
+        }
+        return requestGetDTOs;
+    }
+
+    @PutMapping(path = "/users/{id}/requests", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void sendFriendRequest(@PathVariable long id, @RequestBody RequestPutDTO requestPutDTO)  {
+        User receiver = userService.getUser(id);
+        User sender = DTOMapper.INSTANCE.convertRequestPutDTOtoEntity(requestPutDTO);
+        userService.addFriendRequest(receiver, sender);
     }
 
     @PutMapping(path = "/login", consumes = "application/json")

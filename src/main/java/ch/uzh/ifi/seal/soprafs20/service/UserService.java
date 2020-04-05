@@ -124,6 +124,18 @@ public class UserService {
 
     }
 
+    public void addFriendRequest(User receiver, User sender) {
+        if(userRepository.findByUsername(receiver.getUsername()) == null) {
+            String exceptionMessage = "User with id %s does not exist!";
+            throw new NotFoundException(String.format(exceptionMessage, receiver.getId().toString()));
+        }
+        User user = userRepository.findById(sender.getId()).get();
+        if(!sender.getToken().equals(user.getToken())) {
+            throw new UnauthorizedException("You are not allowed to send a friend request!");
+        }
+        receiver.setFriendRequests(sender);
+    }
+
     private void checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";

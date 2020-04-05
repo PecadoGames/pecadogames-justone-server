@@ -2,7 +2,6 @@ package ch.uzh.ifi.seal.soprafs20.entity;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonParseException;
 
 import javax.persistence.*;
@@ -10,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -27,7 +27,6 @@ public class User implements Serializable {
 
 	@Id
 	@GeneratedValue
-    @Column(name="id")
 	private Long id;
 
     @NotBlank
@@ -48,23 +47,14 @@ public class User implements Serializable {
     private Date creationDate;
 
 	@Column(nullable = true)
-
     @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
 
 	@Column
     private int score;
 
-	@ManyToMany
-    @JsonIgnore
-    private Set<User> friendRequests;
-
-	@ManyToMany
-    @JsonIgnore
-    @JoinColumn(referencedColumnName = "id")
-    private Set<User> friendList;
-
-
+   @ManyToMany
+    private Set<User> friendRequests = new HashSet<>();
 
     public Long getId() {
 		return id;
@@ -111,7 +101,6 @@ public class User implements Serializable {
             this.birthday = birthday;
     }
 
-
     public Date getBirthday() {
 	    return birthday;
     }
@@ -120,11 +109,11 @@ public class User implements Serializable {
 
     public void setScore(int score){this.score = score;}
 
-    public void addFriendRequest(User user) { friendRequests.add(user); }
+    public Set<User> getFriendRequests() {
+        return friendRequests;
+    }
 
-    public Set<User> getFriendRequests() { return friendRequests; }
-
-    public void addFriend(User user) { friendList.add(user); }
-
-    public Set<User> getFriendList() { return friendList; }
+    public void setFriendRequests(User user) {
+        friendRequests.add(user);
+    }
 }

@@ -1,13 +1,9 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
-import ch.uzh.ifi.seal.soprafs20.entity.User;
-
-import java.util.Set;
-
 public class RequestGetDTO {
 
     private Long id;
-    private Set<User> friendRequests;
+    private String username;
 
     public Long getId() {
         return id;
@@ -17,11 +13,11 @@ public class RequestGetDTO {
         this.id = id;
     }
 
-    public Set<User> getFriendRequests() {
-        return friendRequests;
+    public String getUsername() {
+        return username;
     }
 
-    public void setFriendRequests(User user) {
-        friendRequests.add(user);
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
