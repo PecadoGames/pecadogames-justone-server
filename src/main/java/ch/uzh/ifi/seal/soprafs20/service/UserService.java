@@ -144,6 +144,7 @@ public class UserService {
                 receiver.setFriendList(sender);
                 sender.setFriendList(receiver);
             }
+            receiver.getFriendRequests().remove(sender);
         }
         else{
             throw new NotFoundException(String.format("No friend request from user with id %s was found!", sender.getId().toString()));

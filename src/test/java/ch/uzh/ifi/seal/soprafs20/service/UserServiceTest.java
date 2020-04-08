@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -231,6 +232,105 @@ public class UserServiceTest {
         assertTrue(exception.getMessage().contains(exceptionMessage));
 
         assertEquals(testUser.getUsername(), "testUsername");
+    }
+
+    @Test
+    public void addFriendRequest_validInput_success() {
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setToken("testToken2");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
+        userService.addFriendRequest(testUser, testUser2);
+
+        assertTrue(testUser.getFriendRequests().contains(testUser2));
+        assertFalse(testUser2.getFriendRequests().contains(testUser));
+    }
+
+    @Test
+    public void addFriendRequest_invalidInput() {
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setToken("testToken2");
+
+        User testUser_wrongToken = new User();
+        testUser_wrongToken.setId(2L);
+        testUser_wrongToken.setToken("wrongToken");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
+
+        String exceptionMessage = "not allowed to send a friend request";
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.addFriendRequest(testUser, testUser_wrongToken), exceptionMessage);
+        assertTrue(exception.getMessage().contains(exceptionMessage));
+        assertFalse(testUser.getFriendRequests().contains(testUser2));
+    }
+
+    @Test
+    public void acceptFriendRequest_validInput_success() {
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setToken("testToken2");
+
+        testUser.setFriendRequests(testUser2);
+
+        FriendPutDTO friendPutDTO = new FriendPutDTO();
+        friendPutDTO.setAccepted(true);
+        friendPutDTO.setToken(testUser2.getToken());
+        friendPutDTO.setSenderID(testUser2.getId());
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
+
+        userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO);
+
+        assertTrue(testUser.getFriendList().contains(testUser2));
+        assertTrue(testUser2.getFriendList().contains(testUser));
+        assertFalse(testUser.getFriendRequests().contains(testUser2));
+    }
+
+    @Test
+    public void declineFriendRequest_validInput_success() {
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setToken("testToken2");
+
+        testUser.setFriendRequests(testUser2);
+
+        FriendPutDTO friendPutDTO = new FriendPutDTO();
+        friendPutDTO.setAccepted(false);
+        friendPutDTO.setToken(testUser2.getToken());
+        friendPutDTO.setSenderID(testUser2.getId());
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
+
+        userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO);
+
+        assertFalse(testUser.getFriendList().contains(testUser2));
+        assertFalse(testUser2.getFriendList().contains(testUser));
+        assertFalse(testUser.getFriendRequests().contains(testUser2));
+    }
+
+    @Test
+    public void handleFriendRequest_invalidInput_throwsException() {
+        FriendPutDTO friendPutDTO = new FriendPutDTO();
+        friendPutDTO.setAccepted(false);
+        friendPutDTO.setToken("anyToken");
+        friendPutDTO.setSenderID(5L);
+
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setToken("testToken2");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
+
+        String exceptionMessage = "friend request from user";
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO), exceptionMessage);
+        assertTrue(exception.getMessage().contains(exceptionMessage));
+
     }
 
     @Test
