@@ -79,7 +79,7 @@ public class UserController {
         userService.updateUser(user, userPutDTO);
     }
 
-    @GetMapping(path = "/users/{id}/requests", produces = "application/json")
+    @GetMapping(path = "/users/{id}/friendRequests", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<RequestGetDTO> getFriendRequests(@PathVariable long id) {
@@ -93,7 +93,7 @@ public class UserController {
         return requestGetDTOs;
     }
 
-    @PutMapping(path = "/users/{id}/requests", consumes = "application/json")
+    @PutMapping(path = "/users/{id}/friendRequests", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void sendFriendRequest(@PathVariable long id, @RequestBody RequestPutDTO requestPutDTO)  {
@@ -112,7 +112,6 @@ public class UserController {
 
         // check password
         userService.loginUser(userInput);
-
     }
 
     @PutMapping(path = "/logout", consumes = "application/json")
@@ -124,7 +123,6 @@ public class UserController {
 
         //logout user
         userService.logoutUser(userInput);
-
     }
 
 
