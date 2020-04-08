@@ -160,7 +160,7 @@ public class UserControllerTest {
         user.setUsername("testUsername");
         user.setToken("1");
         user.setPassword("1");
-        user.setStatus(UserStatus.ONLINE);
+        user.setStatus(UserStatus.OFFLINE);
 
         LoginPutDTO loginPutDTO = new LoginPutDTO();
         loginPutDTO.setUsername("testUsername");
@@ -310,7 +310,7 @@ public class UserControllerTest {
         given(userService.getUser(Mockito.any())).willReturn(user1);
 
         // when
-        MockHttpServletRequestBuilder getRequest = get("/users/" + user1.getId() + "/requests").contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder getRequest = get("/users/" + user1.getId() + "/friendRequests").contentType(MediaType.APPLICATION_JSON);
 
         //then
         mockMvc.perform(getRequest).andExpect(status().isOk())
@@ -331,7 +331,7 @@ public class UserControllerTest {
         requestPutDTO.setSenderID(user2.getId());
         requestPutDTO.setToken(user2.getToken());
 
-        MockHttpServletRequestBuilder putRequest = put("/users/" + user1.getId() + "/requests")
+        MockHttpServletRequestBuilder putRequest = put("/users/" + user1.getId() + "/friendRequests")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(requestPutDTO));
 

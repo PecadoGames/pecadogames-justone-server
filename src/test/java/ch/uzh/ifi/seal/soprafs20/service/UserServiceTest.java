@@ -54,7 +54,7 @@ public class UserServiceTest {
         assertEquals(testUser.getId(), createdUser.getId());
         assertEquals(testUser.getUsername(), createdUser.getUsername());
         assertNotNull(createdUser.getToken());
-        assertEquals(UserStatus.ONLINE, createdUser.getStatus());
+        assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
     }
 
     @Test
@@ -97,7 +97,7 @@ public class UserServiceTest {
         assertEquals(foundUser.getId(), createdUser.getId());
         assertEquals(foundUser.getUsername(), createdUser.getUsername());
         assertNotNull(createdUser.getToken());
-        assertEquals(UserStatus.ONLINE, createdUser.getStatus());
+        assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
     }
 
     @Test
@@ -237,6 +237,7 @@ public class UserServiceTest {
     public void testAlreadyLoggedIn() {
         // when -> any object is being save in the userRepository -> return the dummy testUser
         User createdUser = userService.createUser(testUser);
+        createdUser.setStatus(UserStatus.ONLINE);
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
 
         assertThrows(NoContentException.class, () -> userService.isAlreadyLoggedIn(createdUser));
