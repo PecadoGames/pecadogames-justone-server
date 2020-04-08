@@ -56,6 +56,9 @@ public class User implements Serializable {
    @ManyToMany
     private Set<User> friendRequests = new HashSet<>();
 
+   @ManyToMany
+   private Set<User> friendList = new HashSet<>();
+
     public Long getId() {
 		return id;
 	}
@@ -115,5 +118,13 @@ public class User implements Serializable {
 
     public void setFriendRequests(User user) {
         friendRequests.add(user);
+    }
+
+    public Set<User> getFriendList() {
+        return friendList;
+    }
+
+    public void setFriendList(User user) {
+        friendList.add(user);
     }
 }
