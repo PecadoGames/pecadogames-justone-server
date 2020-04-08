@@ -127,4 +127,5 @@ public class User implements Serializable {
     public void setFriendList(User user) {
         friendList.add(user);
     }
+
 }

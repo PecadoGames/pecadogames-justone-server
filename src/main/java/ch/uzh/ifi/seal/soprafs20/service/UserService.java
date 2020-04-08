@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
@@ -134,6 +135,19 @@ public class UserService {
             throw new UnauthorizedException("You are not allowed to send a friend request!");
         }
         receiver.setFriendRequests(sender);
+    }
+
+    public void acceptOrDeclineFriendRequest(User receiver, FriendPutDTO friendPutDTO) {
+        User sender = getUser(friendPutDTO.getSenderID());
+        if(receiver.getFriendRequests().contains(sender)) {
+            if(friendPutDTO.getAccepted()){
+                receiver.setFriendList(sender);
+                sender.setFriendList(receiver);
+            }
+        }
+        else{
+            throw new NotFoundException(String.format("No friend request from user with id %s was found!", sender.getId().toString()));
+        }
     }
 
     private void checkIfUserExists(User userToBeCreated) {

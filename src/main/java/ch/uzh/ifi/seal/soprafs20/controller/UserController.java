@@ -102,6 +102,28 @@ public class UserController {
         userService.addFriendRequest(receiver, sender);
     }
 
+    @GetMapping(path = "users/{id}/friends", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<RequestGetDTO> getFriends(@PathVariable long id) {
+        User user = userService.getUser(id);
+        Set<User> friends = user.getFriendList();
+        List<RequestGetDTO> requestGetDTOs = new ArrayList<>();
+
+        for (User friend : friends) {
+            requestGetDTOs.add(DTOMapper.INSTANCE.convertEntityToRequestGetDTO(friend));
+        }
+        return requestGetDTOs;
+    }
+
+    @PutMapping(path = "/users/{id}/friends", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void handleFriendRequest(@PathVariable long id, @RequestBody FriendPutDTO friendPutDTO) {
+        User receiver = userService.getUser(id);
+        userService.acceptOrDeclineFriendRequest(receiver, friendPutDTO);
+    }
+
     @PutMapping(path = "/login", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
