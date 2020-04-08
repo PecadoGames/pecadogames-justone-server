@@ -4,10 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.LoginPutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.LogoutPutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPostDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -295,6 +292,48 @@ public class UserControllerTest {
         MockHttpServletRequestBuilder putRequest = put("/users/" + user.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userPutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void givenFriendRequests_whenGetFriendRequests_thenReturnJsonArray() throws Exception {
+        User user1 = new User();
+        user1.setId(1L);
+
+        User user2 = new User();
+        user2.setId(2L);
+
+        user1.setFriendRequests(user2);
+
+        given(userService.getUser(Mockito.any())).willReturn(user1);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/users/" + user1.getId() + "/requests").contentType(MediaType.APPLICATION_JSON);
+
+        //then
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(user2.getId().intValue())));
+    }
+
+    @Test
+    public void sendFriendRequest_validInput_success() throws Exception {
+        User user1 = new User();
+        user1.setId(1L);
+
+        User user2 = new User();
+        user2.setId(2L);
+        user2.setToken("testToken");
+
+        RequestPutDTO requestPutDTO = new RequestPutDTO();
+        requestPutDTO.setSenderID(user2.getId());
+        requestPutDTO.setToken(user2.getToken());
+
+        MockHttpServletRequestBuilder putRequest = put("/users/" + user1.getId() + "/requests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(requestPutDTO));
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isNoContent());
