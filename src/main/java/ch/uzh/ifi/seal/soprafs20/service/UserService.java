@@ -47,9 +47,9 @@ public class UserService {
             return user;
         }
         else{throw new NotFoundException("Couldn't find user.");
+
         }
     }
-
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);

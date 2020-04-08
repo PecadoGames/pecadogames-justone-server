@@ -9,7 +9,7 @@ public class LobbyPutDTO {
     private ArrayList<Long> usersToKick;
     private Integer numberOfBots;
     private String token;
-
+    private boolean isPrivate;
     public String getLobbyName() {
         return lobbyName;
     }
@@ -56,5 +56,13 @@ public class LobbyPutDTO {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
     }
 }

@@ -37,6 +37,12 @@ public class Lobby implements Serializable {
     @Column
     Long lobbyScore;
 
+    @Column(nullable = false)
+    boolean isPrivate;
+
+    @Column
+    String privateKey;
+
     public Long getLobbyId() {
         return lobbyId;
     }
@@ -111,5 +117,21 @@ public class Lobby implements Serializable {
 
     public void setLobbyId(Long lobbyId) {
         this.lobbyId = lobbyId;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
     }
 }

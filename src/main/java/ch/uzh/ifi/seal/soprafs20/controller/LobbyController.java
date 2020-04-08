@@ -23,6 +23,12 @@ public class LobbyController {
     }
 
 
+    /**
+     *
+     * @param lobbyPostDTO
+     * @return - header with location of lobby if the lobby is set to public
+     *         - if the lobby is private, returns header with lobby location and privateKey in body
+     */
 
     @CrossOrigin(exposedHeaders = "Location")
     @PostMapping(path = "/lobbies", consumes = "application/json")
@@ -38,7 +44,11 @@ public class LobbyController {
 
         // convert internal representation of user back to API
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{lobbyId}")
-                .buildAndExpand(createdLobby.getLobbyId()).toUri(); //getLobbyId instead of lobbyname => what happens if two lobbies have the same name, same uri! not good!
+                .buildAndExpand(createdLobby.getLobbyId()).toUri();
+        if(createdLobby.isPrivate()) {
+            return ResponseEntity.created(location)
+                    .body(createdLobby.getPrivateKey());
+        }
         return ResponseEntity.created(location).build();
     }
 

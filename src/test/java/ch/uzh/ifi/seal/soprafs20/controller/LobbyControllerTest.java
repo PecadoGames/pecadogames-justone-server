@@ -68,7 +68,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void createLobby_validInput() throws Exception {
+    public void createLobby_validInput_publicLobby() throws Exception {
        // given
         Lobby lobby = new Lobby();
         lobby.setId(1L);
@@ -93,6 +93,39 @@ public class LobbyControllerTest {
 
         mockMvc.perform(postRequest)
                 .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
+    }
+
+    @Test
+    public void createLobby_validInput_privateLobby() throws Exception {
+        // given
+        Lobby lobby = new Lobby();
+        lobby.setId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setNumberOfPlayers(5);
+        lobby.setVoiceChat(false);
+        lobby.setUserId(1234);
+        lobby.setPrivate(true);
+        lobby.setPrivateKey("1010");
+
+        LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
+        lobbyPostDTO.setLobbyName("Badbunny");
+        lobbyPostDTO.setNumberOfPlayers(5);
+        lobbyPostDTO.setVoiceChat(false);
+        lobbyPostDTO.setUserId(1234);
+        lobbyPostDTO.setPrivate(true);
+        lobbyPostDTO.setToken("1");
+
+
+        given(lobbyService.createLobby(Mockito.any())).willReturn(lobby);
+
+        MockHttpServletRequestBuilder postRequest = post("/lobbies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPostDTO));
+
+        mockMvc.perform(postRequest)
+                .andExpect(status().isCreated())
+                .andExpect(content().string(lobby.getPrivateKey()))
                 .andExpect(header().exists("Location"));
     }
 

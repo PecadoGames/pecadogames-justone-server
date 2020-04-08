@@ -12,6 +12,7 @@ public class LobbyGetDTO {
     private Long userId;
 
     private String token;
+
     private Long lobbyId;
 
 
