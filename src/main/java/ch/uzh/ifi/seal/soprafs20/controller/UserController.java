@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
@@ -145,6 +146,20 @@ public class UserController {
 
         //logout user
         userService.logoutUser(userInput);
+    }
+
+
+    @GetMapping(path = "/users/{userId}/invitations")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<InviteGetDTO> getLobbyInvites(@PathVariable long userId){
+        User user = userService.getUser(userId);
+        Set<Lobby> invites = user.getLobbyInvites();
+        List<InviteGetDTO> lobbies = new ArrayList<>();
+        for(Lobby lobby : invites){
+            lobbies.add(DTOMapper.INSTANCE.convertEntityToInviteGetDTO(lobby));
+        }
+        return lobbies;
     }
 
 

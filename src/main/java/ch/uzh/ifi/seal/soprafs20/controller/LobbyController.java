@@ -1,9 +1,11 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
+import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +19,11 @@ import java.util.List;
 @RestController
 public class LobbyController {
     private final LobbyService lobbyService;
+    private final UserService userService;
 
-    LobbyController(LobbyService lobbyService){
+    LobbyController(LobbyService lobbyService, UserService userService){
         this.lobbyService = lobbyService;
+        this.userService = userService;
     }
 
 
@@ -29,7 +33,6 @@ public class LobbyController {
      * @return - header with location of lobby if the lobby is set to public
      *         - if the lobby is private, returns header with lobby location and privateKey in body
      */
-
     @CrossOrigin(exposedHeaders = "Location")
     @PostMapping(path = "/lobbies", consumes = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
@@ -75,5 +78,16 @@ public class LobbyController {
         Lobby lobby;
         lobby = lobbyService.getLobby(lobbyId);
         lobbyService.updateLobby(lobby,lobbyPutDTO);
+    }
+
+
+    @PutMapping(path = "/lobbies/{lobbyId}/invitations", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void invitePlayerToLobby(@PathVariable long lobbyId, @RequestBody InvitePutDTO invitePutDTO){
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        User host = userService.getUser(invitePutDTO.getUserId());
+        User userToInvite = userService.getUser(invitePutDTO.getUserToInviteId());
+        userService.addLobbyInvite(userToInvite,lobby,host);
     }
 }

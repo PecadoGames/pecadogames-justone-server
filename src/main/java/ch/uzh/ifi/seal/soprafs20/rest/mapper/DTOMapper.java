@@ -61,5 +61,18 @@ public interface DTOMapper {
     @Mapping(source = "voiceChat", target = "voiceChat")
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "token", target = "token")
+    @Mapping(source = "private", target = "private")
     Lobby convertLobbyPostDTOtoEntity(LobbyPostDTO lobbyPostDTO);
+
+
+
+    @Mapping(source = "lobbyName", target = "lobbyName")
+    @Mapping(source = "voiceChat", target = "voiceChat")
+    @Mapping(source = "privateKey",target = "privateKey")
+    @Mapping(source = "lobbyId", target = "lobbyId")
+    InviteGetDTO convertEntityToInviteGetDTO(Lobby lobby);
+
+
+
+
 }

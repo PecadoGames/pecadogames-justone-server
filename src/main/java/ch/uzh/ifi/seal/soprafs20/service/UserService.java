@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
@@ -149,6 +150,16 @@ public class UserService {
         else{
             throw new NotFoundException(String.format("No friend request from user with id %s was found!", sender.getId().toString()));
         }
+    }
+
+    public void addLobbyInvite(User receiver, Lobby lobby, User sender) {
+        if(!sender.getToken().equals(lobby.getToken())){
+            throw new UnauthorizedException("User is not authorized to send lobby invites");
+        }
+        if(sender.getId().equals(receiver.getId())){
+            throw new ConflictException("Cannot invite yourself to the lobby");
+        }
+        receiver.setLobbyInvites(lobby);
     }
 
     private void checkIfUserExists(User userToBeCreated) {
