@@ -1,11 +1,12 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 
-import ch.uzh.ifi.seal.soprafs20.GameLogic.CardReader;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
@@ -13,13 +14,10 @@ import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -27,13 +25,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
-
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.hamcrest.Matchers.*;
 
 
 @WebMvcTest(LobbyController.class)
@@ -211,6 +208,37 @@ public class LobbyControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void handleLobbyInvite_validInput_success() throws Exception {
+        Lobby lobby = new Lobby();
+        lobby.setId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setNumberOfPlayers(5);
+        lobby.setVoiceChat(false);
+        lobby.setUserId(1234);
+
+        User testUser = new User();
+        testUser.setId(1L);
+        testUser.setToken("testToken");
+        testUser.setLobbyInvites(lobby);
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterId(testUser.getId());
+        lobbyAcceptancePutDTO.setAccepterToken(testUser.getToken());
+        lobbyAcceptancePutDTO.setAccepted(true);
+        lobbyAcceptancePutDTO.setLobbyId(lobby.getLobbyId());
+
+        given(lobbyService.getLobby(Mockito.any())).willReturn(lobby);
+        given(userService.getUser(Mockito.any())).willReturn(testUser);
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/acceptances", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyAcceptancePutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isOk());
     }
 
     private String asJsonString(final Object object) {

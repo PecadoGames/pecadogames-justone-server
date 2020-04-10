@@ -94,13 +94,11 @@ public class LobbyController {
     @PutMapping(path = "/lobbies/{lobbyId}/acceptances", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ResponseEntity<Object> handleLobbyInvite(@PathVariable long lobbyId, @RequestBody LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
+    public LobbyGetDTO handleLobbyInvite(@PathVariable long lobbyId, @RequestBody LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO);
 
-        URI location = ServletUriComponentsBuilder.newInstance().path("lobbies/{lobbyId}")
-                .buildAndExpand(lobby.getLobbyId()).toUri();
-        return ResponseEntity.created(location).build();
+        return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
 
 }
