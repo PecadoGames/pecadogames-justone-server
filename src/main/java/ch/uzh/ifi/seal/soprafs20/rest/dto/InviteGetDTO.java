@@ -7,6 +7,8 @@ public class InviteGetDTO {
 
     private String privateKey;
 
+    private long lobbyId;
+
 
     public String getLobbyName() {
         return lobbyName;
@@ -30,5 +32,13 @@ public class InviteGetDTO {
 
     public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
+    }
+
+    public long getLobbyId() {
+        return lobbyId;
+    }
+
+    public void setLobbyId(long lobbyId) {
+        this.lobbyId = lobbyId;
     }
 }
