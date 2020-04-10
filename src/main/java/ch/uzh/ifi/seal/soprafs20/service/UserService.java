@@ -41,17 +41,18 @@ public class UserService {
         return this.userRepository.findAll();
     }
 
-    public User getUser(Long id){
+    public User getUser(Long id) {
         User user;
         Optional<User> optional = userRepository.findById(id);
-        if(optional.isPresent()){
+        if (optional.isPresent()) {
             user = optional.get();
             return user;
         }
-        else{throw new NotFoundException("Couldn't find user.");
-
+        else {
+            throw new NotFoundException("Couldn't find user.");
         }
     }
+
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
@@ -69,14 +70,14 @@ public class UserService {
 
     public void loginUser(User user) {
         User foundUser = userRepository.findByUsername(user.getUsername());
-        if(foundUser == null){
+        if (foundUser == null) {
             throw new NotFoundException("user credentials are incorrect!");
         }
 
         String enteredPassword = user.getPassword();
         String storedPassword = userRepository.findByUsername(user.getUsername()).getPassword();
 
-        if(!enteredPassword.equals(storedPassword)){
+        if (!enteredPassword.equals(storedPassword)) {
             throw new NotFoundException("user credentials are incorrect!");
         }
         isAlreadyLoggedIn(foundUser);
@@ -86,41 +87,31 @@ public class UserService {
         log.debug("User {} has logged in.", user);
     }
 
-    public void logoutUser(User findUser){
-        //ToDo: Use method getUser() instead of userRepo.findById()
-        User user;
-        Long id = findUser.getId();
-        Optional<User> optional = userRepository.findById(id);
-        if(optional.isPresent()){
-            user = optional.get();
-            if(user.getStatus() == UserStatus.ONLINE && user.getToken().equals(findUser.getToken())){
-                user.setStatus(UserStatus.OFFLINE);
-                user.setToken(null);
-                log.debug("User {} has logged out.", user);
-            }
-            else {
-                throw new UnauthorizedException("Logout is not allowed!");
-            }
+    public void logoutUser(User findUser) {
+        User user = getUser(findUser.getId());
+        if (user.getStatus() == UserStatus.ONLINE && user.getToken().equals(findUser.getToken())) {
+            user.setStatus(UserStatus.OFFLINE);
+            user.setToken(null);
+            log.debug("User {} has logged out.", user);
         }
         else {
-            String message = String.format("user with ID %s not found!", id.toString());
-            throw new NotFoundException(message);
+            throw new UnauthorizedException("Logout is not allowed!");
         }
     }
 
     public void updateUser(User user, UserPutDTO receivedValues) throws JsonParseException {
 
-        if(userRepository.findByUsername(receivedValues.getUsername()) != null){
+        if (userRepository.findByUsername(receivedValues.getUsername()) != null) {
             throw new ConflictException("This username already exists.");
         }
-        if(!user.getToken().equals(receivedValues.getToken())){
+        if (!user.getToken().equals(receivedValues.getToken())) {
             throw new UnauthorizedException("You are not allowed to change this user's information!");
         }
 
         if (receivedValues.getBirthday() != null) {
             user.setBirthday(receivedValues.getBirthday());
         }
-        if(receivedValues.getUsername()!=null){
+        if (receivedValues.getUsername() != null) {
             checkUsername(receivedValues.getUsername());
             user.setUsername(receivedValues.getUsername());
         }
@@ -129,12 +120,12 @@ public class UserService {
     }
 
     public void addFriendRequest(User receiver, User sender) {
-        if(userRepository.findByUsername(receiver.getUsername()) == null) {
+        if (userRepository.findByUsername(receiver.getUsername()) == null) {
             String exceptionMessage = "User with id %s does not exist!";
             throw new NotFoundException(String.format(exceptionMessage, receiver.getId().toString()));
         }
         User user = userRepository.findById(sender.getId()).get();
-        if(!sender.getToken().equals(user.getToken())) {
+        if (!sender.getToken().equals(user.getToken())) {
             throw new UnauthorizedException("You are not allowed to send a friend request!");
         }
         receiver.setFriendRequests(sender);
@@ -142,23 +133,23 @@ public class UserService {
 
     public void acceptOrDeclineFriendRequest(User receiver, FriendPutDTO friendPutDTO) {
         User sender = getUser(friendPutDTO.getSenderID());
-        if(receiver.getFriendRequests().contains(sender)) {
-            if(friendPutDTO.getAccepted()){
+        if (receiver.getFriendRequests().contains(sender)) {
+            if (friendPutDTO.getAccepted()) {
                 receiver.setFriendList(sender);
                 sender.setFriendList(receiver);
             }
             receiver.getFriendRequests().remove(sender);
         }
-        else{
+        else {
             throw new NotFoundException(String.format("No friend request from user with id %s was found!", sender.getId().toString()));
         }
     }
 
     public void addLobbyInvite(User receiver, Lobby lobby, User sender) {
-        if(!sender.getToken().equals(lobby.getToken())){
+        if (!sender.getToken().equals(lobby.getToken())) {
             throw new UnauthorizedException("User is not authorized to send lobby invites");
         }
-        if(sender.getId().equals(receiver.getId())){
+        if (sender.getId().equals(receiver.getId())) {
             throw new ConflictException("Cannot invite yourself to the lobby");
         }
         receiver.setLobbyInvites(lobby);
@@ -166,11 +157,11 @@ public class UserService {
 
     public void acceptOrDeclineLobbyInvite(Lobby lobby, LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
         User receiver = getUser(lobbyAcceptancePutDTO.getAccepterId());
-        if(!receiver.getToken().equals(lobbyAcceptancePutDTO.getAccepterToken()) || !receiver.getLobbyInvites().contains(lobby)){
+        if (!receiver.getToken().equals(lobbyAcceptancePutDTO.getAccepterToken()) || !receiver.getLobbyInvites().contains(lobby)) {
             throw new UnauthorizedException("You are not allowed to accept or decline this lobby invite!");
         }
         receiver.getLobbyInvites().remove(lobby);
-        if(lobbyAcceptancePutDTO.isAccepted()){
+        if (lobbyAcceptancePutDTO.isAccepted()) {
             lobby.setUsersInLobby(receiver);
             return;
         }
@@ -185,13 +176,13 @@ public class UserService {
         }
     }
 
-    public void isAlreadyLoggedIn(User user){
-        if (user.getStatus() == UserStatus.ONLINE){
+    public void isAlreadyLoggedIn(User user) {
+        if (user.getStatus() == UserStatus.ONLINE) {
             throw new NoContentException("User already logged in!");
         }
     }
 
-    public void checkUsername(String username){
+    public void checkUsername(String username) {
         if (username.contains(" ") || username.isEmpty() || username.isBlank() || username.length() > 20 || username.trim().isEmpty() || !username.matches("[a-zA-Z_0-9]*")) {
             throw new NotAcceptableException("This is an invalid username. Please choose a username with a maximum length of 20 characters consisting of letters, digits and underscores..");
         }

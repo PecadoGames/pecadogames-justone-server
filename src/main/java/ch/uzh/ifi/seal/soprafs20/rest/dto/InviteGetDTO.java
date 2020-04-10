@@ -1,12 +1,17 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
 public class InviteGetDTO {
+    private Long lobbyId;
+
     private String lobbyName;
 
     private boolean voiceChat;
 
     private String privateKey;
 
+    public Long getLobbyId() { return lobbyId; }
+
+    public void setLobbyId(long lobbyId) { this.lobbyId = lobbyId; }
 
     public String getLobbyName() {
         return lobbyName;

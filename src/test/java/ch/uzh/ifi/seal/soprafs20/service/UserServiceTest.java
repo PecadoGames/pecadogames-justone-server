@@ -78,12 +78,12 @@ public class UserServiceTest {
         userService.createUser(testUser);
 
         // when -> setup additional mocks for UserRepository
-        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(null);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
         // then -> attempt to create second user with same user -> check that an error is thrown
-        String exceptionMessage = "null";
-        NullPointerException exception = assertThrows(NullPointerException.class, () -> userService.getUser(1L));
-
+        String exceptionMessage = "ouldn't find user";
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.getUser(1L));
+        assertTrue(exception.getMessage().contains(exceptionMessage));
     }
 
     @Test
@@ -137,16 +137,6 @@ public class UserServiceTest {
         assertEquals(testUser.getStatus(), UserStatus.OFFLINE);
     }
 
-    @Test
-    public void logoutUser_invalidInput_throwsException() {
-
-        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
-
-        String exceptionMessage = "not found";
-        String exceptionMessage2 = "user with ID";
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.logoutUser(testUser), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage) && exception.getMessage().contains(exceptionMessage2));
-    }
 
     @Test
     public void logoutUser_invalidToken_throwsException() {
