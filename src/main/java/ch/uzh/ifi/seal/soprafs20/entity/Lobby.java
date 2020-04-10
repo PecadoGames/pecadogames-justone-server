@@ -2,9 +2,9 @@ package ch.uzh.ifi.seal.soprafs20.entity;
 
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "LOBBY")
@@ -42,6 +42,9 @@ public class Lobby implements Serializable {
 
     @Column
     String privateKey;
+
+    @OneToMany
+    Set<User> usersInLobby = new HashSet<>();
 
     public Long getLobbyId() {
         return lobbyId;
@@ -134,4 +137,8 @@ public class Lobby implements Serializable {
     public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
     }
+
+    public Set<User> getUsersInLobby() { return usersInLobby; }
+
+    public void setUsersInLobby(User newUser) { usersInLobby.add(newUser); }
 }

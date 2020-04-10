@@ -6,6 +6,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
@@ -86,6 +87,7 @@ public class UserService {
     }
 
     public void logoutUser(User findUser){
+        //ToDo: Use method getUser() instead of userRepo.findById()
         User user;
         Long id = findUser.getId();
         Optional<User> optional = userRepository.findById(id);
@@ -160,6 +162,19 @@ public class UserService {
             throw new ConflictException("Cannot invite yourself to the lobby");
         }
         receiver.setLobbyInvites(lobby);
+    }
+
+    public void acceptOrDeclineLobbyInvite(Lobby lobby, LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
+        User receiver = getUser(lobbyAcceptancePutDTO.getAccepterId());
+        if(!receiver.getToken().equals(lobbyAcceptancePutDTO.getAccepterToken()) || !receiver.getLobbyInvites().contains(lobby)){
+            throw new UnauthorizedException("You are not allowed to accept or decline this lobby invite!");
+        }
+        receiver.getLobbyInvites().remove(lobby);
+        if(lobbyAcceptancePutDTO.isAccepted()){
+            lobby.setUsersInLobby(receiver);
+            return;
+        }
+        throw new NoContentException("You declined the lobby invite.");
     }
 
     private void checkIfUserExists(User userToBeCreated) {
