@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
@@ -13,6 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -146,5 +151,76 @@ public class LobbyServiceTest {
         Mockito.when(lobbyRepository.findById(Mockito.any())).thenReturn(null);
         assertThrows(NullPointerException.class,() -> {lobbyService.getLobby(1L);});
 
+    }
+
+    @Test
+    public void removePlayerFromLobby_success(){
+        //lobby leader
+        User user1 = new User();
+        user1.setToken("1");
+        user1.setId(1L);
+        user1.setUsername("Flacko");
+        user1.setPassword("1");
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+        user2.setUsername("Bunny");
+        user2.setPassword("1");
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.setUsersInLobby(user1);
+        testLobby.setUsersInLobby(user2);
+
+        //kick list setup
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setToken("1");
+        ArrayList<Long> kick = new ArrayList<>();
+        kick.add(3L);
+        lobbyPutDTO.setUsersToKick(kick);
+
+        assertEquals(testLobby.getUsersInLobby().size(),2);
+        lobbyService.updateLobby(testLobby,lobbyPutDTO);
+
+        assertEquals(testLobby.getUsersInLobby().size(),1);
+        assertFalse(testLobby.getUsersInLobby().contains(user2));
+    }
+
+    @Test
+    public void removeLobbyLeaderFromLobby_fail(){
+        //lobby leader
+        User user1 = new User();
+        user1.setToken("1");
+        user1.setId(1L);
+        user1.setUsername("Flacko");
+        user1.setPassword("1");
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+        user2.setUsername("Bunny");
+        user2.setPassword("1");
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.setUsersInLobby(user1);
+        testLobby.setUsersInLobby(user2);
+
+        //kick list setup
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setToken("1");
+        ArrayList<Long> kick = new ArrayList<>();
+        kick.add(1L);
+        lobbyPutDTO.setUsersToKick(kick);
+
+        assertEquals(testLobby.getUsersInLobby().size(),2);
+
+        lobbyService.updateLobby(testLobby,lobbyPutDTO);
+
+        assertEquals(testLobby.getUsersInLobby().size(),2);
+        assertTrue(testLobby.getUsersInLobby().contains(user1));
     }
 }

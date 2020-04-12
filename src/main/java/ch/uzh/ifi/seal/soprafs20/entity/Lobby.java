@@ -141,4 +141,6 @@ public class Lobby implements Serializable {
     public Set<User> getUsersInLobby() { return usersInLobby; }
 
     public void setUsersInLobby(User newUser) { usersInLobby.add(newUser); }
+
+    public void replaceUsersInLobby(Set<User> users){usersInLobby = users;}
 }

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -9,6 +10,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 
 public class UserGetDTO {
 
@@ -19,7 +21,6 @@ public class UserGetDTO {
     @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
     private String token;
-
 
     public Long getId() {
         return id;
@@ -66,6 +67,7 @@ public class UserGetDTO {
     public void setToken(String token){this.token = token;}
 
     public String getToken(){return token;}
+
 
 }
 
