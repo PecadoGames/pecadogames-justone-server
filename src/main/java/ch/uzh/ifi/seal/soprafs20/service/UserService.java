@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -156,17 +155,25 @@ public class UserService {
         receiver.setLobbyInvites(lobby);
     }
 
+    //TODO: @Mary review my changes to this method
     public void acceptOrDeclineLobbyInvite(Lobby lobby, LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
         User receiver = getUser(lobbyAcceptancePutDTO.getAccepterId());
         if (!receiver.getToken().equals(lobbyAcceptancePutDTO.getAccepterToken()) || !receiver.getLobbyInvites().contains(lobby)) {
             throw new UnauthorizedException("You are not allowed to accept or decline this lobby invite!");
         }
         receiver.getLobbyInvites().remove(lobby);
-        if (lobbyAcceptancePutDTO.isAccepted()) {
+        if (lobbyAcceptancePutDTO.isAccepted() && lobby.getTotalNumPlayersAndBots() + 1 - lobby.getNumberOfBots() <= lobby.getNumberOfPlayers()) {
             lobby.setUsersInLobby(receiver);
+            //update player count
+            lobby.setTotalNumPlayersAndBots(lobby.getNumberOfPlayers() + 1);
             return;
         }
-        throw new NoContentException("You declined the lobby invite.");
+        if(!lobbyAcceptancePutDTO.isAccepted()) {
+            throw new NoContentException("You declined the lobby invite.");
+        }
+        if(lobby.getTotalNumPlayersAndBots() + 1 - lobby.getNumberOfBots() > lobby.getNumberOfPlayers()){
+            throw new ConflictException("Failed to join lobby: The lobby is already full");
+        }
     }
 
     private void checkIfUserExists(User userToBeCreated) {
