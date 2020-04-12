@@ -43,6 +43,10 @@ public class Lobby implements Serializable {
     @Column
     String privateKey;
 
+    @Column(nullable = false)
+    int totalNumPlayers;
+
+
     @OneToMany
     Set<User> usersInLobby = new HashSet<>();
 
@@ -143,4 +147,12 @@ public class Lobby implements Serializable {
     public void setUsersInLobby(User newUser) { usersInLobby.add(newUser); }
 
     public void replaceUsersInLobby(Set<User> users){usersInLobby = users;}
+
+    public int getTotalNumPlayersAndBots() {
+        return totalNumPlayers;
+    }
+
+    public void setTotalNumPlayers(int totalNumPlayers) {
+        this.totalNumPlayers = totalNumPlayers;
+    }
 }
