@@ -51,6 +51,7 @@ public class LobbyService {
         if(newLobby.isPrivate()){
             newLobby.setPrivateKey((UUID.randomUUID().toString()));
         }
+        newLobby.setTotalNumPlayersAndBots(1);
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();
         return newLobby;
@@ -69,8 +70,10 @@ public class LobbyService {
         if(receivedValues.isVoiceChat() != lobby.isVoiceChat()){lobby.setVoiceChat(receivedValues.isVoiceChat());}
 
         //remove kicked players from lobby
-        if(!receivedValues.getUsersToKick().isEmpty()){
+        if(receivedValues.getUsersToKick() != null){
             lobby.replaceUsersInLobby(kickUsers(receivedValues.getUsersToKick(),lobby));
+            //update number of player in lobby
+            lobby.setTotalNumPlayersAndBots(lobby.getTotalNumPlayersAndBots() - receivedValues.getUsersToKick().size());
         }
 
         //public to private

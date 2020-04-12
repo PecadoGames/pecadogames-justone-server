@@ -152,7 +152,7 @@ public class Lobby implements Serializable {
         return totalNumPlayers;
     }
 
-    public void setTotalNumPlayers(int totalNumPlayers) {
+    public void setTotalNumPlayersAndBots(int totalNumPlayers) {
         this.totalNumPlayers = totalNumPlayers;
     }
 }
