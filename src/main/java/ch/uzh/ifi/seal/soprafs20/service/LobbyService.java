@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotAcceptableException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
@@ -14,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -52,6 +51,7 @@ public class LobbyService {
         if(newLobby.isPrivate()){
             newLobby.setPrivateKey((UUID.randomUUID().toString()));
         }
+        newLobby.setTotalNumPlayersAndBots(1);
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();
         return newLobby;
@@ -68,6 +68,13 @@ public class LobbyService {
             throw new UnauthorizedException("You are not allowed to change the settings of this lobby!");
         }
         if(receivedValues.isVoiceChat() != lobby.isVoiceChat()){lobby.setVoiceChat(receivedValues.isVoiceChat());}
+
+        //remove kicked players from lobby
+        if(receivedValues.getUsersToKick() != null){
+            lobby.replaceUsersInLobby(kickUsers(receivedValues.getUsersToKick(),lobby));
+            //update number of player in lobby
+            lobby.setTotalNumPlayersAndBots(lobby.getTotalNumPlayersAndBots() - receivedValues.getUsersToKick().size());
+        }
 
         //public to private
         if(receivedValues.isPrivate() && !lobby.isPrivate()){
@@ -119,6 +126,12 @@ public class LobbyService {
         if (username.contains(" ") || username.isEmpty() || username.length() > 20 || username.trim().isEmpty()) {
             throw new NotAcceptableException("This is an invalid username. Please max. 20 digits and no spaces.");
         }
+    }
+
+    public Set<User> kickUsers(List<Long> kickList, Lobby lobby){
+        //remove user from lobby but dont remove lobby leader
+        lobby.getUsersInLobby().removeIf(user -> kickList.contains(user.getId()) && !user.getId().equals(lobby.getUserId()));
+        return lobby.getUsersInLobby();
     }
 
 }

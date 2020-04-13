@@ -1,11 +1,10 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -38,6 +40,7 @@ public class LobbyServiceTest {
         testLobby.setNumberOfPlayers(5);
         testLobby.setVoiceChat(false);
         testLobby.setUserId(1L);
+        testLobby.setTotalNumPlayersAndBots(1);
         testLobby.setLobbyId(1L);
 
 
@@ -58,6 +61,7 @@ public class LobbyServiceTest {
         assertEquals(testLobby.getLobbyId(),lobby.getLobbyId());
         assertEquals(testLobby.getLobbyName(),lobby.getLobbyName());
         assertEquals(testLobby.getNumberOfPlayers(),lobby.getNumberOfPlayers());
+        assertEquals(testLobby.getTotalNumPlayersAndBots(),lobby.getTotalNumPlayersAndBots());
         assertNull(lobby.getNumberOfBots());
         assertNull(lobby.getPrivateKey());
     }
@@ -72,6 +76,7 @@ public class LobbyServiceTest {
         assertEquals(testLobby.getLobbyId(),lobby.getLobbyId());
         assertEquals(testLobby.getLobbyName(),lobby.getLobbyName());
         assertEquals(testLobby.getNumberOfPlayers(),lobby.getNumberOfPlayers());
+        assertEquals(testLobby.getTotalNumPlayersAndBots(),lobby.getTotalNumPlayersAndBots());
         assertNull(lobby.getNumberOfBots());
         assertNotNull(lobby.getPrivateKey());
     }
@@ -145,6 +150,80 @@ public class LobbyServiceTest {
 
         Mockito.when(lobbyRepository.findById(Mockito.any())).thenReturn(null);
         assertThrows(NullPointerException.class,() -> {lobbyService.getLobby(1L);});
+
+    }
+
+    @Test
+    public void removePlayerFromLobby_success(){
+        //lobby leader
+        User user1 = new User();
+        user1.setToken("1");
+        user1.setId(1L);
+        user1.setUsername("Flacko");
+        user1.setPassword("1");
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+        user2.setUsername("Bunny");
+        user2.setPassword("1");
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.setUsersInLobby(user1);
+        testLobby.setUsersInLobby(user2);
+        testLobby.setTotalNumPlayersAndBots(2);
+
+        //kick list setup
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setToken("1");
+        ArrayList<Long> kick = new ArrayList<>();
+        kick.add(3L);
+        lobbyPutDTO.setUsersToKick(kick);
+
+        assertEquals(testLobby.getUsersInLobby().size(),2);
+        lobbyService.updateLobby(testLobby,lobbyPutDTO);
+
+        assertEquals(1,testLobby.getUsersInLobby().size());
+        assertFalse(testLobby.getUsersInLobby().contains(user2));
+        assertEquals(1, testLobby.getTotalNumPlayersAndBots());
+    }
+
+    @Test
+    public void removeLobbyLeaderFromLobby_fail(){
+        //lobby leader
+        User user1 = new User();
+        user1.setToken("1");
+        user1.setId(1L);
+        user1.setUsername("Flacko");
+        user1.setPassword("1");
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+        user2.setUsername("Bunny");
+        user2.setPassword("1");
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.setUsersInLobby(user1);
+        testLobby.setUsersInLobby(user2);
+
+        //kick list setup
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setToken("1");
+        ArrayList<Long> kick = new ArrayList<>();
+        kick.add(1L);
+        lobbyPutDTO.setUsersToKick(kick);
+
+        assertEquals(testLobby.getUsersInLobby().size(),2);
+
+        lobbyService.updateLobby(testLobby,lobbyPutDTO);
+
+        assertEquals(2,testLobby.getUsersInLobby().size());
+        assertTrue(testLobby.getUsersInLobby().contains(user1));
 
     }
 }
