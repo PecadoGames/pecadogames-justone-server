@@ -1,15 +1,18 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
+import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
+import ch.uzh.ifi.seal.soprafs20.service.ChatService;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +23,12 @@ import java.util.List;
 public class LobbyController {
     private final LobbyService lobbyService;
     private final UserService userService;
+    private final ChatService chatService;
 
-    LobbyController(LobbyService lobbyService, UserService userService){
+    LobbyController(LobbyService lobbyService, UserService userService, ChatService chatService){
         this.lobbyService = lobbyService;
         this.userService = userService;
+        this.chatService = chatService;
     }
 
 
@@ -45,6 +50,9 @@ public class LobbyController {
         // create lobby
         createdLobby = lobbyService.createLobby(userLobby);
 
+        //create chat for lobby
+        chatService.createChat(createdLobby.getLobbyId());
+        Chat chat = chatService.getChat(createdLobby.getLobbyId());
         // convert internal representation of user back to API
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{lobbyId}")
                 .buildAndExpand(createdLobby.getLobbyId()).toUri();

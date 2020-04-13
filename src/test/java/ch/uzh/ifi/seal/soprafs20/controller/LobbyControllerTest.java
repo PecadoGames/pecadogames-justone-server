@@ -9,6 +9,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
+import ch.uzh.ifi.seal.soprafs20.service.ChatService;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,7 +44,8 @@ public class LobbyControllerTest {
     private LobbyService lobbyService;
     @MockBean
     private UserService userService;
-
+    @MockBean
+    private ChatService chatService;
 
     @Test
     public void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {

@@ -17,5 +17,19 @@ public class Chat {
     @OneToMany
     Set<Message> messages = new HashSet<>();
 
+    public Long getLobbyId() {
+        return lobbyId;
+    }
 
+    public void setLobbyId(Long lobbyId) {
+        this.lobbyId = lobbyId;
+    }
+
+    public Set<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(Message message) {
+        messages.add(message);
+    }
 }
