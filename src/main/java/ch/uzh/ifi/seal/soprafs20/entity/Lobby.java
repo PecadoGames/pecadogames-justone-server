@@ -7,13 +7,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "LOBBY")
+@Table(name="LOBBY")
 public class Lobby implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long lobbyId;
 
     @Column(nullable = false)
