@@ -101,4 +101,13 @@ public class LobbyController {
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
 
+    @GetMapping(path = "/lobbies/{lobbyId}/chat", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<String> getChatMessages(@PathVariable long lobbyId) {
+        //ToDO
+        return null;
+    }
+
+
 }

@@ -17,38 +17,37 @@ public class Lobby implements Serializable {
     private Long lobbyId;
 
     @Column(nullable = false)
-    String lobbyName;
+    private String lobbyName;
 
     @Column(nullable = false)
-    Integer numberOfPlayers;
+    private Integer numberOfPlayers;
 
     @Column(nullable = false)
-    boolean voiceChat;
+    private boolean voiceChat;
 
     @Column(nullable = false)
-    Long userId; //user id of lobby creator
+    private Long userId; //user id of lobby creator
 
     @Column(nullable = false)
-    String userToken;
+    private String userToken;
 
     @Column
-    Integer numberOfBots;
+    private Integer numberOfBots;
 
     @Column
-    Long lobbyScore;
+    private Long lobbyScore;
 
     @Column(nullable = false)
-    boolean isPrivate;
+    private boolean isPrivate;
 
     @Column
-    String privateKey;
+    private String privateKey;
 
     @Column(nullable = false)
-    int totalNumPlayers;
-
+    private int totalNumPlayers;
 
     @OneToMany
-    Set<User> usersInLobby = new HashSet<>();
+    private Set<User> usersInLobby = new HashSet<>();
 
     public Long getLobbyId() {
         return lobbyId;

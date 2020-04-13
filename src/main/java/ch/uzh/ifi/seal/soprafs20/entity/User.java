@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonParseException;
 
@@ -61,7 +60,7 @@ public class User implements Serializable {
    private Set<User> friendList = new HashSet<>();
 
    @ManyToMany
-   private Set<Lobby> LobbyInvites = new HashSet<>();
+   private Set<Lobby> lobbyInvites = new HashSet<>();
 
     public Long getId() {
 		return id;
@@ -133,10 +132,10 @@ public class User implements Serializable {
     }
 
     public Set<Lobby> getLobbyInvites() {
-        return LobbyInvites;
+        return lobbyInvites;
     }
 
     public void setLobbyInvites(Lobby lobbyInvites) {
-        LobbyInvites.add(lobbyInvites);
+        this.lobbyInvites.add(lobbyInvites);
     }
 }
