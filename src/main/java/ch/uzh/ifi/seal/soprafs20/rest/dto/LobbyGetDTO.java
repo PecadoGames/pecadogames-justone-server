@@ -3,19 +3,13 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 public class LobbyGetDTO {
     private String lobbyName;
 
-    private Integer numberOfPlayers;
-
-    private Integer numberOfBots;
-
-    private Integer numberOfCurrentlyInLobby;
-
     private boolean voiceChat;
 
     private Long userId;
 
-    private String token;
-
     private Long lobbyId;
+
+    private Integer totalPlayersAndBots;
 
 
     public String getLobbyName() {
@@ -24,14 +18,6 @@ public class LobbyGetDTO {
 
     public void setLobbyName(String lobbyName) {
         this.lobbyName = lobbyName;
-    }
-
-    public Integer getNumberOfPlayers() {
-        return numberOfPlayers;
-    }
-
-    public void setNumberOfPlayers(Integer numberOfPlayers) {
-        this.numberOfPlayers = numberOfPlayers;
     }
 
     public boolean isVoiceChat() {
@@ -50,25 +36,6 @@ public class LobbyGetDTO {
         this.userId = userId;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public Integer getNumberOfBots() {
-        return numberOfBots;
-    }
-
-    public void setNumberOfBots(Integer numberOfBots) {
-        this.numberOfBots = numberOfBots;
-    }
-
-    public Integer getNumberOfCurrentlyInLobby() { return numberOfCurrentlyInLobby; }
-
-    public void setNumberOfCurrentlyInLobby(Integer number) { numberOfCurrentlyInLobby = number; }
 
     public Long getLobbyId() {
         return lobbyId;
@@ -76,5 +43,13 @@ public class LobbyGetDTO {
 
     public void setLobbyId(Long lobbyId) {
         this.lobbyId = lobbyId;
+    }
+
+    public Integer getTotalPlayers() {
+        return totalPlayersAndBots;
+    }
+
+    public void setTotalPlayers(Integer totalPlayersAndBots) {
+        this.totalPlayersAndBots = totalPlayersAndBots;
     }
 }

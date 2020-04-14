@@ -70,7 +70,6 @@ public class LobbyService {
         if(!lobby.getToken().equals(receivedValues.getToken())){
             throw new UnauthorizedException("You are not allowed to change the settings of this lobby!");
         }
-        if(receivedValues.isVoiceChat() != lobby.isVoiceChat()){lobby.setVoiceChat(receivedValues.isVoiceChat());}
 
         //remove kicked players from lobby
         if(receivedValues.getUsersToKick() != null){
@@ -79,15 +78,6 @@ public class LobbyService {
             lobby.setTotalNumPlayersAndBots(lobby.getTotalNumPlayersAndBots() - receivedValues.getUsersToKick().size());
         }
 
-        //public to private
-        if(receivedValues.isPrivate() && !lobby.isPrivate()){
-            lobby.setPrivateKey((UUID.randomUUID().toString()));
-        }
-
-        //private to public
-        if(!receivedValues.isPrivate() && lobby.isPrivate()){
-            lobby.setPrivateKey(null);
-        }
 
         //update bots
         if(receivedValues.getNumberOfBots() != null && receivedValues.getNumberOfPlayers() == null){

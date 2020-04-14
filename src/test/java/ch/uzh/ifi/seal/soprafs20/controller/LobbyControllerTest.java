@@ -72,7 +72,6 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$[0].voiceChat", is(lobby.isVoiceChat())))
                 .andExpect(jsonPath(("$[0].userId"), is(lobby.getUserId().intValue())));
     }
-
     @Test
     public void createLobby_validInput_publicLobby() throws Exception {
        // given
@@ -149,9 +148,7 @@ public class LobbyControllerTest {
         lobby.setToken("2020");
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        lobbyPutDTO.setLobbyName("Badbunny");
         lobbyPutDTO.setNumberOfPlayers(6);
-        lobbyPutDTO.setVoiceChat(true);
         lobbyPutDTO.setNumberOfBots(1);
         lobbyPutDTO.setToken("2020");
 
@@ -178,9 +175,7 @@ public class LobbyControllerTest {
         lobby.setUserId(1234);
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        lobbyPutDTO.setLobbyName("Badbunny");
         lobbyPutDTO.setNumberOfPlayers(6);
-        lobbyPutDTO.setVoiceChat(true);
         lobbyPutDTO.setNumberOfBots(1);
 
         given(lobbyService.getLobby(Mockito.anyLong())).willThrow(new NotFoundException("Could not find lobby!"));
@@ -198,9 +193,7 @@ public class LobbyControllerTest {
         //given => nothing as lobby does not exist
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        lobbyPutDTO.setLobbyName("Badbunny");
         lobbyPutDTO.setNumberOfPlayers(6);
-        lobbyPutDTO.setVoiceChat(true);
         lobbyPutDTO.setNumberOfBots(1);
         lobbyPutDTO.setToken("0000");
 
@@ -209,7 +202,6 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}","1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(lobbyPutDTO));
-
         mockMvc.perform(putRequest)
                 .andExpect(status().isUnauthorized());
     }
