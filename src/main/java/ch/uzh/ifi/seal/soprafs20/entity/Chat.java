@@ -4,8 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "CHAT")
@@ -15,7 +15,7 @@ public class Chat {
     private Long lobbyId;
 
     @OneToMany
-    Set<Message> messages = new HashSet<>();
+    List<Message> messages = new ArrayList<>();
 
     public Long getLobbyId() {
         return lobbyId;
@@ -25,7 +25,7 @@ public class Chat {
         this.lobbyId = lobbyId;
     }
 
-    public Set<Message> getMessages() {
+    public List<Message> getMessages() {
         return messages;
     }
 

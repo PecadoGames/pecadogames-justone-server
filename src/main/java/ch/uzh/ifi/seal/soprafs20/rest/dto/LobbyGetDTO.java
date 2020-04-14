@@ -7,6 +7,8 @@ public class LobbyGetDTO {
 
     private Integer numberOfBots;
 
+    private Integer numberOfCurrentlyInLobby;
+
     private boolean voiceChat;
 
     private Long userId;
@@ -63,6 +65,10 @@ public class LobbyGetDTO {
     public void setNumberOfBots(Integer numberOfBots) {
         this.numberOfBots = numberOfBots;
     }
+
+    public Integer getNumberOfCurrentlyInLobby() { return numberOfCurrentlyInLobby; }
+
+    public void setNumberOfCurrentlyInLobby(Integer number) { numberOfCurrentlyInLobby = number; }
 
     public Long getLobbyId() {
         return lobbyId;

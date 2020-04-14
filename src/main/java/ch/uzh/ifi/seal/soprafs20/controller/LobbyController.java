@@ -3,11 +3,14 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.ChatService;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +55,6 @@ public class LobbyController {
 
         //create chat for lobby
         chatService.createChat(createdLobby.getLobbyId());
-        Chat chat = chatService.getChat(createdLobby.getLobbyId());
         // convert internal representation of user back to API
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{lobbyId}")
                 .buildAndExpand(createdLobby.getLobbyId()).toUri();
@@ -112,9 +114,18 @@ public class LobbyController {
     @GetMapping(path = "/lobbies/{lobbyId}/chat", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<String> getChatMessages(@PathVariable long lobbyId) {
-        //ToDO
-        return null;
+    public String getChatMessages(@PathVariable long lobbyId) {
+        Chat chat = chatService.getChat(lobbyId);
+        return asJsonString(chat);
+    }
+
+    private String asJsonString(final Object object) {
+        try {
+            return new ObjectMapper().writeValueAsString(object);
+        }
+        catch (JsonProcessingException e) {
+            throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
+        }
     }
 
 

@@ -1,7 +1,9 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 
+import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.Message;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
@@ -23,8 +25,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import java.util.Collections;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -241,6 +243,50 @@ public class LobbyControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getChat_validInput_returnsJson() throws Exception {
+        Calendar calndr = Calendar.getInstance();
+        String tmZ = calndr.getTimeZone().getDisplayName();
+        SimpleDateFormat sF = new SimpleDateFormat( "dd.MM.yyyy hh:mm:ss");
+        sF.setTimeZone(TimeZone.getTimeZone(tmZ));
+
+        Date birthday = sF.parse( "20.05.2010 10:52:30");
+        Message message1 = new Message();
+        message1.setAuthorId(1L);
+        message1.setMessageId(2L);
+        message1.setCreationDate(birthday);
+        message1.setText("Hello world");
+
+        Date birthday2 = sF.parse( "20.05.2010 10:52:33");
+        Message message2 = new Message();
+        message2.setAuthorId(1L);
+        message2.setMessageId(4L);
+        message2.setCreationDate(birthday2);
+        message2.setText("Hello world");
+
+        Chat chat = new Chat();
+        chat.setLobbyId(3L);
+        chat.setMessages(message1);
+        chat.setMessages(message2);
+
+        given(chatService.getChat(Mockito.any())).willReturn(chat);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/" + chat.getLobbyId() + "/chat").contentType(MediaType.APPLICATION_JSON);
+
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lobbyId", is(chat.getLobbyId().intValue())))
+                .andExpect(jsonPath("$.messages[0].messageId", is(message1.getMessageId().intValue())))
+                .andExpect(jsonPath("$.messages[0].authorId", is(message1.getAuthorId().intValue())))
+                .andExpect(jsonPath("$.messages[0].text", is(message1.getText())))
+                .andExpect(jsonPath("$.messages[0].creationDate", is(sF.format(message1.getCreationDate()))))
+                .andExpect(jsonPath("$.messages[1].messageId", is(message2.getMessageId().intValue())))
+                .andExpect(jsonPath("$.messages[1].authorId", is(message2.getAuthorId().intValue())))
+                .andExpect(jsonPath("$.messages[1].text", is(message2.getText())))
+                .andExpect(jsonPath("$.messages[1].creationDate", is(sF.format(message2.getCreationDate()))));
     }
 
     private String asJsonString(final Object object) {

@@ -5,9 +5,6 @@ public class RequestPostDTO {
     private String token;
 
 
-
-
-
     public long getRequestedUserId() {
         return requestedUserId;
     }
