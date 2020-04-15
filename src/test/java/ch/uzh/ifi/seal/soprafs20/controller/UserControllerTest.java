@@ -97,7 +97,6 @@ public class UserControllerTest {
         user.setStatus(UserStatus.ONLINE);
         user.setCreationDate();
 
-
         given(userService.getUser(user.getId())).willReturn(user);
 
         MockHttpServletRequestBuilder getRequest = get("/users/" + user.getId())
@@ -165,6 +164,8 @@ public class UserControllerTest {
         LoginPutDTO loginPutDTO = new LoginPutDTO();
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
+
+        given(userService.loginUser(Mockito.any())).willReturn(user);
 
         MockHttpServletRequestBuilder putRequest = put("/login")
                 .contentType(MediaType.APPLICATION_JSON)

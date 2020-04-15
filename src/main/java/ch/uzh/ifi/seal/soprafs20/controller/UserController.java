@@ -2,9 +2,12 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -129,18 +132,15 @@ public class UserController {
     @PutMapping(path = "/login", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ResponseEntity<Object> login(@RequestBody LoginPutDTO loginPutDTO) {
-        User user;
+    public String login(@RequestBody LoginPutDTO loginPutDTO) {
 
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
 
         // check password
-        user = userService.loginUser(userInput);
+        User user = userService.loginUser(userInput);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{id}")
-                .buildAndExpand(user.getId()).toUri();
-        return ResponseEntity.created(location).build();
+        return asJsonString(user.getId());
     }
 
     @PutMapping(path = "/logout", consumes = "application/json")
@@ -166,6 +166,15 @@ public class UserController {
             lobbies.add(DTOMapper.INSTANCE.convertEntityToInviteGetDTO(lobby));
         }
         return lobbies;
+    }
+
+    private String asJsonString(final Object object) {
+        try {
+            return new ObjectMapper().writeValueAsString(object);
+        }
+        catch (JsonProcessingException e) {
+            throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
+        }
     }
 
 
