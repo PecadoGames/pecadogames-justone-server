@@ -137,7 +137,7 @@ public class UserController {
     @PutMapping(path = "/login", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public String login(@RequestBody LoginPutDTO loginPutDTO) {
+    public LoginPutDTO login(@RequestBody LoginPutDTO loginPutDTO) {
 
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
@@ -145,8 +145,8 @@ public class UserController {
         // check password
         User user = userService.loginUser(userInput);
 
+        return DTOMapper.INSTANCE.convertEntityToLoginPutDTO(user);
 
-        return asJsonString(user);
     }
 
     @PutMapping(path = "/logout", consumes = "application/json")
