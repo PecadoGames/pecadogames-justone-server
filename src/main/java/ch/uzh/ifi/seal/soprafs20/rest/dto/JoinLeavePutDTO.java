@@ -2,23 +2,15 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
 public class JoinLeavePutDTO {
 
-    private long lobbyId;
-    private String userId;
+    private long userId;
     private String userToken;
 
-    public long getLobbyId() {
-        return lobbyId;
-    }
 
-    public void setLobbyId(long lobbyId) {
-        this.lobbyId = lobbyId;
-    }
-
-    public String getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 
