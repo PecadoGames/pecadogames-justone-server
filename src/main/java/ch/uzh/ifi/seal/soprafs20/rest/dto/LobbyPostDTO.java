@@ -11,6 +11,8 @@ public class LobbyPostDTO {
 
     private String token; //user token!
 
+    private boolean isPrivate;
+
 
 
     public String getLobbyName() {
@@ -53,4 +55,11 @@ public class LobbyPostDTO {
         this.token = token;
     }
 
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
+    }
 }

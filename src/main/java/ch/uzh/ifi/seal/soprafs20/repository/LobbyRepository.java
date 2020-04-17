@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LobbyRepository extends JpaRepository<Lobby, Long> {
-    Optional<Lobby> findByLobbyId(long lobbyId);
+    Optional<Lobby> findById(long lobbyId);
+    Optional<Lobby> findByUserId(long userId);
+
     @Query(value = "SELECT lobbyName, lobbyScore FROM Lobby")
     List<Lobby> getLobbiesByLobbyScore();
 }

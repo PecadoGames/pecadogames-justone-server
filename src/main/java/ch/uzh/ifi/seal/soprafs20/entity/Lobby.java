@@ -2,40 +2,52 @@ package ch.uzh.ifi.seal.soprafs20.entity;
 
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "LOBBY")
+@Table(name="LOBBY")
 public class Lobby implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long lobbyId;
 
     @Column(nullable = false)
-    String lobbyName;
+    private String lobbyName;
 
     @Column(nullable = false)
-    Integer numberOfPlayers;
+    private Integer numberOfPlayers;
 
     @Column(nullable = false)
-    boolean voiceChat;
+    private boolean voiceChat;
 
     @Column(nullable = false)
-    Long userId; //user id of lobby creator
+    private Long userId; //user id of lobby creator
 
     @Column(nullable = false)
-    String userToken;
+    private String userToken;
 
     @Column
-    Integer numberOfBots;
+    private Integer numberOfBots;
 
     @Column
-    Long lobbyScore;
+    private Long lobbyScore;
+
+    @Column(nullable = false)
+    private boolean isPrivate;
+
+    @Column
+    private String privateKey;
+
+    @Column(nullable = false)
+    private int totalNumPlayersAndBots;
+
+    @OneToMany
+    private Set<User> usersInLobby = new HashSet<>();
 
     public Long getLobbyId() {
         return lobbyId;
@@ -111,5 +123,35 @@ public class Lobby implements Serializable {
 
     public void setLobbyId(Long lobbyId) {
         this.lobbyId = lobbyId;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public Set<User> getUsersInLobby() { return usersInLobby; }
+
+    public void addUserToLobby(User newUser) { usersInLobby.add(newUser); }
+
+    public void replaceUsersInLobby(Set<User> users){usersInLobby = users;}
+
+    public int getTotalNumPlayersAndBots() {
+        return totalNumPlayersAndBots;
+    }
+
+    public void setTotalNumPlayersAndBots(int totalNumPlayers) {
+        this.totalNumPlayersAndBots = totalNumPlayers;
     }
 }

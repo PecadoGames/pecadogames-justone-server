@@ -1,16 +1,20 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
+import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,20 +41,21 @@ public class UserService {
         return this.userRepository.findAll();
     }
 
-    public User getUser(Long id){
+    public User getUser(Long id) {
         User user;
         Optional<User> optional = userRepository.findById(id);
-        if(optional.isPresent()){
+        if (optional.isPresent()) {
             user = optional.get();
             return user;
         }
-        else{throw new NotFoundException("Couldn't find user.");
+        else {
+            throw new NotFoundException("Couldn't find user.");
         }
     }
 
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
-        newUser.setStatus(UserStatus.ONLINE);
+        newUser.setStatus(UserStatus.OFFLINE);
         newUser.setCreationDate();
         checkUsername(newUser.getUsername());
         checkIfUserExists(newUser);
@@ -63,25 +68,16 @@ public class UserService {
         return newUser;
     }
 
-    private boolean checkIfUserExists(User userToBeCreated) {
-        User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-        String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-        if (userByUsername != null) {
-            throw new ConflictException(String.format(baseErrorMessage, "username", "is"));
-        }
-        return true;
-    }
-
     public User loginUser(User user) {
         User foundUser = userRepository.findByUsername(user.getUsername());
-        if(foundUser == null){
+        if (foundUser == null) {
             throw new NotFoundException("user credentials are incorrect!");
         }
 
         String enteredPassword = user.getPassword();
         String storedPassword = userRepository.findByUsername(user.getUsername()).getPassword();
 
-        if(!enteredPassword.equals(storedPassword)){
+        if (!enteredPassword.equals(storedPassword)) {
             throw new NotFoundException("user credentials are incorrect!");
         }
         isAlreadyLoggedIn(foundUser);
@@ -89,57 +85,115 @@ public class UserService {
         foundUser.setToken(UUID.randomUUID().toString());
         foundUser.setStatus(UserStatus.ONLINE);
         log.debug("User {} has logged in.", user);
-
         return foundUser;
     }
 
-    public boolean isAlreadyLoggedIn(User user){
-        if (user.getStatus() == UserStatus.ONLINE){
-            throw new NoContentException("User already logged in!");
-        }
-        return true;
-    }
-
-    public boolean logoutUser(User findUser){
-        User user;
-        Long id = findUser.getId();
-        Optional<User> optional = userRepository.findById(id);
-        if(optional.isPresent()){
-            user = optional.get();
-            if(user.getStatus() == UserStatus.ONLINE && user.getToken().equals(findUser.getToken())){
-                user.setStatus(UserStatus.OFFLINE);
-                user.setToken(null);
-                userRepository.save(user);
-            }
-            else {
-                throw new UnauthorizedException("Logout is not allowed!");
-            }
+    public void logoutUser(User findUser) {
+        User user = getUser(findUser.getId());
+        if (user.getStatus() == UserStatus.ONLINE && user.getToken().equals(findUser.getToken())) {
+            user.setStatus(UserStatus.OFFLINE);
+            user.setToken(null);
+            log.debug("User {} has logged out.", user);
         }
         else {
-            String message = String.format("user with ID %s not found!", id.toString());
-            throw new NotFoundException(message);
+            throw new UnauthorizedException("Logout is not allowed!");
         }
-        return true;
     }
 
+    public void updateUser(User user, UserPutDTO receivedValues) throws JsonParseException {
 
-    public void updateUser(User user, UserPutDTO receivedValues){
-
-        if(userRepository.findByUsername(receivedValues.getUsername()) != null){
+        if (userRepository.findByUsername(receivedValues.getUsername()) != null) {
             throw new ConflictException("This username already exists.");
         }
-        if(!user.getToken().equals(receivedValues.getToken())){
-            throw new UnauthorizedException("You are not allowed to change this user!.");
+        if (!user.getToken().equals(receivedValues.getToken())) {
+            throw new UnauthorizedException("You are not allowed to change this user's information!");
         }
-        if(receivedValues.getUsername()!=null){
-        checkUsername(receivedValues.getUsername());}
-        if(receivedValues.getUsername() != null){user.setUsername(receivedValues.getUsername());}
-        if(receivedValues.getBirthday() != null){user.setBirthday(receivedValues.getBirthday());}
+
+        if (receivedValues.getBirthday() != null) {
+            user.setBirthday(receivedValues.getBirthday());
+        }
+        if (receivedValues.getUsername() != null) {
+            checkUsername(receivedValues.getUsername());
+            user.setUsername(receivedValues.getUsername());
+        }
+        userRepository.save(user);
+
     }
 
-    public void checkUsername(String username){
-        if (username.contains(" ") || username.isEmpty() || username.length() > 20 || username.trim().isEmpty() ) {
-            throw new NotAcceptableException("This is an invalid username. Please max. 20 digits and no spaces.");
+    public void addFriendRequest(User receiver, User sender) {
+        if (userRepository.findByUsername(receiver.getUsername()) == null) {
+            String exceptionMessage = "User with id %s does not exist!";
+            throw new NotFoundException(String.format(exceptionMessage, receiver.getId().toString()));
+        }
+        User user = userRepository.findById(sender.getId()).get();
+        if (!sender.getToken().equals(user.getToken())) {
+            throw new UnauthorizedException("You are not allowed to send a friend request!");
+        }
+        receiver.setFriendRequests(sender);
+    }
+
+    public void acceptOrDeclineFriendRequest(User receiver, FriendPutDTO friendPutDTO) {
+        User sender = getUser(friendPutDTO.getSenderID());
+        if (receiver.getFriendRequests().contains(sender)) {
+            if (friendPutDTO.getAccepted()) {
+                receiver.setFriendList(sender);
+                sender.setFriendList(receiver);
+            }
+            receiver.getFriendRequests().remove(sender);
+        }
+        else {
+            throw new NotFoundException(String.format("No friend request from user with id %s was found!", sender.getId().toString()));
+        }
+    }
+
+    public void addLobbyInvite(User receiver, Lobby lobby, User sender) {
+        if (!sender.getToken().equals(lobby.getToken())) {
+            throw new UnauthorizedException("User is not authorized to send lobby invites");
+        }
+        if (sender.getId().equals(receiver.getId())) {
+            throw new ConflictException("Cannot invite yourself to the lobby");
+        }
+        receiver.setLobbyInvites(lobby);
+    }
+
+    //TODO: @Mary review my changes to this method
+    public void acceptOrDeclineLobbyInvite(Lobby lobby, LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
+        User receiver = getUser(lobbyAcceptancePutDTO.getAccepterId());
+        if (!receiver.getToken().equals(lobbyAcceptancePutDTO.getAccepterToken()) || !receiver.getLobbyInvites().contains(lobby)) {
+            throw new UnauthorizedException("You are not allowed to accept or decline this lobby invite!");
+        }
+        receiver.getLobbyInvites().remove(lobby);
+        if (lobbyAcceptancePutDTO.isAccepted() && lobby.getTotalNumPlayersAndBots() + 1 - lobby.getNumberOfBots() <= lobby.getNumberOfPlayers()) {
+            lobby.addUserToLobby(receiver);
+            //update player count
+            lobby.setTotalNumPlayersAndBots(lobby.getNumberOfPlayers() + 1);
+            return;
+        }
+        if(!lobbyAcceptancePutDTO.isAccepted()) {
+            throw new NoContentException("You declined the lobby invite.");
+        }
+        if(lobby.getTotalNumPlayersAndBots() + 1 - lobby.getNumberOfBots() > lobby.getNumberOfPlayers()){
+            throw new ConflictException("Failed to join lobby: The lobby is already full");
+        }
+    }
+
+    private void checkIfUserExists(User userToBeCreated) {
+        User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
+        String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+        if (userByUsername != null) {
+            throw new ConflictException(String.format(baseErrorMessage, "username", "is"));
+        }
+    }
+
+    public void isAlreadyLoggedIn(User user) {
+        if (user.getStatus() == UserStatus.ONLINE) {
+            throw new NoContentException("User already logged in!");
+        }
+    }
+
+    public void checkUsername(String username) {
+        if (username.contains(" ") || username.isEmpty() || username.isBlank() || username.length() > 20 || username.trim().isEmpty() || !username.matches("[a-zA-Z_0-9]*")) {
+            throw new NotAcceptableException("This is an invalid username. Please choose a username with a maximum length of 20 characters consisting of letters, digits and underscores..");
         }
     }
 }

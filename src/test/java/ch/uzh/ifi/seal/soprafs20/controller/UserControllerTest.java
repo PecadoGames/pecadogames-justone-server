@@ -4,36 +4,30 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.LoginPutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.LogoutPutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPostDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -55,9 +49,15 @@ public class UserControllerTest {
 
     @Test
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
+        Calendar calndr = Calendar.getInstance();
+        String tmZ = calndr.getTimeZone().getDisplayName();
+
         // given
         User user = new User();
-        Date birthday = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").parse("01.01.2001 01:00:00");
+        SimpleDateFormat sF = new SimpleDateFormat( "dd.MM.yyyy");
+        sF.setTimeZone(TimeZone.getTimeZone(tmZ));
+
+        Date birthday = sF.parse( "20.05.2010 ");
         user.setUsername("firstname@lastname");
         user.setStatus(UserStatus.OFFLINE);
         user.setBirthday(birthday);
@@ -71,6 +71,9 @@ public class UserControllerTest {
 
         // when
         MockHttpServletRequestBuilder getRequest = get("/users").contentType(MediaType.APPLICATION_JSON);
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
+        format.setTimeZone(TimeZone.getTimeZone(tmZ));
 
         // then
         mockMvc.perform(getRequest).andExpect(status().isOk())
@@ -80,7 +83,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].creation_date", is(
                         user.getCreationDate().toInstant().toString().replace("Z", "+0000"))))
                 .andExpect(jsonPath(("$[0].birthday"), is(
-                        user.getBirthday().toInstant().toString().replace("Z", ".000+0000"))))
+                        format.format(user.getBirthday()))))
                 .andExpect(jsonPath("$[0].token", is(user.getToken())));
     }
 
@@ -92,6 +95,7 @@ public class UserControllerTest {
         user.setPassword("test");
         user.setToken("1");
         user.setStatus(UserStatus.ONLINE);
+        user.setCreationDate();
 
         given(userService.getUser(user.getId())).willReturn(user);
 
@@ -155,7 +159,7 @@ public class UserControllerTest {
         user.setUsername("testUsername");
         user.setToken("1");
         user.setPassword("1");
-        user.setStatus(UserStatus.ONLINE);
+        user.setStatus(UserStatus.OFFLINE);
 
         LoginPutDTO loginPutDTO = new LoginPutDTO();
         loginPutDTO.setUsername("testUsername");
@@ -184,7 +188,7 @@ public class UserControllerTest {
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
 
-        given(userService.loginUser(Mockito.any())).willThrow(new NoContentException("message"));
+        Mockito.doThrow(new NoContentException("message")).when(userService).loginUser(Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -200,7 +204,7 @@ public class UserControllerTest {
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
 
-        given(userService.loginUser(Mockito.any())).willThrow(new NotFoundException("message"));
+        Mockito.doThrow(new NotFoundException("message")).when(userService).loginUser(Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -239,7 +243,7 @@ public class UserControllerTest {
         logoutPutDTO.setId(1L);
         logoutPutDTO.setToken("1");
 
-        given(userService.logoutUser(Mockito.any())).willThrow(new UnauthorizedException("message"));
+        Mockito.doThrow(new UnauthorizedException("message")).when(userService).logoutUser(Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/logout")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -255,7 +259,7 @@ public class UserControllerTest {
         logoutPutDTO.setId(1L);
         logoutPutDTO.setToken("1");
 
-        given(userService.logoutUser(Mockito.any())).willThrow(new NotFoundException("message"));
+        Mockito.doThrow(new NotFoundException("message")).when(userService).logoutUser(Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/logout")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -263,6 +267,77 @@ public class UserControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    public void updateUser_invalidBirthday() throws InvalidFormatException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{\"token\" : \"1\", \"birthday\" : \"123\"}";
+
+        assertThrows(InvalidFormatException.class,() ->{UserPutDTO userPutDTO = objectMapper.readValue(json,UserPutDTO.class);});
+    }
+
+
+    @Test
+    public void updateUser_validInput() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testUsername");
+        user.setToken("testToken");
+
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("updatedUsername");
+        userPutDTO.setToken("testToken");
+
+        MockHttpServletRequestBuilder putRequest = put("/users/" + user.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void givenFriendRequests_whenGetFriendRequests_thenReturnJsonArray() throws Exception {
+        User user1 = new User();
+        user1.setId(1L);
+
+        User user2 = new User();
+        user2.setId(2L);
+
+        user1.setFriendRequests(user2);
+
+        given(userService.getUser(Mockito.any())).willReturn(user1);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/users/" + user1.getId() + "/friendRequests").contentType(MediaType.APPLICATION_JSON);
+
+        //then
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(user2.getId().intValue())));
+    }
+
+    @Test
+    public void sendFriendRequest_validInput_success() throws Exception {
+        User user1 = new User();
+        user1.setId(1L);
+
+        User user2 = new User();
+        user2.setId(2L);
+        user2.setToken("testToken");
+
+        RequestPutDTO requestPutDTO = new RequestPutDTO();
+        requestPutDTO.setSenderID(user2.getId());
+        requestPutDTO.setToken(user2.getToken());
+
+        MockHttpServletRequestBuilder putRequest = put("/users/" + user1.getId() + "/friendRequests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(requestPutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isNoContent());
     }
 
     /**

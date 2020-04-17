@@ -6,10 +6,12 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.LoginPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LogoutPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPostDTO;
+import com.fasterxml.jackson.core.JsonParseException;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,13 +36,14 @@ public class DTOMapperTest {
     }
 
     @Test
-    public void testGetUser_fromUser_toUserGetDTO_success() throws ParseException {
+    public void testGetUser_fromUser_toUserGetDTO_success() throws ParseException, JsonParseException {
+
         // create User
         User user = new User();
         user.setUsername("firstname@lastname");
         user.setStatus(UserStatus.OFFLINE);
         user.setCreationDate();
-        user.setBirthday(new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").parse("01.01.2001 01:00:00"));
+        user.setBirthday(new SimpleDateFormat( "dd.MM.yyyy" ).parse( "20.05.2010" ));
         user.setToken("1");
 
         // MAP -> Create UserGetDTO

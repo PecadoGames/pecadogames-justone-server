@@ -1,12 +1,16 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.core.JsonParseException;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Internal User Representation
@@ -22,8 +26,8 @@ public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue
-	private Long id;
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank
     @NotEmpty
@@ -43,12 +47,22 @@ public class User implements Serializable {
     private Date creationDate;
 
 	@Column(nullable = true)
+    @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
 
 	@Column
     private int score;
 
-	public Long getId() {
+   @ManyToMany
+    private Set<User> friendRequests = new HashSet<>();
+
+   @ManyToMany
+   private Set<User> friendList = new HashSet<>();
+
+   @ManyToMany
+   private Set<Lobby> lobbyInvites = new HashSet<>();
+
+    public Long getId() {
 		return id;
 	}
 
@@ -88,15 +102,40 @@ public class User implements Serializable {
 
 	public Date getCreationDate(){return creationDate;}
 
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
+    @JsonFormat(pattern="dd.MM.yyyy")
+    public void setBirthday(Date birthday) throws JsonParseException {
+            this.birthday = birthday;
     }
 
     public Date getBirthday() {
-        return birthday;
+	    return birthday;
     }
 
     public int getScore(){return score;}
 
     public void setScore(int score){this.score = score;}
+
+    public Set<User> getFriendRequests() {
+        return friendRequests;
+    }
+
+    public void setFriendRequests(User user) {
+        friendRequests.add(user);
+    }
+
+    public Set<User> getFriendList() {
+        return friendList;
+    }
+
+    public void setFriendList(User user) {
+        friendList.add(user);
+    }
+
+    public Set<Lobby> getLobbyInvites() {
+        return lobbyInvites;
+    }
+
+    public void setLobbyInvites(Lobby lobbyInvites) {
+        this.lobbyInvites.add(lobbyInvites);
+    }
 }

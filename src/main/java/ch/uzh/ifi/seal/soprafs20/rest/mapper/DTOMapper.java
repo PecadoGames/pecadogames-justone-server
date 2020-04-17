@@ -3,7 +3,8 @@ package ch.uzh.ifi.seal.soprafs20.rest.mapper;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -38,13 +39,20 @@ public interface DTOMapper {
     @Mapping(source = "id", target = "id")
     User convertLogoutPutDTOtoEntity(LogoutPutDTO logoutPutDTO);
 
+    @Mapping(source = "token", target = "token")
+    @Mapping(source = "id", target = "id")
+    RequestGetDTO convertEntityToRequestGetDTO(User user);
+
+    @Mapping(source = "token", target = "token")
+    @Mapping(source = "senderID", target = "id")
+    User convertRequestPutDTOtoEntity(RequestPutDTO requestPutDTO);
+
     @Mapping(source = "lobbyName", target = "lobbyName")
-    @Mapping(source = "numberOfPlayers", target = "numberOfPlayers")
-    @Mapping(source = "numberOfBots", target = "numberOfBots")
     @Mapping(source = "voiceChat", target = "voiceChat")
     @Mapping(source = "userId", target = "userId")
-    @Mapping(source = "token", target = "token")
     @Mapping(source = "lobbyId", target = "lobbyId")
+    @Mapping(source = "totalNumPlayersAndBots", target = "totalPlayersAndBots")
+    @Mapping(source = "numberOfPlayers",target = "maxPlayersAndBots")
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
 
     @Mapping(source = "lobbyName", target = "lobbyName")
@@ -52,5 +60,18 @@ public interface DTOMapper {
     @Mapping(source = "voiceChat", target = "voiceChat")
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "token", target = "token")
+    @Mapping(source = "private", target = "private")
     Lobby convertLobbyPostDTOtoEntity(LobbyPostDTO lobbyPostDTO);
+
+
+
+    @Mapping(source = "lobbyName", target = "lobbyName")
+    @Mapping(source = "voiceChat", target = "voiceChat")
+    @Mapping(source = "privateKey",target = "privateKey")
+    @Mapping(source = "lobbyId", target = "lobbyId")
+    InviteGetDTO convertEntityToInviteGetDTO(Lobby lobby);
+
+
+
+
 }

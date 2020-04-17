@@ -1,20 +1,24 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User Controller
@@ -74,28 +78,69 @@ public class UserController {
     @PutMapping(path = "/users/{id}", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void updateUser(@PathVariable long id, @RequestBody UserPutDTO userPutDTO) {
-        User user;
-        user = userService.getUser(id);
+    public void updateUser(@PathVariable long id, @RequestBody UserPutDTO userPutDTO) throws HttpMessageNotReadableException, IOException {
+        User user = userService.getUser(id);
         userService.updateUser(user, userPutDTO);
+    }
+
+    @GetMapping(path = "/users/{id}/friendRequests", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<RequestGetDTO> getFriendRequests(@PathVariable long id) {
+        User user = userService.getUser(id);
+        Set<User> requests = user.getFriendRequests();
+        List<RequestGetDTO> requestGetDTOs = new ArrayList<>();
+
+        for (User request : requests) {
+            requestGetDTOs.add(DTOMapper.INSTANCE.convertEntityToRequestGetDTO(request));
+        }
+        return requestGetDTOs;
+    }
+
+    @PutMapping(path = "/users/{id}/friendRequests", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void sendFriendRequest(@PathVariable long id, @RequestBody RequestPutDTO requestPutDTO)  {
+        User receiver = userService.getUser(id);
+        User sender = DTOMapper.INSTANCE.convertRequestPutDTOtoEntity(requestPutDTO);
+        userService.addFriendRequest(receiver, sender);
+    }
+
+    @GetMapping(path = "users/{id}/friends", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<RequestGetDTO> getFriends(@PathVariable long id) {
+        User user = userService.getUser(id);
+        Set<User> friends = user.getFriendList();
+        List<RequestGetDTO> requestGetDTOs = new ArrayList<>();
+
+        for (User friend : friends) {
+            requestGetDTOs.add(DTOMapper.INSTANCE.convertEntityToRequestGetDTO(friend));
+        }
+        return requestGetDTOs;
+    }
+
+    @PutMapping(path = "/users/{id}/friends", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void handleFriendRequest(@PathVariable long id, @RequestBody FriendPutDTO friendPutDTO) {
+        User receiver = userService.getUser(id);
+        userService.acceptOrDeclineFriendRequest(receiver, friendPutDTO);
     }
 
     @CrossOrigin(exposedHeaders = "Location")
     @PutMapping(path = "/login", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ResponseEntity<Object> login(@RequestBody LoginPutDTO loginPutDTO) {
-        User user;
+    public String login(@RequestBody LoginPutDTO loginPutDTO) {
 
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
 
         // check password
-        user = userService.loginUser(userInput);
+        User user = userService.loginUser(userInput);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{id}")
-                .buildAndExpand(user.getId()).toUri();
-        return ResponseEntity.created(location).build();
+        return asJsonString(user.getId());
     }
 
     @PutMapping(path = "/logout", consumes = "application/json")
@@ -107,7 +152,31 @@ public class UserController {
 
         //logout user
         userService.logoutUser(userInput);
-
     }
+
+
+    @GetMapping(path = "/users/{userId}/invitations")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<InviteGetDTO> getLobbyInvites(@PathVariable long userId){
+        User user = userService.getUser(userId);
+        Set<Lobby> invites = user.getLobbyInvites();
+        List<InviteGetDTO> lobbies = new ArrayList<>();
+        for(Lobby lobby : invites){
+            lobbies.add(DTOMapper.INSTANCE.convertEntityToInviteGetDTO(lobby));
+        }
+        return lobbies;
+    }
+
+    private String asJsonString(final Object object) {
+        try {
+            return new ObjectMapper().writeValueAsString(object);
+        }
+        catch (JsonProcessingException e) {
+            throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
+        }
+    }
+
+
 
 }
