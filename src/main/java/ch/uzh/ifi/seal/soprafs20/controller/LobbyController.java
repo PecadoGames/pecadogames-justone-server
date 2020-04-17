@@ -49,9 +49,9 @@ public class LobbyController {
         Lobby createdLobby;
         // convert API user to internal representation
         Lobby userLobby = DTOMapper.INSTANCE.convertLobbyPostDTOtoEntity(lobbyPostDTO);
-
+        User host = userService.getUser(lobbyPostDTO.getUserId());
         // create lobby
-        createdLobby = lobbyService.createLobby(userLobby);
+        createdLobby = lobbyService.createLobby(userLobby,host);
 
         //create chat for lobby
         chatService.createChat(createdLobby.getLobbyId());
@@ -117,6 +117,25 @@ public class LobbyController {
     public String getChatMessages(@PathVariable long lobbyId) {
         Chat chat = chatService.getChat(lobbyId);
         return asJsonString(chat);
+    }
+
+
+    @PutMapping(path = "lobbies/{lobbyId}/joins", consumes = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void joinLobby(@PathVariable long lobbyId, @RequestBody JoinLeavePutDTO joinLeavePutDTO){
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        User user = userService.getUser(joinLeavePutDTO.getUserId());
+        lobbyService.addUserToLobby(user,lobby);
+    }
+
+    @PutMapping(path = "lobbies/{lobbyId}/rageQuits", consumes = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void leaveLobby(@PathVariable long lobbyId, @RequestBody JoinLeavePutDTO joinLeavePutDTO){
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        User user = userService.getUser(joinLeavePutDTO.getUserId());
+        lobbyService.addUserToLobby(user,lobby);
     }
 
     private String asJsonString(final Object object) {

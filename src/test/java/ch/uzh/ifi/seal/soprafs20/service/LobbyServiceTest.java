@@ -28,6 +28,7 @@ public class LobbyServiceTest {
     private LobbyService lobbyService;
 
     private Lobby testLobby;
+    private User host;
 
     @BeforeEach
     public void setup(){
@@ -43,6 +44,14 @@ public class LobbyServiceTest {
         testLobby.setTotalNumPlayersAndBots(1);
         testLobby.setLobbyId(1L);
 
+        host = new User();
+        host.setToken("1");
+        host.setId(1L);
+        host.setUsername("Flacko");
+        host.setPassword("1");
+
+
+
 
         // when -> any object is being save in the userRepository -> return the dummy testUser
         Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(testLobby);
@@ -54,7 +63,7 @@ public class LobbyServiceTest {
     @Test
     public void createLobby_validInput_publicLobby(){
         testLobby.setPrivate(false);
-        Lobby lobby = lobbyService.createLobby(testLobby);
+        Lobby lobby = lobbyService.createLobby(testLobby,host);
 
         Mockito.verify(lobbyRepository,Mockito.times(1)).save(Mockito.any());
 
@@ -69,7 +78,7 @@ public class LobbyServiceTest {
     @Test
     public void createLobby_validInput_privateLobby(){
         testLobby.setPrivate(true);
-        Lobby lobby = lobbyService.createLobby(testLobby);
+        Lobby lobby = lobbyService.createLobby(testLobby,host);
 
         Mockito.verify(lobbyRepository,Mockito.times(1)).save(Mockito.any());
 
@@ -131,7 +140,7 @@ public class LobbyServiceTest {
     @Test
     public void getLobby(){
         testLobby.setPrivate(false);
-        Lobby lobby = lobbyService.createLobby(testLobby);
+        Lobby lobby = lobbyService.createLobby(testLobby,host);
         Lobby foundLobby = lobbyService.getLobby(lobby.getLobbyId());
 
         Mockito.verify(lobbyRepository, Mockito.times(1)).findById(Mockito.any());
@@ -145,22 +154,18 @@ public class LobbyServiceTest {
 
     @Test
     public void getLobby_wrongId_throwsException(){
+
+
         testLobby.setPrivate(false);
-        lobbyService.createLobby(testLobby);
+        lobbyService.createLobby(testLobby,host);
 
         Mockito.when(lobbyRepository.findById(Mockito.any())).thenReturn(null);
-        assertThrows(NullPointerException.class,() -> {lobbyService.getLobby(1L);});
+        assertThrows(NullPointerException.class,() -> lobbyService.getLobby(1L));
 
     }
 
     @Test
     public void removePlayerFromLobby_success(){
-        //lobby leader
-        User user1 = new User();
-        user1.setToken("1");
-        user1.setId(1L);
-        user1.setUsername("Flacko");
-        user1.setPassword("1");
 
         //second user
         User user2 = new User();
@@ -171,8 +176,8 @@ public class LobbyServiceTest {
 
         //lobby setup
         testLobby.setPrivate(false);
-        testLobby.setUsersInLobby(user1);
-        testLobby.setUsersInLobby(user2);
+        testLobby.addUserToLobby(host);
+        testLobby.addUserToLobby(user2);
         testLobby.setTotalNumPlayersAndBots(2);
 
         //kick list setup
@@ -192,12 +197,6 @@ public class LobbyServiceTest {
 
     @Test
     public void removeLobbyLeaderFromLobby_fail(){
-        //lobby leader
-        User user1 = new User();
-        user1.setToken("1");
-        user1.setId(1L);
-        user1.setUsername("Flacko");
-        user1.setPassword("1");
 
         //second user
         User user2 = new User();
@@ -208,8 +207,8 @@ public class LobbyServiceTest {
 
         //lobby setup
         testLobby.setPrivate(false);
-        testLobby.setUsersInLobby(user1);
-        testLobby.setUsersInLobby(user2);
+        testLobby.addUserToLobby(host);
+        testLobby.addUserToLobby(user2);
 
         //kick list setup
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
@@ -223,7 +222,7 @@ public class LobbyServiceTest {
         lobbyService.updateLobby(testLobby,lobbyPutDTO);
 
         assertEquals(2,testLobby.getUsersInLobby().size());
-        assertTrue(testLobby.getUsersInLobby().contains(user1));
+        assertTrue(testLobby.getUsersInLobby().contains(host));
 
     }
 }

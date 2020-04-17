@@ -57,6 +57,7 @@ public class LobbyControllerTest {
         lobby.setNumberOfPlayers(5);
         lobby.setVoiceChat(false);
         lobby.setUserId(1234);
+        lobby.setTotalNumPlayersAndBots(1);
 
         List<Lobby> allLobbies = Collections.singletonList(lobby);
 
@@ -68,7 +69,8 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].lobbyId", is(lobby.getLobbyId().intValue())))
                 .andExpect(jsonPath("$[0].lobbyName", is(lobby.getLobbyName())))
-                .andExpect(jsonPath("$[0].numberOfPlayers", is(lobby.getNumberOfPlayers())))
+                .andExpect(jsonPath("$[0].totalPlayersAndBots", is(lobby.getTotalNumPlayersAndBots())))
+                .andExpect(jsonPath("$[0].maxPlayersAndBots",is(lobby.getNumberOfPlayers())))
                 .andExpect(jsonPath("$[0].voiceChat", is(lobby.isVoiceChat())))
                 .andExpect(jsonPath(("$[0].userId"), is(lobby.getUserId().intValue())));
     }
@@ -90,7 +92,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setToken("1");
 
 
-        given(lobbyService.createLobby(Mockito.any())).willReturn(lobby);
+        given(lobbyService.createLobby(Mockito.any(),Mockito.any())).willReturn(lobby);
 
         MockHttpServletRequestBuilder postRequest = post("/lobbies")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -122,7 +124,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setToken("1");
 
 
-        given(lobbyService.createLobby(Mockito.any())).willReturn(lobby);
+        given(lobbyService.createLobby(Mockito.any(),Mockito.any())).willReturn(lobby);
 
         MockHttpServletRequestBuilder postRequest = post("/lobbies")
                 .contentType(MediaType.APPLICATION_JSON)
