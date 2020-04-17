@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
@@ -86,8 +87,12 @@ public class UserController {
     @GetMapping(path = "/users/{id}/friendRequests", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<RequestGetDTO> getFriendRequests(@PathVariable long id) {
+    public List<RequestGetDTO> getFriendRequests(@PathVariable long id, @RequestBody RequestGetDTO requestGetDTO) {
         User user = userService.getUser(id);
+        if(!(requestGetDTO.getId().equals(user.getId()) && requestGetDTO.getToken().equals(user.getToken()))){
+            throw new UnauthorizedException("Authentication failed");
+        }
+
         Set<User> requests = user.getFriendRequests();
         List<RequestGetDTO> requestGetDTOs = new ArrayList<>();
 
@@ -140,7 +145,8 @@ public class UserController {
         // check password
         User user = userService.loginUser(userInput);
 
-        return asJsonString(user.getId());
+
+        return asJsonString(user);
     }
 
     @PutMapping(path = "/logout", consumes = "application/json")
