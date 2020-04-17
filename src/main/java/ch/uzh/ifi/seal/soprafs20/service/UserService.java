@@ -164,7 +164,7 @@ public class UserService {
         }
         receiver.getLobbyInvites().remove(lobby);
         if (lobbyAcceptancePutDTO.isAccepted() && lobby.getTotalNumPlayersAndBots() + 1 - lobby.getNumberOfBots() <= lobby.getNumberOfPlayers()) {
-            lobby.setUsersInLobby(receiver);
+            lobby.addUserToLobby(receiver);
             //update player count
             lobby.setTotalNumPlayersAndBots(lobby.getNumberOfPlayers() + 1);
             return;

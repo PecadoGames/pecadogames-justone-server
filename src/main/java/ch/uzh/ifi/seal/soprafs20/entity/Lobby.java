@@ -44,7 +44,7 @@ public class Lobby implements Serializable {
     private String privateKey;
 
     @Column(nullable = false)
-    private int totalNumPlayers;
+    private int totalNumPlayersAndBots;
 
     @OneToMany
     private Set<User> usersInLobby = new HashSet<>();
@@ -143,15 +143,15 @@ public class Lobby implements Serializable {
 
     public Set<User> getUsersInLobby() { return usersInLobby; }
 
-    public void setUsersInLobby(User newUser) { usersInLobby.add(newUser); }
+    public void addUserToLobby(User newUser) { usersInLobby.add(newUser); }
 
     public void replaceUsersInLobby(Set<User> users){usersInLobby = users;}
 
     public int getTotalNumPlayersAndBots() {
-        return totalNumPlayers;
+        return totalNumPlayersAndBots;
     }
 
     public void setTotalNumPlayersAndBots(int totalNumPlayers) {
-        this.totalNumPlayers = totalNumPlayers;
+        this.totalNumPlayersAndBots = totalNumPlayers;
     }
 }
