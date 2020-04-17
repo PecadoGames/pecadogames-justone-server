@@ -87,11 +87,8 @@ public class UserController {
     @GetMapping(path = "/users/{id}/friendRequests", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<RequestGetDTO> getFriendRequests(@PathVariable long id, @RequestBody RequestGetDTO requestGetDTO) {
+    public List<RequestGetDTO> getFriendRequests(@PathVariable long id) {
         User user = userService.getUser(id);
-        if(!(requestGetDTO.getId().equals(user.getId()) && requestGetDTO.getToken().equals(user.getToken()))){
-            throw new UnauthorizedException("Authentication failed");
-        }
 
         Set<User> requests = user.getFriendRequests();
         List<RequestGetDTO> requestGetDTOs = new ArrayList<>();
