@@ -48,13 +48,14 @@ public class LobbyService {
         }
     }
 
-    public Lobby createLobby(Lobby newLobby){
+    public Lobby createLobby(Lobby newLobby,User host){
         checkLobbyName(newLobby.getLobbyName());
         checkIfLobbyExists(newLobby);
         if(newLobby.isPrivate()){
             newLobby.setPrivateKey((UUID.randomUUID().toString()));
         }
-        newLobby.setTotalNumPlayersAndBots(1);
+        newLobby.addUserToLobby(host);
+        newLobby.setTotalNumPlayersAndBots(newLobby.getUsersInLobby().size());
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();
         return newLobby;
@@ -119,6 +120,24 @@ public class LobbyService {
         if (username.contains(" ") || username.isEmpty() || username.length() > 20 || username.trim().isEmpty()) {
             throw new NotAcceptableException("This is an invalid username. Please max. 20 digits and no spaces.");
         }
+    }
+
+    public void addUserToLobby(User userToAdd, Lobby lobby){
+        if(lobby.getTotalNumPlayersAndBots() + 1 <= lobby.getNumberOfPlayers() && !lobby.getUserId().equals(userToAdd.getId())){
+            lobby.addUserToLobby(userToAdd);
+            lobby.setTotalNumPlayersAndBots(lobby.getUsersInLobby().size());
+            lobbyRepository.save(lobby);
+        }else if(lobby.getUserId().equals(userToAdd.getId())){
+            throw new ConflictException("Host cannot join their own lobby");
+        } else {
+            throw new ConflictException("Lobby is full/ Game already started");
+        }
+    }
+
+    public void removeUserFromLobby(User userToQuit, Lobby lobby){
+        lobby.getUsersInLobby().remove(userToQuit);
+        lobby.setTotalNumPlayersAndBots(lobby.getUsersInLobby().size());
+        lobbyRepository.save(lobby);
     }
 
     public Set<User> kickUsers(List<Long> kickList, Lobby lobby){
