@@ -11,6 +11,8 @@ public class LobbyGetDTO {
 
     private Integer totalPlayersAndBots;
 
+    private Integer maxPlayersAndBots;
+
 
     public String getLobbyName() {
         return lobbyName;
@@ -45,11 +47,19 @@ public class LobbyGetDTO {
         this.lobbyId = lobbyId;
     }
 
-    public Integer getTotalPlayers() {
+    public Integer getTotalPlayersAndBots() {
         return totalPlayersAndBots;
     }
 
-    public void setTotalPlayers(Integer totalPlayersAndBots) {
+    public void setTotalPlayersAndBots(Integer totalPlayersAndBots) {
         this.totalPlayersAndBots = totalPlayersAndBots;
+    }
+
+    public Integer getMaxPlayersAndBots() {
+        return maxPlayersAndBots;
+    }
+
+    public void setMaxPlayersAndBots(Integer maxPlayersAndBots) {
+        this.maxPlayersAndBots = maxPlayersAndBots;
     }
 }
