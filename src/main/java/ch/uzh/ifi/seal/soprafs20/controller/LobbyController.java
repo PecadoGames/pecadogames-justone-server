@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.Message;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
@@ -136,6 +137,16 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         User user = userService.getUser(joinLeavePutDTO.getUserId());
         lobbyService.addUserToLobby(user,lobby);
+    }
+
+    @PutMapping(path = "lobbies/{lobbyId}/chat", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void addChatMessage(@PathVariable long lobbyId, @RequestBody ChatPutDTO chatPutDTO) {
+        Message message = DTOMapper.INSTANCE.convertChatPutDTOtoEntity(chatPutDTO);
+        User author  = userService.getUser(chatPutDTO.getUserId());
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        chatService.addChatMessage(lobby, author.getToken(), message);
     }
 
     private String asJsonString(final Object object) {

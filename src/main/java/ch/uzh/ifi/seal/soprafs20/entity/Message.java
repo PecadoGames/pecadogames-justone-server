@@ -21,6 +21,9 @@ public class Message implements Serializable {
     @Column(nullable = false)
     private Long authorId;
 
+    @Column
+    private String authorUsername;
+
     @NotBlank
     @NotEmpty
     @Column(nullable = false)
@@ -46,6 +49,10 @@ public class Message implements Serializable {
         this.authorId = authorId;
     }
 
+    public String getAuthorUsername() { return authorUsername; }
+
+    public void setAuthorUsername(String authorUsername) { this.authorUsername = authorUsername; }
+
     public String getText() {
         return text;
     }
@@ -58,8 +65,8 @@ public class Message implements Serializable {
         return creationDate;
     }
 
-    @JsonFormat(pattern="dd.MM.yyyy")
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
+    @JsonFormat(pattern="dd.MM.yyyy hh:mm:ss")
+    public void setCreationDate() {
+        this.creationDate = new java.util.Date();
     }
 }

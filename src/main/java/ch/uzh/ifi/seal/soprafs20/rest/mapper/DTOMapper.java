@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.rest.mapper;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.Message;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import org.mapstruct.Mapper;
@@ -68,15 +69,15 @@ public interface DTOMapper {
     @Mapping(source = "private", target = "private")
     Lobby convertLobbyPostDTOtoEntity(LobbyPostDTO lobbyPostDTO);
 
-
-
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "voiceChat", target = "voiceChat")
     @Mapping(source = "privateKey",target = "privateKey")
     @Mapping(source = "lobbyId", target = "lobbyId")
     InviteGetDTO convertEntityToInviteGetDTO(Lobby lobby);
 
-
+    @Mapping(source = "userId", target = "authorId")
+    @Mapping(source = "message", target = "text")
+    Message convertChatPutDTOtoEntity(ChatPutDTO chatPutDTO);
 
 
 }
