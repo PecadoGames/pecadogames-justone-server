@@ -8,6 +8,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
@@ -26,7 +27,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.TimeZone;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -246,18 +250,16 @@ public class LobbyControllerTest {
         SimpleDateFormat sF = new SimpleDateFormat( "dd.MM.yyyy hh:mm:ss");
         sF.setTimeZone(TimeZone.getTimeZone(tmZ));
 
-        Date birthday = sF.parse( "20.05.2010 10:52:30");
         Message message1 = new Message();
         message1.setAuthorId(1L);
         message1.setMessageId(2L);
-        message1.setCreationDate(birthday);
+        message1.setCreationDate();
         message1.setText("Hello world");
 
-        Date birthday2 = sF.parse( "20.05.2010 10:52:33");
         Message message2 = new Message();
         message2.setAuthorId(1L);
         message2.setMessageId(4L);
-        message2.setCreationDate(birthday2);
+        message2.setCreationDate();
         message2.setText("Hello world");
 
         Chat chat = new Chat();
@@ -281,6 +283,41 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$.messages[1].authorId", is(message2.getAuthorId().intValue())))
                 .andExpect(jsonPath("$.messages[1].text", is(message2.getText())))
                 .andExpect(jsonPath("$.messages[1].creationDate", is(sF.format(message2.getCreationDate()))));
+    }
+
+    @Test
+    public void getChat_invalidLobbyId_throwsException() throws Exception {
+        given(chatService.getChat(Mockito.any())).willThrow(new NotFoundException("message"));
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/1/chat").contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void addChatMessage_validInput_success() throws Exception {
+        ChatPutDTO chatPutDTO = new ChatPutDTO();
+        chatPutDTO.setMessage("Hello world");
+        chatPutDTO.setUserId(1L);
+        chatPutDTO.setUserToken("testToken");
+
+        User author = new User();
+        author.setId(1L);
+        author.setToken("testToken");
+
+        Lobby lobby = new Lobby();
+        lobby.setId(1L);
+
+        given(userService.getUser(Mockito.anyLong())).willReturn(author);
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/chat", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(chatPutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().is2xxSuccessful());
     }
 
     private String asJsonString(final Object object) {
