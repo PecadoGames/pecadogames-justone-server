@@ -116,8 +116,6 @@ public class UserService {
             checkUsername(receivedValues.getUsername());
             user.setUsername(receivedValues.getUsername());
         }
-        userRepository.save(user);
-
     }
 
     public void addFriendRequest(User receiver, User sender) {

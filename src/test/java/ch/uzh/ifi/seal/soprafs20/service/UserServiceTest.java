@@ -6,6 +6,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
+import com.fasterxml.jackson.core.JsonParseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
 
@@ -67,9 +69,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
 
         // then -> attempt to create second user with same user -> check that an error is thrown
-        String exceptionMessage = "The username provided is not unique. Therefore, the user could not be created!";
-        ConflictException exception = assertThrows(ConflictException.class, () -> userService.createUser(testUser), exceptionMessage);
-        assertEquals(exceptionMessage, exception.getMessage());
+        assertThrows(ConflictException.class, () -> userService.createUser(testUser));
     }
 
     @Test
@@ -81,9 +81,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
         // then -> attempt to create second user with same user -> check that an error is thrown
-        String exceptionMessage = "ouldn't find user";
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.getUser(1L));
-        assertTrue(exception.getMessage().contains(exceptionMessage));
+        assertThrows(NotFoundException.class, () -> userService.getUser(1L));
     }
 
     @Test
@@ -103,23 +101,19 @@ public class UserServiceTest {
 
     @Test
     public void loginUser_validInputs_success() {
-        // when -> any object is being save in the userRepository -> return the dummy testUser
-        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         testUser.setStatus(UserStatus.OFFLINE);
 
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         userService.loginUser(testUser);
+
         assertEquals(UserStatus.ONLINE, testUser.getStatus());
     }
 
     @Test
     public void loginUser_invalidInput_throwsException() {
-        // when -> any object is being save in the userRepository -> return the dummy testUser
-
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
 
-        String exceptionMessage = "user credentials are incorrect!";
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.loginUser(testUser), exceptionMessage);
-        assertEquals(exceptionMessage, exception.getMessage());
+        assertThrows(NotFoundException.class, () -> userService.loginUser(testUser));
     }
 
     @Test
@@ -131,12 +125,33 @@ public class UserServiceTest {
         falseUser.setPassword("password");
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(falseUser);
-        String exceptionMessage = "user credentials are incorrect!";
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.loginUser(testUser), exceptionMessage);
-        assertEquals(exceptionMessage, exception.getMessage());
+        assertThrows(NotFoundException.class, () -> userService.loginUser(testUser));
         assertEquals(testUser.getStatus(), UserStatus.OFFLINE);
     }
 
+    @Test
+    public void loginUser_whenUserAlreadyLoggedIn_throwsException() {
+        testUser.setStatus(UserStatus.ONLINE);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+
+        assertThrows(NoContentException.class, () -> userService.loginUser(testUser));
+    }
+
+    @Test
+    public void logoutUser_validInput_success() {
+        testUser.setStatus(UserStatus.ONLINE);
+
+        userService.logoutUser(testUser);
+        assertEquals(testUser.getStatus(), UserStatus.OFFLINE);
+        assertNull(testUser.getToken());
+    }
+
+    @Test
+    public void logoutUser_userIsOffline_throwsException() {
+        testUser.setStatus(UserStatus.OFFLINE);
+
+        assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser));
+    }
 
     @Test
     public void logoutUser_invalidToken_throwsException() {
@@ -148,23 +163,45 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
 
-        String exceptionMessage = "Logout is not allowed!";
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser2), exceptionMessage);
-        assertEquals(exceptionMessage, exception.getMessage());
+        assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser2));
         assertEquals(testUser2.getStatus(), UserStatus.ONLINE);
     }
 
     @Test
     public void updateUser_validInput_success() throws Exception {
-
         UserPutDTO userPutDTO = new UserPutDTO();
         userPutDTO.setUsername("changedUsername");
         userPutDTO.setBirthday(new SimpleDateFormat( "dd.MM.yyyy" ).parse( "20.05.2010" ));
         userPutDTO.setToken("testToken");
 
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
         userService.updateUser(testUser, userPutDTO);
 
         assertEquals(testUser.getUsername(), userPutDTO.getUsername());
+        assertEquals(testUser.getBirthday(), userPutDTO.getBirthday());
+    }
+
+    @Test
+    public void updateUser_validNewUsername_success() throws JsonParseException {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("changedUsername");
+        userPutDTO.setToken("testToken");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
+        userService.updateUser(testUser, userPutDTO);
+
+        assertEquals(testUser.getUsername(), userPutDTO.getUsername());
+    }
+
+    @Test
+    public void updateUser_validBirthday_success() throws JsonParseException, ParseException {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setBirthday(new SimpleDateFormat( "dd.MM.yyyy" ).parse( "20.05.2010" ));
+        userPutDTO.setToken("testToken");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
+        userService.updateUser(testUser, userPutDTO);
+
         assertEquals(testUser.getBirthday(), userPutDTO.getBirthday());
     }
 
@@ -174,10 +211,7 @@ public class UserServiceTest {
         userPutDTO.setUsername("changedUsername");
         userPutDTO.setToken("wrongToken");
 
-        String exceptionMessage = "You are not allowed to change this user's information";
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
-
+        assertThrows(UnauthorizedException.class, () -> userService.updateUser(testUser, userPutDTO));
         assertEquals(testUser.getUsername(), "testUsername");
     }
 
@@ -191,10 +225,7 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(user);
 
-        String exceptionMessage = "This username already exists";
-        ConflictException exception = assertThrows(ConflictException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
-
+        assertThrows(ConflictException.class, () -> userService.updateUser(testUser, userPutDTO));
         assertEquals(testUser.getUsername(), "testUsername");
     }
 
@@ -204,10 +235,7 @@ public class UserServiceTest {
         userPutDTO.setUsername("thisUsernameIsTooLong");
         userPutDTO.setToken("testToken");
 
-        String exceptionMessage = "This is an invalid username";
-        NotAcceptableException exception = assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
-
+        assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO));
         assertEquals(testUser.getUsername(), "testUsername");
     }
 
@@ -217,10 +245,7 @@ public class UserServiceTest {
         userPutDTO.setUsername("invalidU$ername");
         userPutDTO.setToken("testToken");
 
-        String exceptionMessage = "This is an invalid username";
-        NotAcceptableException exception = assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
-
+        assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO));
         assertEquals(testUser.getUsername(), "testUsername");
     }
 
@@ -251,9 +276,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
 
-        String exceptionMessage = "not allowed to send a friend request";
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.addFriendRequest(testUser, testUser_wrongToken), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
+        assertThrows(UnauthorizedException.class, () -> userService.addFriendRequest(testUser, testUser_wrongToken));
         assertFalse(testUser.getFriendRequests().contains(testUser2));
     }
 
@@ -317,9 +340,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
 
-        String exceptionMessage = "friend request from user";
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
+        assertThrows(NotFoundException.class, () -> userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO));
 
     }
 
