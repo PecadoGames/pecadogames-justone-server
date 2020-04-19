@@ -3,20 +3,18 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 import java.util.ArrayList;
 
 public class LobbyPutDTO {
-    private Integer numberOfPlayers;
+
+    private Integer maxNumberOfPlayersAndBots;
     private ArrayList<Long> usersToKick;
-    private Integer numberOfBots;
     private String token;
 
-
-    public Integer getNumberOfPlayers() {
-        return numberOfPlayers;
+    public Integer getMaxNumberOfPlayersAndBots() {
+        return maxNumberOfPlayersAndBots;
     }
 
-    public void setNumberOfPlayers(Integer numberOfPlayers) {
-        this.numberOfPlayers = numberOfPlayers;
+    public void setMaxNumberOfPlayersAndBots(Integer maxNumberOfPlayersAndBots) {
+        this.maxNumberOfPlayersAndBots = maxNumberOfPlayersAndBots;
     }
-
 
     public ArrayList<Long> getUsersToKick() {
         return usersToKick;
@@ -24,14 +22,6 @@ public class LobbyPutDTO {
 
     public void setUsersToKick(ArrayList<Long> usersToKick) {
         this.usersToKick = usersToKick;
-    }
-
-    public Integer getNumberOfBots() {
-        return numberOfBots;
-    }
-
-    public void setNumberOfBots(Integer numberOfBots) {
-        this.numberOfBots = numberOfBots;
     }
 
     public String getToken() {
