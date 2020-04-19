@@ -1,10 +1,12 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.junit.jupiter.api.BeforeEach;
@@ -264,7 +266,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void addFriendRequest_invalidInput() {
+    public void addFriendRequest_invalidToken_throwsException() {
         User testUser2 = new User();
         testUser2.setId(2L);
         testUser2.setToken("testToken2");
@@ -279,6 +281,17 @@ public class UserServiceTest {
         assertThrows(UnauthorizedException.class, () -> userService.addFriendRequest(testUser, testUser_wrongToken));
         assertFalse(testUser.getFriendRequests().contains(testUser2));
     }
+
+   @Test
+   public void addFriendRequest_userNotFound_throwsException() {
+       User testUser2 = new User();
+       testUser2.setId(2L);
+       testUser2.setToken("testToken2");
+
+       Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
+
+       assertThrows(NotFoundException.class, () -> userService.addFriendRequest(testUser, testUser2));
+   }
 
     @Test
     public void acceptFriendRequest_validInput_success() {
@@ -341,7 +354,105 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
 
         assertThrows(NotFoundException.class, () -> userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO));
+    }
 
+    @Test
+    public void handleLobbyInvite_accepted_success() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setMaxPlayersAndBots(5);
+
+        User receiver = new User();
+        receiver.setToken("testToken");
+        receiver.setLobbyInvites(lobby);
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterToken("testToken");
+        lobbyAcceptancePutDTO.setAccepted(true);
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+
+        userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO);
+
+        assertFalse(receiver.getLobbyInvites().contains(lobby));
+        assertTrue(lobby.getUsersInLobby().contains(receiver));
+        assertEquals(5, lobby.getCurrentNumPlayersAndBots());
+    }
+
+    @Test
+    public void handleLobbyInvite_notAccepted_throwsException() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setMaxPlayersAndBots(5);
+
+        User receiver = new User();
+        receiver.setToken("testToken");
+        receiver.setLobbyInvites(lobby);
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterToken("testToken");
+        lobbyAcceptancePutDTO.setAccepted(false);
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+
+        assertThrows(NoContentException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
+        assertEquals(4, lobby.getCurrentNumPlayersAndBots());
+    }
+
+    @Test
+    public void handleLobbyInvite_invalidToken_throwsException() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setMaxPlayersAndBots(5);
+
+        User receiver = new User();
+        receiver.setToken("testToken");
+        receiver.setLobbyInvites(lobby);
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterToken("wrongToken");
+        lobbyAcceptancePutDTO.setAccepted(true);
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+
+        assertThrows(UnauthorizedException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
+    }
+
+    @Test
+    public void handleLobbyInvite_invalidRequest_throwsException() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setMaxPlayersAndBots(5);
+
+        User receiver = new User();
+        receiver.setToken("testToken");
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterToken("testToken");
+        lobbyAcceptancePutDTO.setAccepted(true);
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+
+        assertThrows(UnauthorizedException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
+    }
+
+    @Test
+    public void handleLobbyInvite_lobbyAlreadyFull_throwsException() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(5);
+        lobby.setMaxPlayersAndBots(5);
+
+        User receiver = new User();
+        receiver.setToken("testToken");
+        receiver.setLobbyInvites(lobby);
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterToken("testToken");
+        lobbyAcceptancePutDTO.setAccepted(true);
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+
+        assertThrows(ConflictException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
     }
 
     @Test
