@@ -9,7 +9,7 @@ public class LobbyGetDTO {
 
     private Long lobbyId;
 
-    private Integer totalPlayersAndBots;
+    private Integer currentNumPlayersAndBots;
 
     private Integer maxPlayersAndBots;
 
@@ -47,12 +47,12 @@ public class LobbyGetDTO {
         this.lobbyId = lobbyId;
     }
 
-    public Integer getTotalPlayersAndBots() {
-        return totalPlayersAndBots;
+    public Integer getCurrentNumPlayersAndBots() {
+        return currentNumPlayersAndBots;
     }
 
-    public void setTotalPlayersAndBots(Integer totalPlayersAndBots) {
-        this.totalPlayersAndBots = totalPlayersAndBots;
+    public void setCurrentNumPlayersAndBots(Integer currentNumPlayersAndBots) {
+        this.currentNumPlayersAndBots = currentNumPlayersAndBots;
     }
 
     public Integer getMaxPlayersAndBots() {

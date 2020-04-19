@@ -3,7 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 public class LobbyPostDTO {
     private String lobbyName;
 
-    private Integer numberOfPlayers;
+    private Integer maxPlayersAndBots;
 
     private boolean voiceChat;
 
@@ -23,12 +23,12 @@ public class LobbyPostDTO {
         this.lobbyName = lobbyName;
     }
 
-    public Integer getNumberOfPlayers() {
-        return numberOfPlayers;
+    public Integer getMaxPlayersAndBots() {
+        return maxPlayersAndBots;
     }
 
-    public void setNumberOfPlayers(Integer numberOfPlayers) {
-        this.numberOfPlayers = numberOfPlayers;
+    public void setMaxPlayersAndBots(Integer maxPlayersAndBots) {
+        this.maxPlayersAndBots = maxPlayersAndBots;
     }
 
     public boolean isVoiceChat() {

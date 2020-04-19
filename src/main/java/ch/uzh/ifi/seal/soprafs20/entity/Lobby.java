@@ -19,18 +19,21 @@ public class Lobby implements Serializable {
     @Column(nullable = false)
     private String lobbyName;
 
-    @Column(nullable = false)
+    //keep track of number of players currently in lobby
+    @Column
     private Integer numberOfPlayers;
 
     @Column(nullable = false)
     private boolean voiceChat;
 
+    //user id of lobby creator
     @Column(nullable = false)
-    private Long userId; //user id of lobby creator
+    private Long userId;
 
     @Column(nullable = false)
     private String userToken;
 
+    //keep track of number of players currently in lobby
     @Column
     private Integer numberOfBots;
 
@@ -43,8 +46,13 @@ public class Lobby implements Serializable {
     @Column
     private String privateKey;
 
+    //current number of player(and bots) in lobby
     @Column(nullable = false)
-    private int totalNumPlayersAndBots;
+    private Integer currentNumPlayersAndBots;
+
+    //limit of players + bots in lobby
+    @Column(nullable = false)
+    private Integer maxPlayersAndBots;
 
     @OneToMany
     private Set<User> usersInLobby = new HashSet<>();
@@ -147,11 +155,19 @@ public class Lobby implements Serializable {
 
     public void replaceUsersInLobby(Set<User> users){usersInLobby = users;}
 
-    public int getTotalNumPlayersAndBots() {
-        return totalNumPlayersAndBots;
+    public Integer getCurrentNumPlayersAndBots() {
+        return currentNumPlayersAndBots;
     }
 
-    public void setTotalNumPlayersAndBots(int totalNumPlayers) {
-        this.totalNumPlayersAndBots = totalNumPlayers;
+    public void setCurrentNumPlayersAndBots(Integer currentNumPlayersAndBots) {
+        this.currentNumPlayersAndBots = currentNumPlayersAndBots;
+    }
+
+    public Integer getMaxPlayersAndBots() {
+        return maxPlayersAndBots;
+    }
+
+    public void setMaxPlayersAndBots(Integer maxPlayersAndBots) {
+        this.maxPlayersAndBots = maxPlayersAndBots;
     }
 }

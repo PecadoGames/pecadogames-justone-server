@@ -161,16 +161,16 @@ public class UserService {
             throw new UnauthorizedException("You are not allowed to accept or decline this lobby invite!");
         }
         receiver.getLobbyInvites().remove(lobby);
-        if (lobbyAcceptancePutDTO.isAccepted() && lobby.getTotalNumPlayersAndBots() + 1 - lobby.getNumberOfBots() <= lobby.getNumberOfPlayers()) {
+        if (lobbyAcceptancePutDTO.isAccepted() && lobby.getCurrentNumPlayersAndBots() + 1 - lobby.getNumberOfBots() <= lobby.getNumberOfPlayers()) {
             lobby.addUserToLobby(receiver);
             //update player count
-            lobby.setTotalNumPlayersAndBots(lobby.getNumberOfPlayers() + 1);
+            lobby.setCurrentNumPlayersAndBots(lobby.getNumberOfPlayers() + 1);
             return;
         }
         if(!lobbyAcceptancePutDTO.isAccepted()) {
             throw new NoContentException("You declined the lobby invite.");
         }
-        if(lobby.getTotalNumPlayersAndBots() + 1 - lobby.getNumberOfBots() > lobby.getNumberOfPlayers()){
+        if(lobby.getCurrentNumPlayersAndBots() + 1 - lobby.getNumberOfBots() > lobby.getNumberOfPlayers()){
             throw new ConflictException("Failed to join lobby: The lobby is already full");
         }
     }

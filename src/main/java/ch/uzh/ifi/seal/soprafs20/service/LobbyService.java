@@ -55,14 +55,14 @@ public class LobbyService {
             newLobby.setPrivateKey((UUID.randomUUID().toString()));
         }
         newLobby.addUserToLobby(host);
-        newLobby.setTotalNumPlayersAndBots(newLobby.getUsersInLobby().size());
+        newLobby.setCurrentNumPlayersAndBots(newLobby.getUsersInLobby().size());
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();
         return newLobby;
     }
 
     /**
-     *  TODO: Implement kick player
+     *  TODO: Refractor method
      * @param lobby
      * @param receivedValues
      * @return
@@ -76,7 +76,7 @@ public class LobbyService {
         if(receivedValues.getUsersToKick() != null){
             lobby.replaceUsersInLobby(kickUsers(receivedValues.getUsersToKick(),lobby));
             //update number of player in lobby
-            lobby.setTotalNumPlayersAndBots(lobby.getTotalNumPlayersAndBots() - receivedValues.getUsersToKick().size());
+            lobby.setCurrentNumPlayersAndBots(lobby.getCurrentNumPlayersAndBots() - receivedValues.getUsersToKick().size());
         }
 
 
@@ -123,9 +123,9 @@ public class LobbyService {
     }
 
     public void addUserToLobby(User userToAdd, Lobby lobby){
-        if(lobby.getTotalNumPlayersAndBots() + 1 <= lobby.getNumberOfPlayers() && !lobby.getUserId().equals(userToAdd.getId())){
+        if(lobby.getCurrentNumPlayersAndBots() + 1 <= lobby.getMaxPlayersAndBots() && !lobby.getUserId().equals(userToAdd.getId())){
             lobby.addUserToLobby(userToAdd);
-            lobby.setTotalNumPlayersAndBots(lobby.getUsersInLobby().size());
+            lobby.setCurrentNumPlayersAndBots(lobby.getUsersInLobby().size());
             lobbyRepository.save(lobby);
         }else if(lobby.getUserId().equals(userToAdd.getId())){
             throw new ConflictException("Host cannot join their own lobby");
@@ -135,9 +135,24 @@ public class LobbyService {
     }
 
     public void removeUserFromLobby(User userToQuit, Lobby lobby){
-        lobby.getUsersInLobby().remove(userToQuit);
-        lobby.setTotalNumPlayersAndBots(lobby.getUsersInLobby().size());
-        lobbyRepository.save(lobby);
+        if(userToQuit.getId().equals(lobby.getUserId())){
+            //host leaves lobby and is alone
+            if(lobby.getCurrentNumPlayersAndBots().equals(1)){
+                lobbyRepository.delete(lobby);
+            }
+            //host leaves lobby, so new host is chosen
+            else{
+                User newHost = lobby.getUsersInLobby().iterator().next();
+                lobby.setUserId(newHost.getId());
+                lobby.setToken(newHost.getToken());
+                lobby.getUsersInLobby().remove(userToQuit);
+                lobby.setCurrentNumPlayersAndBots(lobby.getUsersInLobby().size());
+                lobbyRepository.save(lobby);
+            }
+        } else if(lobby.getUsersInLobby().contains(userToQuit)){
+            lobby.getUsersInLobby().remove(userToQuit);
+            lobby.setCurrentNumPlayersAndBots(lobby.getUsersInLobby().size());
+        }
     }
 
     public Set<User> kickUsers(List<Long> kickList, Lobby lobby){

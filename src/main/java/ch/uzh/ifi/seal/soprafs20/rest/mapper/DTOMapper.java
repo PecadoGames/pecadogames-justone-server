@@ -57,12 +57,12 @@ public interface DTOMapper {
     @Mapping(source = "voiceChat", target = "voiceChat")
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "lobbyId", target = "lobbyId")
-    @Mapping(source = "totalNumPlayersAndBots", target = "totalPlayersAndBots")
-    @Mapping(source = "numberOfPlayers",target = "maxPlayersAndBots")
+    @Mapping(source = "currentNumPlayersAndBots", target = "currentNumPlayersAndBots")
+    @Mapping(source = "maxPlayersAndBots",target = "maxPlayersAndBots")
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
 
     @Mapping(source = "lobbyName", target = "lobbyName")
-    @Mapping(source = "numberOfPlayers", target = "numberOfPlayers")
+    @Mapping(source = "maxPlayersAndBots", target = "maxPlayersAndBots")
     @Mapping(source = "voiceChat", target = "voiceChat")
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "token", target = "token")
