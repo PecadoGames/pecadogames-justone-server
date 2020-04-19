@@ -20,8 +20,8 @@ public class Lobby implements Serializable {
     private String lobbyName;
 
     //keep track of number of players currently in lobby
-    @Column
-    private Integer numberOfPlayers;
+    //@Column
+    //private Integer numberOfPlayers;
 
     @Column(nullable = false)
     private boolean voiceChat;
@@ -34,8 +34,8 @@ public class Lobby implements Serializable {
     private String userToken;
 
     //keep track of number of players currently in lobby
-    @Column
-    private Integer numberOfBots;
+    //@Column
+    //private Integer numberOfBots;
 
     @Column
     private Long lobbyScore;
@@ -73,13 +73,13 @@ public class Lobby implements Serializable {
         this.lobbyName = lobbyName;
     }
 
-    public Integer getNumberOfPlayers() {
+    /*public Integer getNumberOfPlayers() {
         return numberOfPlayers;
     }
 
     public void setNumberOfPlayers(Integer numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
-    }
+    }*/
 
     public boolean isVoiceChat() {
         return voiceChat;
@@ -105,21 +105,13 @@ public class Lobby implements Serializable {
         this.userToken = token;
     }
 
-    public String getUserToken() {
-        return userToken;
-    }
-
-    public void setUserToken(String userToken) {
-        this.userToken = userToken;
-    }
-
-    public Integer getNumberOfBots() {
+    /*public Integer getNumberOfBots() {
         return numberOfBots;
     }
 
     public void setNumberOfBots(Integer numberOfBots) {
         this.numberOfBots = numberOfBots;
-    }
+    }*/
 
     public Long getLobbyScore() {
         return lobbyScore;

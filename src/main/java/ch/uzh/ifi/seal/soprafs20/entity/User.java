@@ -46,7 +46,6 @@ public class User implements Serializable {
 	@Column(nullable = false)
     private Date creationDate;
 
-	@Column(nullable = true)
     @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
 

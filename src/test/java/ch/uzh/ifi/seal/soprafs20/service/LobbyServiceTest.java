@@ -2,8 +2,6 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +36,7 @@ public class LobbyServiceTest {
         testLobby = new Lobby();
         testLobby.setLobbyName("BadBunny");
         testLobby.setToken("1");
-        testLobby.setNumberOfPlayers(5);
+        testLobby.setMaxPlayersAndBots(5);
         testLobby.setVoiceChat(false);
         testLobby.setUserId(1L);
         testLobby.setCurrentNumPlayersAndBots(1);
@@ -69,9 +67,8 @@ public class LobbyServiceTest {
 
         assertEquals(testLobby.getLobbyId(),lobby.getLobbyId());
         assertEquals(testLobby.getLobbyName(),lobby.getLobbyName());
-        assertEquals(testLobby.getNumberOfPlayers(),lobby.getNumberOfPlayers());
+        assertEquals(testLobby.getMaxPlayersAndBots(),lobby.getMaxPlayersAndBots());
         assertEquals(testLobby.getCurrentNumPlayersAndBots(),lobby.getCurrentNumPlayersAndBots());
-        assertNull(lobby.getNumberOfBots());
         assertNull(lobby.getPrivateKey());
     }
 
@@ -84,9 +81,8 @@ public class LobbyServiceTest {
 
         assertEquals(testLobby.getLobbyId(),lobby.getLobbyId());
         assertEquals(testLobby.getLobbyName(),lobby.getLobbyName());
-        assertEquals(testLobby.getNumberOfPlayers(),lobby.getNumberOfPlayers());
+        assertEquals(testLobby.getMaxPlayersAndBots(),lobby.getMaxPlayersAndBots());
         assertEquals(testLobby.getCurrentNumPlayersAndBots(),lobby.getCurrentNumPlayersAndBots());
-        assertNull(lobby.getNumberOfBots());
         assertNotNull(lobby.getPrivateKey());
     }
 
@@ -128,14 +124,14 @@ public class LobbyServiceTest {
 //        assertThrows(ConflictException.class,() ->{lobbyService.updateLobby(testLobby,lobbyPutDTO);});
 //    }
 
-    @Test
+/*    @Test
     public void updateExistingLobby_unauthorizedUser(){
         testLobby.setPrivate(false);
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setToken("2");
 
         assertThrows(UnauthorizedException.class,() -> {lobbyService.updateLobby(testLobby,lobbyPutDTO);});
-    }
+    }*/
 
     @Test
     public void getLobby(){
@@ -147,8 +143,6 @@ public class LobbyServiceTest {
 
         assertEquals(foundLobby.getLobbyId(),lobby.getLobbyId());
         assertEquals(foundLobby.getLobbyName(),lobby.getLobbyName());
-        assertEquals(foundLobby.getNumberOfBots(),lobby.getNumberOfBots());
-        assertEquals(foundLobby.getNumberOfPlayers(),lobby.getNumberOfPlayers());
         assertEquals(foundLobby.getUserId(),lobby.getUserId());
     }
 
