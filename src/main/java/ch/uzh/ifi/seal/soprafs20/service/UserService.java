@@ -102,7 +102,7 @@ public class UserService {
 
     public void updateUser(User user, UserPutDTO receivedValues) throws JsonParseException {
 
-        if (userRepository.findByUsername(receivedValues.getUsername()) != null) {
+        if (!user.getUsername().equals(receivedValues.getUsername()) && userRepository.findByUsername(receivedValues.getUsername()) != null) {
             throw new ConflictException("This username already exists.");
         }
         if (!user.getToken().equals(receivedValues.getToken())) {
@@ -161,17 +161,20 @@ public class UserService {
             throw new UnauthorizedException("You are not allowed to accept or decline this lobby invite!");
         }
         receiver.getLobbyInvites().remove(lobby);
-        if (lobbyAcceptancePutDTO.isAccepted() && lobby.getCurrentNumPlayersAndBots() + 1 - lobby.getNumberOfBots() <= lobby.getNumberOfPlayers()) {
+        checkIfLobbyIsFull(lobby);
+        if (lobbyAcceptancePutDTO.isAccepted()) {
             lobby.addUserToLobby(receiver);
             //update player count
-            lobby.setCurrentNumPlayersAndBots(lobby.getNumberOfPlayers() + 1);
-            return;
+            lobby.setCurrentNumPlayersAndBots(lobby.getCurrentNumPlayersAndBots() + 1);
         }
-        if(!lobbyAcceptancePutDTO.isAccepted()) {
+        else {
             throw new NoContentException("You declined the lobby invite.");
         }
-        if(lobby.getCurrentNumPlayersAndBots() + 1 - lobby.getNumberOfBots() > lobby.getNumberOfPlayers()){
-            throw new ConflictException("Failed to join lobby: The lobby is already full");
+    }
+
+    private void checkIfLobbyIsFull(Lobby lobby) {
+        if(lobby.getCurrentNumPlayersAndBots() + 1 > lobby.getMaxPlayersAndBots()) {
+            throw new ConflictException("Failed to join lobby: Sorry, the lobby is already full");
         }
     }
 
