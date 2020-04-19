@@ -9,6 +9,7 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.ChatService;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
+import ch.uzh.ifi.seal.soprafs20.service.MessageService;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,11 +29,13 @@ public class LobbyController {
     private final LobbyService lobbyService;
     private final UserService userService;
     private final ChatService chatService;
+    private final MessageService messageService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, ChatService chatService){
+    LobbyController(LobbyService lobbyService, UserService userService, ChatService chatService, MessageService messageService){
         this.lobbyService = lobbyService;
         this.userService = userService;
         this.chatService = chatService;
+        this.messageService = messageService;
     }
 
 
@@ -144,6 +147,7 @@ public class LobbyController {
     @ResponseBody
     public void addChatMessage(@PathVariable long lobbyId, @RequestBody ChatPutDTO chatPutDTO) {
         Message message = DTOMapper.INSTANCE.convertChatPutDTOtoEntity(chatPutDTO);
+        message = messageService.createMessage(message);
         User author  = userService.getUser(chatPutDTO.getUserId());
         Lobby lobby = lobbyService.getLobby(lobbyId);
         chatService.addChatMessage(lobby, author.getToken(), message);

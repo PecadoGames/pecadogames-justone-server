@@ -44,7 +44,6 @@ public class ChatService {
     }
 
     public void addChatMessage(Lobby lobby, String token, Message message) {
-        message.setCreationDate();
         // Long id = chatPutDTO.getUserId();
         for (User user : lobby.getUsersInLobby()) {
             if (user.getToken().equals(token)) {
