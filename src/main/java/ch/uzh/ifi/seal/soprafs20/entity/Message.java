@@ -30,7 +30,7 @@ public class Message implements Serializable {
     private String text;
 
     @Column(nullable = false)
-    @JsonFormat(pattern="dd.MM.yyyy hh:mm:ss")
+    @JsonFormat(pattern="hh:mm:ss")
     private Date creationDate;
 
     public Long getMessageId() {
@@ -65,8 +65,8 @@ public class Message implements Serializable {
         return creationDate;
     }
 
-    @JsonFormat(pattern="dd.MM.yyyy hh:mm:ss")
+    @JsonFormat(pattern="hh:mm:ss")
     public void setCreationDate() {
-        this.creationDate = new java.util.Date();
+        this.creationDate = new Date();
     }
 }

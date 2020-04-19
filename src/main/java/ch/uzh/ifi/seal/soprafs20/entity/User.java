@@ -97,13 +97,15 @@ public class User implements Serializable {
 
 	public String getPassword(){return password;}
 
-	public void setCreationDate(){this.creationDate = new java.util.Date();}
+	public void setCreationDate() {
+        this.creationDate = new Date();
+    }
 
 	public Date getCreationDate(){return creationDate;}
 
     @JsonFormat(pattern="dd.MM.yyyy")
     public void setBirthday(Date birthday) throws JsonParseException {
-            this.birthday = birthday;
+        this.birthday = birthday;
     }
 
     public Date getBirthday() {
