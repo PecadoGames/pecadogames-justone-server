@@ -142,10 +142,10 @@ public class LobbyService {
             }
             //host leaves lobby, so new host is chosen
             else{
+                lobby.getUsersInLobby().remove(userToQuit);
                 User newHost = lobby.getUsersInLobby().iterator().next();
                 lobby.setUserId(newHost.getId());
                 lobby.setToken(newHost.getToken());
-                lobby.getUsersInLobby().remove(userToQuit);
                 lobby.setCurrentNumPlayersAndBots(lobby.getUsersInLobby().size());
                 lobbyRepository.save(lobby);
             }
