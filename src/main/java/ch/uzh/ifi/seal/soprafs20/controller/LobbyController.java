@@ -136,7 +136,7 @@ public class LobbyController {
     public void leaveLobby(@PathVariable long lobbyId, @RequestBody JoinLeavePutDTO joinLeavePutDTO){
         Lobby lobby = lobbyService.getLobby(lobbyId);
         User user = userService.getUser(joinLeavePutDTO.getUserId());
-        lobbyService.addUserToLobby(user,lobby);
+        lobbyService.removeUserFromLobby(user,lobby);
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/chat", consumes = "application/json")

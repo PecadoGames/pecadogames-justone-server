@@ -123,7 +123,7 @@ public class LobbyService {
     }
 
     public void addUserToLobby(User userToAdd, Lobby lobby){
-        if(lobby.getCurrentNumPlayersAndBots() + 1 <= lobby.getMaxPlayersAndBots() && !lobby.getUserId().equals(userToAdd.getId())){
+        if(lobby.getCurrentNumPlayersAndBots() + 1 <= lobby.getMaxPlayersAndBots() && !lobby.getUserId().equals(userToAdd.getId()) && !lobby.getUsersInLobby().contains(userToAdd)){
             lobby.addUserToLobby(userToAdd);
             lobby.setCurrentNumPlayersAndBots(lobby.getUsersInLobby().size());
             lobbyRepository.save(lobby);
