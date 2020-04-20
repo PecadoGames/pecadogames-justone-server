@@ -102,7 +102,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         User host = userService.getUser(invitePutDTO.getUserId());
         User userToInvite = userService.getUser(invitePutDTO.getUserToInviteId());
-        userService.addLobbyInvite(userToInvite,lobby,host);
+        userToInvite = userService.addLobbyInvite(userToInvite,lobby,host);
     }
 
     @PutMapping(path = "/lobbies/{lobbyId}/acceptances", consumes = "application/json")

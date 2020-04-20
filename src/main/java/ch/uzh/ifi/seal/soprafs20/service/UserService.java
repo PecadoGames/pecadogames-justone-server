@@ -153,7 +153,7 @@ public class UserService {
         }
     }
 
-    public void addLobbyInvite(User receiver, Lobby lobby, User sender) {
+    public User addLobbyInvite(User receiver, Lobby lobby, User sender) {
         if (!sender.getToken().equals(lobby.getToken())) {
             throw new UnauthorizedException("User is not authorized to send lobby invites");
         }
@@ -161,6 +161,7 @@ public class UserService {
             throw new ConflictException("Cannot invite yourself to the lobby");
         }
         receiver.setLobbyInvites(lobby);
+        return receiver;
     }
 
     //TODO: @Mary review my changes to this method
