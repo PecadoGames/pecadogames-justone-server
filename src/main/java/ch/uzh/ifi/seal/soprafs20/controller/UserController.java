@@ -103,8 +103,8 @@ public class UserController {
     @ResponseBody
     public void sendFriendRequest(@PathVariable long id, @RequestBody RequestPutDTO requestPutDTO)  {
         User receiver = userService.getUser(id);
-        User sender = DTOMapper.INSTANCE.convertRequestPutDTOtoEntity(requestPutDTO);
-        userService.addFriendRequest(receiver, sender);
+        //User sender = DTOMapper.INSTANCE.convertRequestPutDTOtoEntity(requestPutDTO);
+        userService.addFriendRequest(receiver, requestPutDTO);
     }
 
     @GetMapping(path = "users/{id}/friends", produces = "application/json")
