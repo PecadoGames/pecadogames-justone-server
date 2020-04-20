@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,52 +87,75 @@ public class LobbyServiceTest {
         assertNotNull(lobby.getPrivateKey());
     }
 
-//    @Test
-//    public void updateExistingLobby_validInput(){
-//        testLobby.setPrivate(false);
-//        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-//        lobbyPutDTO.setNumberOfPlayers(3);
-//        lobbyPutDTO.setNumberOfBots(3);
-//        lobbyPutDTO.setToken("1");
-//
-//        Lobby lobby = lobbyService.updateLobby(testLobby,lobbyPutDTO);
-//
-//        assertEquals(3,lobby.getNumberOfPlayers());
-//        assertEquals(3,lobby.getNumberOfBots());
-//
-//
-//    }
+    @Test
+    public void updateExistingLobby_authorizedUser(){
+        testLobby.setPrivate(false);
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setMaxNumberOfPlayersAndBots(3);
+        lobbyPutDTO.setToken("1");
 
-//    @Test
-//    public void updateExistingLobby_tooManyPlayers(){
-//        testLobby.setPrivate(false);
-//        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-//        lobbyPutDTO.setNumberOfBots(3);
-//        lobbyPutDTO.setToken("1");
-//
-//        assertThrows(ConflictException.class,() ->{lobbyService.updateLobby(testLobby,lobbyPutDTO);});
-//
-//
-//    }
-//
-//    @Test
-//    public void updateExistingLobby_tooLittlePlayers(){
-//        testLobby.setPrivate(false);
-//        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-//        lobbyPutDTO.setNumberOfPlayers(2);
-//        lobbyPutDTO.setToken("1");
-//
-//        assertThrows(ConflictException.class,() ->{lobbyService.updateLobby(testLobby,lobbyPutDTO);});
-//    }
+        Lobby lobby = lobbyService.updateLobby(testLobby,lobbyPutDTO);
 
-/*    @Test
+        assertEquals(3,lobby.getMaxPlayersAndBots());
+    }
+
+    @Test
     public void updateExistingLobby_unauthorizedUser(){
         testLobby.setPrivate(false);
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setMaxNumberOfPlayersAndBots(3);
         lobbyPutDTO.setToken("2");
 
-        assertThrows(UnauthorizedException.class,() -> {lobbyService.updateLobby(testLobby,lobbyPutDTO);});
-    }*/
+        assertThrows(UnauthorizedException.class,()->{lobbyService.updateLobby(testLobby,lobbyPutDTO);});
+    }
+
+    @Test
+    public void updateExistingLobby_tooManyPlayers(){
+        testLobby.setPrivate(false);
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setMaxNumberOfPlayersAndBots(9);
+        lobbyPutDTO.setToken("1");
+
+        lobbyService.updateLobby(testLobby,lobbyPutDTO);
+
+        assertEquals(5,testLobby.getMaxPlayersAndBots());
+
+
+    }
+
+    @Test
+    public void updateExistingLobby_tooLittlePlayers(){
+        testLobby.setPrivate(false);
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setMaxNumberOfPlayersAndBots(2);
+        lobbyPutDTO.setToken("1");
+
+        testLobby = lobbyService.updateLobby(testLobby,lobbyPutDTO);
+
+        assertEquals(5,testLobby.getMaxPlayersAndBots());
+    }
+
+    @Test
+    public void updateExistingLobby(){
+        testLobby.setPrivate(false);
+        User user1 = new User();
+        User user2 = new User();
+        User user3 = new User();
+
+        testLobby.addUserToLobby(host);
+        testLobby.addUserToLobby(user1);
+        testLobby.addUserToLobby(user2);
+        testLobby.addUserToLobby(user3);
+        testLobby.setCurrentNumPlayersAndBots(4);
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setMaxNumberOfPlayersAndBots(3);
+        lobbyPutDTO.setToken("1");
+
+        testLobby = lobbyService.updateLobby(testLobby,lobbyPutDTO);
+
+        assertEquals(5,testLobby.getMaxPlayersAndBots());
+    }
 
     @Test
     public void getLobby(){

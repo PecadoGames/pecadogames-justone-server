@@ -6,12 +6,10 @@ import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Message;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.ChatPutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPostDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.service.ChatService;
 import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
@@ -73,7 +71,7 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].lobbyId", is(lobby.getLobbyId().intValue())))
                 .andExpect(jsonPath("$[0].lobbyName", is(lobby.getLobbyName())))
-                .andExpect(jsonPath("$[0].totalPlayersAndBots", is(lobby.getCurrentNumPlayersAndBots())))
+                .andExpect(jsonPath("$[0].currentNumPlayersAndBots", is(lobby.getCurrentNumPlayersAndBots())))
                 .andExpect(jsonPath("$[0].maxPlayersAndBots",is(lobby.getMaxPlayersAndBots())))
                 .andExpect(jsonPath("$[0].voiceChat", is(lobby.isVoiceChat())))
                 .andExpect(jsonPath(("$[0].userId"), is(lobby.getUserId().intValue())));
@@ -142,19 +140,15 @@ public class LobbyControllerTest {
 
 
 
-    // ToDo: fix
     @Test
     public void updateExistingLobby_existingLobby() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setId(1L);
         lobby.setLobbyName("Badbunny");
-        lobby.setVoiceChat(true);
         lobby.setUserId(1234);
         lobby.setToken("2020");
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        //lobbyPutDTO.setNumberOfPlayers(6);
-        //lobbyPutDTO.setNumberOfBots(1);
         lobbyPutDTO.setToken("2020");
 
 
@@ -168,21 +162,17 @@ public class LobbyControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-    //ToDo: fix
     @Test
     public void updateExistingLobby_NotFound() throws Exception {
         //given
         Lobby lobby = new Lobby();
         lobby.setId(1L);
         lobby.setLobbyName("Badbunny");
-//        lobby.setNumberOfPlayers(6);
-//       lobby.setNumberOfBots(1);
-        lobby.setVoiceChat(true);
+
         lobby.setUserId(1234);
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-//        lobbyPutDTO.setNumberOfPlayers(6);
-//        lobbyPutDTO.setNumberOfBots(1);
+
 
         given(lobbyService.getLobby(Mockito.anyLong())).willThrow(new NotFoundException("Could not find lobby!"));
 
@@ -196,11 +186,8 @@ public class LobbyControllerTest {
 
     @Test
     public void updateExistingLobby_wrongUser() throws Exception {
-        //given => nothing as lobby does not exist
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-//        lobbyPutDTO.setNumberOfPlayers(6);
-//        lobbyPutDTO.setNumberOfBots(1);
         lobbyPutDTO.setToken("0000");
 
         given(lobbyService.updateLobby(Mockito.any(),Mockito.any())).willThrow(new UnauthorizedException("You are not allowed to change the settings of this lobby!"));
@@ -319,6 +306,66 @@ public class LobbyControllerTest {
         mockMvc.perform(putRequest)
                 .andExpect(status().is2xxSuccessful());
     }
+
+    @Test
+    public void invitePlayerToLobby_success() throws Exception {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setLobbyName("Flacko");
+        lobby.setToken("hostToken");
+        InvitePutDTO invitePutDTO = new InvitePutDTO();
+        invitePutDTO.setToken("hostToken");
+        invitePutDTO.setUserId(1L);
+        invitePutDTO.setUserToInviteId(2L);
+
+        User userToInvite = new User();
+        userToInvite.setLobbyInvites(lobby);
+        given(userService.addLobbyInvite(Mockito.any(),Mockito.any(),Mockito.any())).willReturn(userToInvite);
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/invitations","1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(invitePutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void invitePlayerToLobby_unauthorized() throws Exception {
+
+        InvitePutDTO invitePutDTO = new InvitePutDTO();
+        invitePutDTO.setToken("notHostToken");
+        invitePutDTO.setUserId(1L);
+        invitePutDTO.setUserToInviteId(2L);
+
+        given(userService.addLobbyInvite(Mockito.any(),Mockito.any(),Mockito.any())).willThrow(new UnauthorizedException("User is not authorized to send lobby invites"));
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/invitations","1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(invitePutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void invitePlayerToLobby_autoInviteConflict() throws Exception {
+
+        InvitePutDTO invitePutDTO = new InvitePutDTO();
+        invitePutDTO.setToken("notHostToken");
+        invitePutDTO.setUserId(1L);
+        invitePutDTO.setUserToInviteId(2L);
+
+        given(userService.addLobbyInvite(Mockito.any(),Mockito.any(),Mockito.any())).willThrow(new ConflictException("Cannot invite yourself to the lobby"));
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/invitations","1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(invitePutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isConflict());
+    }
+
 
     private String asJsonString(final Object object) {
         try {

@@ -480,6 +480,46 @@ public class UserServiceTest {
     }
 
     @Test
+    public void lobbyInviteSent_success(){
+        User userToInvite = new User();
+
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setMaxPlayersAndBots(5);
+        lobby.setToken("testToken");
+
+        userToInvite = userService.addLobbyInvite(userToInvite,lobby,testUser);
+
+        assertTrue(userToInvite.getLobbyInvites().contains(lobby));
+    }
+
+    @Test
+    public void lobbyInviteSent_unauthorized(){
+        User userToInvite = new User();
+
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setMaxPlayersAndBots(5);
+        lobby.setToken("anotherToken");
+
+        assertThrows(UnauthorizedException.class,()->
+        {userService.addLobbyInvite(userToInvite,lobby,testUser);});
+    }
+
+    @Test
+    public void lobbyInviteSent_autoInvite(){
+        User userToInvite = new User();
+
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setMaxPlayersAndBots(5);
+        lobby.setToken("testToken");
+
+        assertThrows(ConflictException.class,()->
+        {userService.addLobbyInvite(testUser,lobby,testUser);});
+    }
+
+    @Test
     public void testAlreadyLoggedIn() {
         // when -> any object is being save in the userRepository -> return the dummy testUser
         User createdUser = userService.createUser(testUser);
