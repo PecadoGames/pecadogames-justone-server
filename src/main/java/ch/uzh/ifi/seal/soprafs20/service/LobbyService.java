@@ -6,6 +6,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotAcceptableException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
 import org.slf4j.Logger;
@@ -61,13 +62,12 @@ public class LobbyService {
     }
 
     /**
-     *  TODO: Refractor method
      * @param lobby
      * @param receivedValues
      * @return
      */
     public Lobby updateLobby(Lobby lobby, LobbyPutDTO receivedValues){
-        /*if(!lobby.getToken().equals(receivedValues.getToken())){
+        if(!lobby.getToken().equals(receivedValues.getToken())){
             throw new UnauthorizedException("You are not allowed to change the settings of this lobby!");
         }
 
@@ -77,33 +77,14 @@ public class LobbyService {
             //update number of player in lobby
             lobby.setCurrentNumPlayersAndBots(lobby.getCurrentNumPlayersAndBots() - receivedValues.getUsersToKick().size());
         }
-
-
-        //update bots
-        if(receivedValues.getNumberOfBots() != null && receivedValues.getNumberOfPlayers() == null){
-            if(receivedValues.getNumberOfBots() + lobby.getNumberOfPlayers() < 3 || receivedValues.getNumberOfBots() + lobby.getNumberOfPlayers() > 7){
-                throw new ConflictException("Illegal player/bots amount");
+        //change size of lobby
+        if(receivedValues.getMaxNumberOfPlayersAndBots() != null){
+            int newLobbySize = receivedValues.getMaxNumberOfPlayersAndBots();
+            if(newLobbySize >= 3 && newLobbySize <= 7 && newLobbySize >= lobby.getCurrentNumPlayersAndBots()){
+                lobby.setMaxPlayersAndBots(newLobbySize);
             }
-            else {lobby.setNumberOfBots(receivedValues.getNumberOfBots());}
         }
-        //update players
-        if(receivedValues.getNumberOfPlayers() != null && receivedValues.getNumberOfBots() == null){
-            if(lobby.getNumberOfBots() != null && receivedValues.getNumberOfPlayers() + lobby.getNumberOfBots() < 3 || lobby.getNumberOfBots() != null && receivedValues.getNumberOfPlayers() + lobby.getNumberOfBots() > 7){
-                throw new ConflictException("Illegal player/bot amount");
-            } else if(lobby.getNumberOfBots() == null && (receivedValues.getNumberOfPlayers() < 3 || receivedValues.getNumberOfPlayers() > 7)){
-                throw new ConflictException("Illegal player/bot amount");
-            } else {lobby.setNumberOfPlayers(receivedValues.getNumberOfPlayers());}
-        }
-
-        //update both players and bots
-        if(receivedValues.getNumberOfBots() != null && receivedValues.getNumberOfPlayers() != null){
-            if(receivedValues.getNumberOfBots() + receivedValues.getNumberOfPlayers() < 3 || receivedValues.getNumberOfBots() + receivedValues.getNumberOfPlayers() > 7){
-                throw new ConflictException("Illegal player/bot amount");
-            } else {lobby.setNumberOfBots(receivedValues.getNumberOfBots()); lobby.setNumberOfPlayers(receivedValues.getNumberOfPlayers());}
-        }
-
-        return lobby;*/
-        return null;
+        return lobby;
     }
 
     private boolean checkIfLobbyExists(Lobby newLobby) {
