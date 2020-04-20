@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
+import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -49,6 +50,9 @@ public class User implements Serializable {
     @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
 
+    @Column
+    private AvatarColor avatarColor;
+
 	@Column
     private int score;
 
@@ -93,9 +97,13 @@ public class User implements Serializable {
 		this.status = status;
 	}
 
-	public void setPassword(String password){this.password = password;}
+	public void setAvatarColor(AvatarColor color) { this.avatarColor = color; }
 
-	public String getPassword(){return password;}
+	public AvatarColor getAvatarColor() { return this.avatarColor; }
+
+	public void setPassword(String password) { this.password = password; }
+
+	public String getPassword() { return password; }
 
 	public void setCreationDate() {
         this.creationDate = new Date();

@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
+import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
@@ -15,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * User Service
@@ -56,6 +55,7 @@ public class UserService {
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
+        newUser.setAvatarColor(getRandomColor());
         newUser.setCreationDate();
         checkUsername(newUser.getUsername());
         checkIfUserExists(newUser);
@@ -115,6 +115,11 @@ public class UserService {
         if (receivedValues.getUsername() != null) {
             checkUsername(receivedValues.getUsername());
             user.setUsername(receivedValues.getUsername());
+        }
+
+        if (receivedValues.getAvatarColor() != null) {
+            checkAvatarColor(receivedValues.getAvatarColor());
+            user.setAvatarColor(receivedValues.getAvatarColor());
         }
     }
 
@@ -196,5 +201,22 @@ public class UserService {
         if (username.contains(" ") || username.isEmpty() || username.isBlank() || username.length() > 20 || username.trim().isEmpty() || !username.matches("[a-zA-Z_0-9]*")) {
             throw new NotAcceptableException("This is an invalid username. Please choose a username with a maximum length of 20 characters consisting of letters, digits and underscores..");
         }
+    }
+
+    private AvatarColor getRandomColor() {
+        List<AvatarColor> values = List.of(AvatarColor.values());
+        int size = values.size();
+        Random random = new Random();
+
+        return values.get(random.nextInt(size));
+    }
+
+    private void checkAvatarColor(AvatarColor enteredColor) {
+        for (AvatarColor color : AvatarColor.values()) {
+            if (color.equals(enteredColor)) {
+                return;
+            }
+        }
+        throw new NotAcceptableException("This is an invalid color. Please choose from the following colors: " + Arrays.toString(AvatarColor.values()));
     }
 }
