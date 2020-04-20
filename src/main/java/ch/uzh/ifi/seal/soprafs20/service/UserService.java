@@ -8,6 +8,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
@@ -123,14 +124,17 @@ public class UserService {
         }
     }
 
-    public void addFriendRequest(User receiver, User sender) {
+    public void addFriendRequest(User receiver, RequestPutDTO requestPutDTO) {
+        User sender = getUser(requestPutDTO.getSenderID());
         if (userRepository.findByUsername(receiver.getUsername()) == null) {
             String exceptionMessage = "User with id %s does not exist!";
             throw new NotFoundException(String.format(exceptionMessage, receiver.getId().toString()));
         }
-        User user = userRepository.findById(sender.getId()).get();
-        if (!sender.getToken().equals(user.getToken())) {
+        if (!sender.getToken().equals(requestPutDTO.getToken())) {
             throw new UnauthorizedException("You are not allowed to send a friend request!");
+        }
+        if(receiver.getFriendRequests().contains(sender)) {
+            throw new NoContentException("This user already got a friend request from you!");
         }
         receiver.setFriendRequests(sender);
     }
