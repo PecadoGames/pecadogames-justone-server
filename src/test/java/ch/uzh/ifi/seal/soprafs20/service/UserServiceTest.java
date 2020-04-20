@@ -7,6 +7,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.junit.jupiter.api.BeforeEach;
@@ -257,12 +258,35 @@ public class UserServiceTest {
         testUser2.setId(2L);
         testUser2.setToken("testToken2");
 
+        RequestPutDTO requestPutDTO = new RequestPutDTO();
+        requestPutDTO.setSenderID(2L);
+        requestPutDTO.setToken("testToken2");
+
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
-        userService.addFriendRequest(testUser, testUser2);
+        userService.addFriendRequest(testUser, requestPutDTO);
 
         assertTrue(testUser.getFriendRequests().contains(testUser2));
         assertFalse(testUser2.getFriendRequests().contains(testUser));
+    }
+
+    @Test
+    public void addFriendRequest_alreadyAdded_throwsException() {
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setToken("testToken2");
+
+        RequestPutDTO requestPutDTO = new RequestPutDTO();
+        requestPutDTO.setSenderID(2L);
+        requestPutDTO.setToken("testToken2");
+
+        testUser.setFriendRequests(testUser2);
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
+
+        assertThrows(NoContentException.class, () -> userService.addFriendRequest(testUser, requestPutDTO));
+        assertTrue(testUser.getFriendRequests().contains(testUser2));
     }
 
     @Test
@@ -271,26 +295,26 @@ public class UserServiceTest {
         testUser2.setId(2L);
         testUser2.setToken("testToken2");
 
-        User testUser_wrongToken = new User();
-        testUser_wrongToken.setId(2L);
-        testUser_wrongToken.setToken("wrongToken");
+        RequestPutDTO requestPutDTO = new RequestPutDTO();
+        requestPutDTO.setSenderID(2L);
+        requestPutDTO.setToken("wrongToken");
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
 
-        assertThrows(UnauthorizedException.class, () -> userService.addFriendRequest(testUser, testUser_wrongToken));
+        assertThrows(UnauthorizedException.class, () -> userService.addFriendRequest(testUser, requestPutDTO));
         assertFalse(testUser.getFriendRequests().contains(testUser2));
     }
 
    @Test
    public void addFriendRequest_userNotFound_throwsException() {
-       User testUser2 = new User();
-       testUser2.setId(2L);
-       testUser2.setToken("testToken2");
+       RequestPutDTO requestPutDTO = new RequestPutDTO();
+       requestPutDTO.setSenderID(2L);
+       requestPutDTO.setToken("testToken2");
 
        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
 
-       assertThrows(NotFoundException.class, () -> userService.addFriendRequest(testUser, testUser2));
+       assertThrows(NotFoundException.class, () -> userService.addFriendRequest(testUser, requestPutDTO));
    }
 
     @Test
