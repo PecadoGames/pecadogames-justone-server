@@ -5,5 +5,6 @@ public enum AvatarColor {
     RED,
     YELLOW,
     BLUE,
-    PINK
+    PINK,
+    PURPLE
 }
