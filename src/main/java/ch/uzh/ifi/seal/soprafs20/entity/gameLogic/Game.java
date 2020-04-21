@@ -51,8 +51,8 @@ public class Game {
         return players;
     }
 
-    public void setPlayers(Set<User> players) {
-        this.players = players;
+    public void addPlayer(User player) {
+        this.players.add(player);
     }
 
     public String getCurrentWord() {

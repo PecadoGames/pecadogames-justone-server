@@ -3,7 +3,6 @@ package ch.uzh.ifi.seal.soprafs20.rest.mapper;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Message;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.entity.gameLogic.Game;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -80,9 +79,6 @@ public interface DTOMapper {
     @Mapping(source = "message", target = "text")
     Message convertChatPutDTOtoEntity(ChatPutDTO chatPutDTO);
 
-    @Mapping(source = "lobbyId", target = "lobbyId")
-    @Mapping(source = "userToken", target = "userToken")
-    Game convertGamePostDTOtoEntity(GamePostDTO gamePostDTO);
 
 
 }
