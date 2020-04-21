@@ -5,12 +5,11 @@ import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.entity.gameLogic.Game;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
+import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 
 /**
@@ -21,8 +20,14 @@ import java.net.URISyntaxException;
 @Service
 @Transactional
 public class GameService {
+    private final GameRepository gameRepository;
 
-    public Game createGame(Lobby lobby, GamePostDTO gamePostDTO) throws IOException, URISyntaxException {
+    @Autowired
+    public GameService(GameRepository gameRepository) {
+        this.gameRepository = gameRepository;
+    }
+
+    public Game createGame(Lobby lobby, GamePostDTO gamePostDTO) {
         if(!lobby.getToken().equals(gamePostDTO.getUserToken())) {
             throw new UnauthorizedException("You are not allowed to start the game.");
         }
@@ -32,11 +37,13 @@ public class GameService {
             newGame.addPlayer(user);
         }
         newGame.setRoundsPlayed(0);
-        //select 13 random words from the words.txt file using WordReader.class
-        WordReader reader = new WordReader();
-        reader.getRandomWords(13);
 
-        return null;
+        //select 13 random words from the words.txt
+        WordReader reader = new WordReader();
+        newGame.setWords(reader.getRandomWords(13));
+        newGame = gameRepository.save(newGame);
+        gameRepository.flush();
+        return newGame;
     }
 
 }

@@ -1,5 +1,8 @@
 package ch.uzh.ifi.seal.soprafs20.GameLogic;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -10,18 +13,41 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class WordReader {
     private List<String> words = new ArrayList<>();
+    private final Logger log = LoggerFactory.getLogger(WordReader.class);
 
-    public WordReader() throws FileNotFoundException, IOException, URISyntaxException {
-        URL res = getClass().getClassLoader().getResource("words.txt");
-        File file = Paths.get(res.toURI()).toFile();
-        String absolutePath = file.getAbsolutePath();
-        File words_file = new File(absolutePath);
+    //ToDo: Catch exceptions
+    public WordReader() {
+        URL resource;
+        File words_file = null;
+        BufferedReader bufferedReader = null;
+        try {
+            resource = getClass().getClassLoader().getResource("words.txt");
+            assert resource != null;
+            File file = Paths.get(resource.toURI()).toFile();
+            String absolutePath = file.getAbsolutePath();
+            words_file = new File(absolutePath);
+        }
+        catch (URISyntaxException exception) {
+            log.error(exception.getMessage());
+        }
 
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(words_file));
-        for(String line; (line = bufferedReader.readLine()) != null;) {
-            if(!line.isEmpty()) {
-                this.words.add(line);
+        try {
+            assert words_file != null;
+            bufferedReader = new BufferedReader(new FileReader(words_file));
+        }
+        catch (FileNotFoundException exception) {
+            log.error(exception.getMessage());
+        }
+
+        try {
+            for(String line; (line = bufferedReader.readLine()) != null;) {
+                if(!line.isEmpty()) {
+                    this.words.add(line);
+                }
             }
+        }
+        catch (IOException exception) {
+            log.error(exception.getMessage());
         }
     }
 

@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Message;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.gameLogic.Game;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
@@ -155,8 +156,12 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResponseEntity<Object> createGame(@PathVariable long lobbyId, @RequestBody GamePostDTO gamePostDTO) {
-        //Game game = DTOMapper.INSTANCE.convertGamePostDTOtoEntity(gamePostDTO);
-        return null;
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        Game createdGame = gameService.createGame(lobby, gamePostDTO);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
+                .build().toUri();
+        ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).build();
     }
 
 

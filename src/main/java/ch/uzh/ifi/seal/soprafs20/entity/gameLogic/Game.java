@@ -4,9 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.User;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name="GAME")
@@ -19,7 +17,10 @@ public class Game {
     private int roundsPlayed;
 
     @OneToMany
-    private Set<User> players = new HashSet<>();
+    private List<User> players = new ArrayList<>();
+
+    @OneToOne
+    private User currentGuesser;
 
     @Column
     private String currentWord;
@@ -47,7 +48,7 @@ public class Game {
         this.roundsPlayed = roundsPlayed;
     }
 
-    public Set<User> getPlayers() {
+    public List<User> getPlayers() {
         return players;
     }
 
