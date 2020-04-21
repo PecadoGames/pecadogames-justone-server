@@ -4,12 +4,15 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.entity.gameLogic.Game;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 
 /**
@@ -25,6 +28,17 @@ public class GameService {
     @Autowired
     public GameService(GameRepository gameRepository) {
         this.gameRepository = gameRepository;
+    }
+
+    public Game getGame(Long id) {
+        Game game;
+        Optional<Game> optionalGame = gameRepository.findById(id);
+        if(optionalGame.isPresent()){
+            game = optionalGame.get();
+            return game;
+        } else {
+            throw new NotFoundException("Could not find game!");
+        }
     }
 
     public Game createGame(Lobby lobby, GamePostDTO gamePostDTO) {
