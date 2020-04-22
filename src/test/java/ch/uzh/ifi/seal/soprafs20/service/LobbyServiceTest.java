@@ -2,8 +2,10 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.JoinLeavePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -205,7 +207,6 @@ public class LobbyServiceTest {
         kick.add(3L);
         lobbyPutDTO.setUsersToKick(kick);
 
-        assertEquals(testLobby.getUsersInLobby().size(),2);
         lobbyService.updateLobby(testLobby,lobbyPutDTO);
 
         assertEquals(1,testLobby.getUsersInLobby().size());
@@ -235,12 +236,194 @@ public class LobbyServiceTest {
         kick.add(1L);
         lobbyPutDTO.setUsersToKick(kick);
 
-        assertEquals(testLobby.getUsersInLobby().size(),2);
-
         lobbyService.updateLobby(testLobby,lobbyPutDTO);
 
         assertEquals(2,testLobby.getUsersInLobby().size());
         assertTrue(testLobby.getUsersInLobby().contains(host));
 
     }
+
+    @Test
+    public void joinLobby_success(){
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.addUserToLobby(host);
+
+        lobbyService.addUserToLobby(user2,testLobby);
+
+        assertEquals(2,testLobby.getUsersInLobby().size());
+    }
+
+    @Test
+    public void joinLobby_fail_userAlreadyInLobby(){
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.addUserToLobby(host);
+        testLobby.addUserToLobby(user2);
+
+        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addUserToLobby(user2,testLobby);;});
+        assertEquals("User already in lobby",ex.getMessage());
+    }
+
+    @Test
+    public void joinLobby_fail_hostIsAlreadyInLobby(){
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.addUserToLobby(host);
+        testLobby.addUserToLobby(user2);
+
+        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addUserToLobby(host,testLobby);;});
+        assertEquals("Host cannot join their own lobby",ex.getMessage());
+    }
+
+    @Test
+    public void joinLobby_fail_LobbyFull(){
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+
+        //third user
+        User user3 = new User();
+        user3.setToken("000");
+        user3.setId(4L);
+
+        //fourth user
+        User user4 = new User();
+        user4.setToken("555");
+        user4.setId(5L);
+
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.setMaxPlayersAndBots(3);
+        testLobby.setCurrentNumPlayersAndBots(3);
+        testLobby.addUserToLobby(host);
+        testLobby.addUserToLobby(user2);
+        testLobby.addUserToLobby(user3);
+
+        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addUserToLobby(user4,testLobby);;});
+        assertEquals("Lobby is full",ex.getMessage());
+    }
+
+    @Test
+    public void joinLobby_fail_gameIsStarted(){
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+
+        //third user
+        User user3 = new User();
+        user3.setToken("000");
+        user3.setId(4L);
+
+        //fourth user
+        User user4 = new User();
+        user4.setToken("555");
+        user4.setId(5L);
+
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.setMaxPlayersAndBots(5);
+        testLobby.setCurrentNumPlayersAndBots(3);
+        testLobby.setGameIsStarted(true);
+        testLobby.addUserToLobby(host);
+        testLobby.addUserToLobby(user2);
+        testLobby.addUserToLobby(user3);
+
+        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addUserToLobby(user4,testLobby);});
+        assertEquals("Cant join the lobby, the game is already under way!",ex.getMessage());
+    }
+
+    @Test
+    public void leaveLobby_success_hostIsAloneAndLeaves(){
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.setMaxPlayersAndBots(5);
+        testLobby.setCurrentNumPlayersAndBots(1);
+        testLobby.setGameIsStarted(true);
+        testLobby.addUserToLobby(host);
+
+        lobbyService.removeUserFromLobby(host,testLobby);
+        Mockito.doReturn(null).when(lobbyRepository).findById(1L);
+        assertNull(lobbyRepository.findById(1L));
+    }
+
+    @Test
+    public void leaveLobby_success_newHostIsChosen(){
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+
+        //third user
+        User user3 = new User();
+        user3.setToken("000");
+        user3.setId(4L);
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.addUserToLobby(host);
+        testLobby.addUserToLobby(user2);
+        testLobby.addUserToLobby(user3);
+
+
+        testLobby.setUserId(user2.getId());
+        testLobby.setToken(user2.getToken());
+        testLobby.setCurrentNumPlayersAndBots(2);
+        Mockito.doReturn(testLobby).when(lobbyRepository).save(testLobby);
+
+        lobbyService.removeUserFromLobby(host,testLobby);
+
+        assertEquals(user2.getId(),testLobby.getUserId());
+        assertEquals(user2.getToken(),testLobby.getToken());
+        assertEquals(2,testLobby.getCurrentNumPlayersAndBots());
+    }
+
+    @Test
+    public void leaveLobby_fail_gameAlreadyStarted(){
+
+        //second user
+        User user2 = new User();
+        user2.setToken("123");
+        user2.setId(3L);
+
+        //lobby setup
+        testLobby.setPrivate(false);
+        testLobby.setGameIsStarted(true);
+        testLobby.addUserToLobby(host);
+        testLobby.addUserToLobby(user2);
+
+
+        Throwable ex = assertThrows(ConflictException.class,()->{lobbyService.removeUserFromLobby(user2,testLobby);});
+        assertEquals("Cannot leave lobby, game already started",ex.getMessage());
+    }
+
 }

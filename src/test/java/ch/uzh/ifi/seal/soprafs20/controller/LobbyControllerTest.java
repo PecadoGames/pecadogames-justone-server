@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.when;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -368,6 +369,40 @@ public class LobbyControllerTest {
         mockMvc.perform(putRequest)
                 .andExpect(status().isConflict());
     }
+
+    @Test
+    public void joinLobby_success() throws Exception {
+        JoinLeavePutDTO joinLeavePutDTO = new JoinLeavePutDTO();
+        joinLeavePutDTO.setUserId(2L);
+        joinLeavePutDTO.setUserToken("testToken");
+
+        doNothing().when(lobbyService).addUserToLobby(Mockito.any(),Mockito.any());
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/joins","1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(joinLeavePutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void joinLobby_lobbyFull_fail() throws Exception {
+        JoinLeavePutDTO joinLeavePutDTO = new JoinLeavePutDTO();
+        joinLeavePutDTO.setUserId(2L);
+        joinLeavePutDTO.setUserToken("testToken");
+
+        doNothing().when(lobbyService).addUserToLobby(Mockito.any(),Mockito.any());
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/joins","1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(joinLeavePutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isOk());
+    }
+
+
 
     @Test
     public void createGame_validInput_success() throws Exception {

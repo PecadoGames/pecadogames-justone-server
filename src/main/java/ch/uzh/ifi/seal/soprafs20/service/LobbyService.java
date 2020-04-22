@@ -3,10 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotAcceptableException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
 import org.slf4j.Logger;
@@ -104,18 +101,29 @@ public class LobbyService {
     }
 
     public void addUserToLobby(User userToAdd, Lobby lobby){
-        if(lobby.getCurrentNumPlayersAndBots() + 1 <= lobby.getMaxPlayersAndBots() && !lobby.getUserId().equals(userToAdd.getId()) && !lobby.getUsersInLobby().contains(userToAdd)){
+        if(lobby.isGameStarted()){
+            throw new ConflictException("Cant join the lobby, the game is already under way!");
+        }
+        //player that is not host wants to join but they are already in lobby
+        if(!lobby.getUserId().equals(userToAdd.getId()) && lobby.getUsersInLobby().contains(userToAdd)){
+            throw new ConflictException("User already in lobby");
+        }
+        if(lobby.getUserId().equals(userToAdd.getId())){
+            throw new ConflictException("Host cannot join their own lobby");
+        }
+        if(lobby.getCurrentNumPlayersAndBots() + 1 <= lobby.getMaxPlayersAndBots()){
             lobby.addUserToLobby(userToAdd);
             lobby.setCurrentNumPlayersAndBots(lobby.getUsersInLobby().size());
             lobbyRepository.save(lobby);
-        }else if(lobby.getUserId().equals(userToAdd.getId())){
-            throw new ConflictException("Host cannot join their own lobby");
-        } else {
-            throw new ConflictException("Lobby is full/ Game already started");
+        } else if(!(lobby.getCurrentNumPlayersAndBots() + 1 <= lobby.getMaxPlayersAndBots())){
+            throw new ConflictException("Lobby is full");
         }
     }
 
     public void removeUserFromLobby(User userToQuit, Lobby lobby){
+        if(lobby.isGameStarted()){
+            throw new ConflictException("Cannot leave lobby, game already started");
+        }
         if(userToQuit.getId().equals(lobby.getUserId())){
             //host leaves lobby and is alone
             if(lobby.getCurrentNumPlayersAndBots().equals(1)){
