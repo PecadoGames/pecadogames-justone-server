@@ -4,13 +4,11 @@ import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Message;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.gameLogic.Game;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
-import ch.uzh.ifi.seal.soprafs20.service.ChatService;
-import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
-import ch.uzh.ifi.seal.soprafs20.service.MessageService;
-import ch.uzh.ifi.seal.soprafs20.service.UserService;
+import ch.uzh.ifi.seal.soprafs20.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -30,12 +28,14 @@ public class LobbyController {
     private final UserService userService;
     private final ChatService chatService;
     private final MessageService messageService;
+    private final GameService gameService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, ChatService chatService, MessageService messageService){
+    LobbyController(LobbyService lobbyService, UserService userService, ChatService chatService, MessageService messageService, GameService gameService){
         this.lobbyService = lobbyService;
         this.userService = userService;
         this.chatService = chatService;
         this.messageService = messageService;
+        this.gameService = gameService;
     }
 
 
@@ -123,6 +123,16 @@ public class LobbyController {
         return asJsonString(chat);
     }
 
+    @PutMapping(path = "lobbies/{lobbyId}/chat", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void addChatMessage(@PathVariable long lobbyId, @RequestBody ChatPutDTO chatPutDTO) {
+        Message message = DTOMapper.INSTANCE.convertChatPutDTOtoEntity(chatPutDTO);
+        message = messageService.createMessage(message);
+        User author  = userService.getUser(chatPutDTO.getUserId());
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        chatService.addChatMessage(lobby, author.getToken(), message);
+    }
 
     @PutMapping(path = "/lobbies/{lobbyId}/joins", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
@@ -142,16 +152,18 @@ public class LobbyController {
         lobbyService.removeUserFromLobby(user,lobby);
     }
 
-    @PutMapping(path = "lobbies/{lobbyId}/chat", consumes = "application/json")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping(path = "lobbies/{lobbyId}", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public void addChatMessage(@PathVariable long lobbyId, @RequestBody ChatPutDTO chatPutDTO) {
-        Message message = DTOMapper.INSTANCE.convertChatPutDTOtoEntity(chatPutDTO);
-        message = messageService.createMessage(message);
-        User author  = userService.getUser(chatPutDTO.getUserId());
+    public ResponseEntity<Object> createGame(@PathVariable long lobbyId, @RequestBody GamePostDTO gamePostDTO) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        chatService.addChatMessage(lobby, author.getToken(), message);
+        Game createdGame = gameService.createGame(lobby, gamePostDTO);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
+                .build().toUri();
+        ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).build();
     }
+
 
     private String asJsonString(final Object object) {
         try {

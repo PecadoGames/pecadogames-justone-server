@@ -5,14 +5,13 @@ import ch.uzh.ifi.seal.soprafs20.entity.Chat;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Message;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.gameLogic.Game;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
-import ch.uzh.ifi.seal.soprafs20.service.ChatService;
-import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
-import ch.uzh.ifi.seal.soprafs20.service.UserService;
+import ch.uzh.ifi.seal.soprafs20.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -50,6 +49,10 @@ public class LobbyControllerTest {
     private UserService userService;
     @MockBean
     private ChatService chatService;
+    @MockBean
+    private GameService gameService;
+    @MockBean
+    private MessageService messageService;
 
     @Test
     public void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
@@ -364,6 +367,25 @@ public class LobbyControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void createGame_validInput_success() throws Exception {
+        Lobby lobby = new Lobby();
+        lobby.setId(1L);
+
+        GamePostDTO gamePostDTO = new GamePostDTO();
+        Game game = new Game();
+
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
+        given(gameService.createGame(Mockito.any(), Mockito.any())).willReturn(game);
+
+        MockHttpServletRequestBuilder postRequest = post("/lobbies/{lobbyId}","1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(gamePostDTO));
+
+        mockMvc.perform(postRequest)
+                .andExpect(status().isCreated());
     }
 
 
