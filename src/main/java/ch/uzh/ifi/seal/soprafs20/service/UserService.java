@@ -140,10 +140,10 @@ public class UserService {
     }
 
     public void acceptOrDeclineFriendRequest(User receiver, FriendPutDTO friendPutDTO) {
-        if(!receiver.getToken().equals(friendPutDTO.getToken())){
+        if(!receiver.getToken().equals(friendPutDTO.getAccepterToken())){
             throw new UnauthorizedException("Not allowed to accept/deny friendrequest!");
         }
-        User sender = getUser(friendPutDTO.getSenderID());
+        User sender = getUser(friendPutDTO.getRequesterID());
         if (receiver.getFriendRequests().contains(sender)) {
             if (friendPutDTO.getAccepted()) {
                 receiver.setFriendList(sender);

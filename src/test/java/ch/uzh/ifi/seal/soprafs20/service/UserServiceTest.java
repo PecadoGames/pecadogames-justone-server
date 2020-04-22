@@ -327,8 +327,8 @@ public class UserServiceTest {
 
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(true);
-        friendPutDTO.setToken(testUser2.getToken());
-        friendPutDTO.setSenderID(testUser2.getId());
+        friendPutDTO.setAccepterToken(testUser2.getToken());
+        friendPutDTO.setRequesterID(testUser2.getId());
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
@@ -350,8 +350,8 @@ public class UserServiceTest {
 
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(false);
-        friendPutDTO.setToken(testUser2.getToken());
-        friendPutDTO.setSenderID(testUser2.getId());
+        friendPutDTO.setAccepterToken(testUser2.getToken());
+        friendPutDTO.setRequesterID(testUser2.getId());
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
@@ -373,8 +373,8 @@ public class UserServiceTest {
 
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(false);
-        friendPutDTO.setToken("WrongToken");
-        friendPutDTO.setSenderID(testUser2.getId());
+        friendPutDTO.setAccepterToken("WrongToken");
+        friendPutDTO.setRequesterID(testUser2.getId());
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
@@ -391,8 +391,8 @@ public class UserServiceTest {
     public void handleFriendRequest_invalidInput_throwsException() {
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(false);
-        friendPutDTO.setToken("anyToken");
-        friendPutDTO.setSenderID(5L);
+        friendPutDTO.setAccepterToken("anyToken");
+        friendPutDTO.setRequesterID(5L);
 
         User testUser2 = new User();
         testUser2.setId(2L);
