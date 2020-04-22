@@ -364,6 +364,30 @@ public class UserServiceTest {
     }
 
     @Test
+    public void declineFriendRequest_validInput_unauthorizedUser() {
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setToken("testToken2");
+
+        testUser.setFriendRequests(testUser2);
+
+        FriendPutDTO friendPutDTO = new FriendPutDTO();
+        friendPutDTO.setAccepted(false);
+        friendPutDTO.setToken("WrongToken");
+        friendPutDTO.setSenderID(testUser2.getId());
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
+
+
+
+        assertThrows(UnauthorizedException.class,() ->{userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO);});
+        assertFalse(testUser.getFriendList().contains(testUser2));
+        assertFalse(testUser2.getFriendList().contains(testUser));
+        assertFalse(testUser.getFriendRequests().isEmpty());
+    }
+
+    @Test
     public void handleFriendRequest_invalidInput_throwsException() {
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(false);

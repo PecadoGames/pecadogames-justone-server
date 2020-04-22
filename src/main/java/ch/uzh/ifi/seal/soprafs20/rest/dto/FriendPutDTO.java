@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
 public class FriendPutDTO {
 
+    //accepting user token
     private String token;
     private Long senderID;
     private boolean accepted;
