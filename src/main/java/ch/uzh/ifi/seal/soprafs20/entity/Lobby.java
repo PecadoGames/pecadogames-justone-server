@@ -19,9 +19,8 @@ public class Lobby implements Serializable {
     @Column(nullable = false)
     private String lobbyName;
 
-    //keep track of number of players currently in lobby
-    //@Column
-    //private Integer numberOfPlayers;
+    @Column
+    private boolean gameIsStarted;
 
     @Column(nullable = false)
     private boolean voiceChat;
@@ -32,10 +31,6 @@ public class Lobby implements Serializable {
 
     @Column(nullable = false)
     private String userToken;
-
-    //keep track of number of players currently in lobby
-    //@Column
-    //private Integer numberOfBots;
 
     @Column
     private Long lobbyScore;
@@ -129,8 +124,8 @@ public class Lobby implements Serializable {
         return isPrivate;
     }
 
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
+    public void setPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 
     public String getPrivateKey() {
@@ -161,5 +156,13 @@ public class Lobby implements Serializable {
 
     public void setMaxPlayersAndBots(Integer maxPlayersAndBots) {
         this.maxPlayersAndBots = maxPlayersAndBots;
+    }
+
+    public boolean isGameStarted() {
+        return gameIsStarted;
+    }
+
+    public void setGameIsStarted(boolean gameIsStarted) {
+        this.gameIsStarted = gameIsStarted;
     }
 }
