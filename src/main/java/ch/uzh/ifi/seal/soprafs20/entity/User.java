@@ -3,7 +3,9 @@ package ch.uzh.ifi.seal.soprafs20.entity;
 import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -112,6 +114,7 @@ public class User implements Serializable {
 	public Date getCreationDate(){return creationDate;}
 
     @JsonFormat(pattern="dd.MM.yyyy")
+    @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
     public void setBirthday(Date birthday) throws JsonParseException {
         this.birthday = birthday;
     }

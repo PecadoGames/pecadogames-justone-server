@@ -59,7 +59,7 @@ public class LobbyController {
 
         //create chat for lobby
         chatService.createChat(createdLobby.getLobbyId());
-        // convert internal representation of user back to API
+
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{lobbyId}")
                 .buildAndExpand(createdLobby.getLobbyId()).toUri();
         if(createdLobby.isPrivate()) {
@@ -124,7 +124,7 @@ public class LobbyController {
     }
 
 
-    @PutMapping(path = "lobbies/{lobbyId}/joins", consumes = "application/json")
+    @PutMapping(path = "/lobbies/{lobbyId}/joins", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void joinLobby(@PathVariable long lobbyId, @RequestBody JoinLeavePutDTO joinLeavePutDTO){
