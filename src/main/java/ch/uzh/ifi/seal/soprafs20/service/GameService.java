@@ -3,11 +3,13 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.entity.gameLogic.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ import java.util.Optional;
 @Transactional
 public class GameService {
     private final GameRepository gameRepository;
+    private final Logger log = LoggerFactory.getLogger(GameService.class);
 
     @Autowired
     public GameService(GameRepository gameRepository) {
@@ -54,7 +57,7 @@ public class GameService {
 
         //select 13 random words from the words.txt
         WordReader reader = new WordReader();
-        newGame.setWords(reader.getRandomWords(13));
+//        newGame.setWords(reader.getRandomWords(13));
         newGame = gameRepository.save(newGame);
         gameRepository.flush();
         return newGame;

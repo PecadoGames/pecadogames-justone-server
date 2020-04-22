@@ -1,6 +1,4 @@
-package ch.uzh.ifi.seal.soprafs20.entity.gameLogic;
-
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+package ch.uzh.ifi.seal.soprafs20.entity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -11,6 +9,7 @@ import java.util.List;
 public class Game {
 
     @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long lobbyId;
 
     @Column
@@ -25,11 +24,14 @@ public class Game {
     @Column
     private String currentWord;
 
-    @ElementCollection
-    private List<String> enteredClues = new ArrayList<>();
+//    @ElementCollection
+//    private List<String> enteredClues = new ArrayList<>();
+//
+//    @ElementCollection
+//    private List<String> words = new ArrayList<>();
 
-    @ElementCollection
-    private List<String> words = new ArrayList<>();
+//    @Transient
+//    private GameState gameState;
 
 
     public long getLobbyId() {
@@ -56,28 +58,30 @@ public class Game {
         this.players.add(player);
     }
 
-    public String getCurrentWord() {
-        return currentWord;
-    }
+    public String getCurrentWord() { return currentWord; }
 
     public void setCurrentWord(String currentWord) {
         this.currentWord = currentWord;
     }
 
-    public List<String> getEnteredClues() {
-        return enteredClues;
-    }
+//    public List<String> getEnteredClues() {
+//        return enteredClues;
+//    }
+//
+//    public void setEnteredClues(List<String> enteredClues) {
+//        this.enteredClues = enteredClues;
+//    }
+//
+//    public List<String> getWords() {
+//        return words;
+//    }
+//
+//    public void setWords(List<String> words) {
+//        this.words = words;
+//    }
 
-    public void setEnteredClues(List<String> enteredClues) {
-        this.enteredClues = enteredClues;
-    }
+    /*public GameState getGameState () { return gameState; }
 
-    public List<String> getWords() {
-        return words;
-    }
-
-    public void setWords(List<String> words) {
-        this.words = words;
-    }
+    public void setGameState(GameState state) { gameState = state; }*/
 
 }

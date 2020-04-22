@@ -51,15 +51,11 @@ public class LobbyServiceTest {
         host.setUsername("Flacko");
         host.setPassword("1");
 
-
-
-
         // when -> any object is being save in the userRepository -> return the dummy testUser
         Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(testLobby);
         Mockito.when(lobbyRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testLobby));
 
     }
-
 
     @Test
     public void createLobby_validInput_publicLobby(){

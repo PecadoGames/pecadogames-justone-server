@@ -39,7 +39,7 @@ public class ChatService {
     public void createChat(Long lobbyId) {
         Chat chat = new Chat();
         chat.setLobbyId(lobbyId);
-        chatRepository.save(chat);
+        chat = chatRepository.save(chat);
         chatRepository.flush();
     }
 
