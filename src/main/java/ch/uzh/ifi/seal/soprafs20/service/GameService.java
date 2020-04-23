@@ -91,4 +91,30 @@ public class GameService {
         return newGame;
     }
 
+    /**
+     *
+     * @param game
+     * @param user
+     * @param clue
+     * @return game with updated clue list
+     */
+    public Game sendClue(Game game, User user, String clue){
+        if(!game.getPlayers().contains(user) || user.isSent() || game.getCurrentGuesser().equals(user)){
+            throw new ForbiddenException("User not allowed to send clue");
+        }
+        game.addClue(clue);
+        user.setSent(true);
+        int counter = 0;
+        for(User player: game.getPlayers()){
+            if (player.isSent()){
+                counter++;
+            }
+        }
+        if(counter == game.getPlayers().size()-1){
+            //game.setGameState(); set next game State
+        }
+        return game;
+    }
+
+
 }
