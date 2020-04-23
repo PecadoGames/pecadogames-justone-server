@@ -126,10 +126,10 @@ public class LobbyController {
     @PutMapping(path = "lobbies/{lobbyId}/chat", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void addChatMessage(@PathVariable long lobbyId, @RequestBody ChatPutDTO chatPutDTO) {
-        Message message = DTOMapper.INSTANCE.convertChatPutDTOtoEntity(chatPutDTO);
+    public void addChatMessage(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
+        Message message = DTOMapper.INSTANCE.convertMessagePutDTOtoEntity(messagePutDTO);
         message = messageService.createMessage(message);
-        User author  = userService.getUser(chatPutDTO.getUserId());
+        User author  = userService.getUser(messagePutDTO.getUserId());
         Lobby lobby = lobbyService.getLobby(lobbyId);
         chatService.addChatMessage(lobby, author.getToken(), message);
     }

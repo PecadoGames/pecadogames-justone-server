@@ -1,6 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
-public class ChatPutDTO {
+public class MessagePutDTO {
 
     private Long userId;
 

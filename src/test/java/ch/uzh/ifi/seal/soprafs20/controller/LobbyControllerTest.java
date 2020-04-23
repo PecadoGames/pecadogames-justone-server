@@ -288,10 +288,10 @@ public class LobbyControllerTest {
 
     @Test
     public void addChatMessage_validInput_success() throws Exception {
-        ChatPutDTO chatPutDTO = new ChatPutDTO();
-        chatPutDTO.setMessage("Hello world");
-        chatPutDTO.setUserId(1L);
-        chatPutDTO.setUserToken("testToken");
+        MessagePutDTO messagePutDTO = new MessagePutDTO();
+        messagePutDTO.setMessage("Hello world");
+        messagePutDTO.setUserId(1L);
+        messagePutDTO.setUserToken("testToken");
 
         User author = new User();
         author.setId(1L);
@@ -305,7 +305,7 @@ public class LobbyControllerTest {
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/chat", "1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(chatPutDTO));
+                .content(asJsonString(messagePutDTO));
 
         mockMvc.perform(putRequest)
                 .andExpect(status().is2xxSuccessful());

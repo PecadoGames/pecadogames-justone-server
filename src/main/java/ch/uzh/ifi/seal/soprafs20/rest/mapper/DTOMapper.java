@@ -77,7 +77,7 @@ public interface DTOMapper {
 
     @Mapping(source = "userId", target = "authorId")
     @Mapping(source = "message", target = "text")
-    Message convertChatPutDTOtoEntity(ChatPutDTO chatPutDTO);
+    Message convertMessagePutDTOtoEntity(MessagePutDTO messagePutDTO);
 
 
 
