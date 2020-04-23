@@ -116,5 +116,17 @@ public class GameService {
         return game;
     }
 
+    /**
+     * Helper function that returns a random word from list and deletes it from list
+     * @param words
+     * @return
+     */
+    public String chooseWordAtRandom(List<String> words){
+        Random random = new Random();
+        String currentWord = words.get(random.nextInt(13));
+        words.remove(currentWord);
+        return currentWord;
+    }
+
 
 }
