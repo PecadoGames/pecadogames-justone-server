@@ -55,6 +55,9 @@ public class User implements Serializable {
     @Column
     private AvatarColor avatarColor;
 
+    @Column
+    private boolean isSent;
+
 	@Column
     private int score;
 
@@ -149,5 +152,13 @@ public class User implements Serializable {
 
     public void setLobbyInvites(Lobby lobbyInvites) {
         this.lobbyInvites.add(lobbyInvites);
+    }
+
+    public boolean isSent() {
+        return isSent;
+    }
+
+    public void setSent(boolean sent) {
+        isSent = sent;
     }
 }
