@@ -61,6 +61,9 @@ public class User implements Serializable {
 	@Column
     private int score;
 
+	@Column
+    private boolean guesser;
+
    @ManyToMany
     private Set<User> friendRequests = new HashSet<>();
 
@@ -160,5 +163,13 @@ public class User implements Serializable {
 
     public void setSent(boolean sent) {
         isSent = sent;
+    }
+
+    public boolean isGuesser() {
+        return guesser;
+    }
+
+    public void setGuesser(boolean guesser) {
+        this.guesser = guesser;
     }
 }
