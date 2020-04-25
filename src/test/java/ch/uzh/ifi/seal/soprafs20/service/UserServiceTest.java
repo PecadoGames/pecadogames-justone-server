@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
@@ -30,6 +31,8 @@ public class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+    @InjectMocks
+    private PlayerService playerService;
 
     private User testUser;
 
@@ -327,7 +330,7 @@ public class UserServiceTest {
 
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(true);
-        friendPutDTO.setAccepterToken(testUser2.getToken());
+        friendPutDTO.setAccepterToken(testUser.getToken());
         friendPutDTO.setRequesterID(testUser2.getId());
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
@@ -350,7 +353,7 @@ public class UserServiceTest {
 
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(false);
-        friendPutDTO.setAccepterToken(testUser2.getToken());
+        friendPutDTO.setAccepterToken(testUser.getToken());
         friendPutDTO.setRequesterID(testUser2.getId());
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
@@ -391,12 +394,12 @@ public class UserServiceTest {
     public void handleFriendRequest_invalidInput_throwsException() {
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(false);
-        friendPutDTO.setAccepterToken("anyToken");
+        friendPutDTO.setAccepterToken("testToken");
         friendPutDTO.setRequesterID(5L);
 
         User testUser2 = new User();
         testUser2.setId(2L);
-        testUser2.setToken("testToken2");
+        testUser2.setToken("anyToken");
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
@@ -414,17 +417,17 @@ public class UserServiceTest {
         receiver.setToken("testToken");
         receiver.setLobbyInvites(lobby);
 
+        Player player = new Player();
+        player.setToken("testToken");
+
         LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
         lobbyAcceptancePutDTO.setAccepterToken("testToken");
         lobbyAcceptancePutDTO.setAccepted(true);
 
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
 
-        userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO);
-
+        assertTrue(userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
         assertFalse(receiver.getLobbyInvites().contains(lobby));
-        assertTrue(lobby.getUsersInLobby().contains(receiver));
-        assertEquals(5, lobby.getCurrentNumPlayersAndBots());
     }
 
     @Test
@@ -482,25 +485,6 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
 
         assertThrows(UnauthorizedException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
-    }
-
-    @Test
-    public void handleLobbyInvite_lobbyAlreadyFull_throwsException() {
-        Lobby lobby = new Lobby();
-        lobby.setCurrentNumPlayersAndBots(5);
-        lobby.setMaxPlayersAndBots(5);
-
-        User receiver = new User();
-        receiver.setToken("testToken");
-        receiver.setLobbyInvites(lobby);
-
-        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
-        lobbyAcceptancePutDTO.setAccepterToken("testToken");
-        lobbyAcceptancePutDTO.setAccepted(true);
-
-        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
-
-        assertThrows(ConflictException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
     }
 
     @Test

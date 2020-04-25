@@ -141,7 +141,7 @@ public class UserService {
 
     public void acceptOrDeclineFriendRequest(User receiver, FriendPutDTO friendPutDTO) {
         if(!receiver.getToken().equals(friendPutDTO.getAccepterToken())){
-            throw new UnauthorizedException("Not allowed to accept/deny friendrequest!");
+            throw new UnauthorizedException("Not allowed to accept/deny friend request!");
         }
         User sender = getUser(friendPutDTO.getRequesterID());
         if (receiver.getFriendRequests().contains(sender)) {
@@ -167,27 +167,17 @@ public class UserService {
         return receiver;
     }
 
-    //TODO: @Mary review my changes to this method
-    public void acceptOrDeclineLobbyInvite(Lobby lobby, LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
+    public boolean acceptOrDeclineLobbyInvite(Lobby lobby, LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
         User receiver = getUser(lobbyAcceptancePutDTO.getAccepterId());
         if (!receiver.getToken().equals(lobbyAcceptancePutDTO.getAccepterToken()) || !receiver.getLobbyInvites().contains(lobby)) {
             throw new UnauthorizedException("You are not allowed to accept or decline this lobby invite!");
         }
         receiver.getLobbyInvites().remove(lobby);
-        checkIfLobbyIsFull(lobby);
         if (lobbyAcceptancePutDTO.isAccepted()) {
-            lobby.addUserToLobby(receiver);
-            //update player count
-            lobby.setCurrentNumPlayersAndBots(lobby.getCurrentNumPlayersAndBots() + 1);
+            return true;
         }
         else {
             throw new NoContentException("You declined the lobby invite.");
-        }
-    }
-
-    private void checkIfLobbyIsFull(Lobby lobby) {
-        if(lobby.getCurrentNumPlayersAndBots() + 1 > lobby.getMaxPlayersAndBots()) {
-            throw new ConflictException("Failed to join lobby: Sorry, the lobby is already full");
         }
     }
 

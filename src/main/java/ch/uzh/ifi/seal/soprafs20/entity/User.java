@@ -5,7 +5,6 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -55,14 +54,8 @@ public class User implements Serializable {
     @Column
     private AvatarColor avatarColor;
 
-    @Column
-    private boolean isSent;
-
 	@Column
     private int score;
-
-	@Column
-    private boolean guesser;
 
    @ManyToMany
     private Set<User> friendRequests = new HashSet<>();
@@ -157,19 +150,4 @@ public class User implements Serializable {
         this.lobbyInvites.add(lobbyInvites);
     }
 
-    public boolean isSent() {
-        return isSent;
-    }
-
-    public void setSent(boolean sent) {
-        isSent = sent;
-    }
-
-    public boolean isGuesser() {
-        return guesser;
-    }
-
-    public void setGuesser(boolean guesser) {
-        this.guesser = guesser;
-    }
 }
