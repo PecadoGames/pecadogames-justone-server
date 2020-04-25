@@ -1,9 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.rest.mapper;
 
-import ch.uzh.ifi.seal.soprafs20.entity.Game;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.Message;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -82,9 +79,9 @@ public interface DTOMapper {
 
 
     @Mapping(source = "username", target = "username")
-    @Mapping(source = "status",target = "status")
     @Mapping(source = "score", target = "score")
-    PlayerGetDTO convertEntityToPlayerGetDTO(User p);
+    @Mapping(source = "clueIsSent",target = "clueIsSent")
+    PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
 
 
     @Mapping(source = "lobbyId",target = "lobbyId")

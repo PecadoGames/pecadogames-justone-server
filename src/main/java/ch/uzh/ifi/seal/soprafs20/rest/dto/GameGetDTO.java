@@ -1,7 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 
 import java.util.HashSet;
@@ -20,8 +20,8 @@ public class GameGetDTO {
         return players;
     }
 
-    public void setPlayers(Set<User> players) {
-        for(User p : players){
+    public void setPlayers(Set<Player> players) {
+        for(Player p : players){
             PlayerGetDTO player = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(p);
             this.players.add(player);
         }
