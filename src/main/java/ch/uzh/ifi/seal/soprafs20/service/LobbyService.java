@@ -51,6 +51,9 @@ public class LobbyService {
         if(newLobby.isPrivate()){
             newLobby.setPrivateKey((UUID.randomUUID().toString()));
         }
+        if(newLobby.getMaxPlayersAndBots() > 7 || newLobby.getMaxPlayersAndBots() < 3){
+            newLobby.setMaxPlayersAndBots(7);
+        }
         newLobby.addUserToLobby(host);
         newLobby.setCurrentNumPlayersAndBots(newLobby.getUsersInLobby().size());
         newLobby = lobbyRepository.save(newLobby);
