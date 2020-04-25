@@ -2,10 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.entity;
 
 import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
@@ -28,7 +25,7 @@ public class Player {
     private AvatarColor avatarColor;
 
     @Column
-    private boolean guesser;
+    private boolean isGuesser;
 
     @Column
     private boolean clueIsSent;
@@ -69,6 +66,10 @@ public class Player {
     public void setAvatarColor(AvatarColor avatarColor) {
         this.avatarColor = avatarColor;
     }
+
+    public boolean isGuesser() { return isGuesser; }
+
+    public void setIsGuesser(boolean guesser) { this.isGuesser = guesser; }
 
     public boolean isClueIsSent() {
         return clueIsSent;
