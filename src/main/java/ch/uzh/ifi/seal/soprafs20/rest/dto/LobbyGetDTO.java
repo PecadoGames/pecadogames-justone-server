@@ -5,7 +5,7 @@ public class LobbyGetDTO {
 
     private Long lobbyId;
 
-    private Long userId;
+    private Long hostId;
 
     private boolean voiceChat;
 
@@ -34,12 +34,12 @@ public class LobbyGetDTO {
         this.voiceChat = voiceChat;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getHostId() {
+        return hostId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setHostId(long hostId) {
+        this.hostId = hostId;
     }
 
 

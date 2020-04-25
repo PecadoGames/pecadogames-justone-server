@@ -29,7 +29,7 @@ public class Lobby implements Serializable {
 
     //user id of lobby creator
     @Column(nullable = false)
-    private Long userId;
+    private Long hostId;
 
     @Column(nullable = false)
     @JsonIgnore
@@ -54,7 +54,7 @@ public class Lobby implements Serializable {
     private Integer maxPlayersAndBots;
 
     @OneToMany
-    private Set<User> usersInLobby = new HashSet<>();
+    private Set<Player> playersInLobby = new HashSet<>();
 
     public Long getLobbyId() {
         return lobbyId;
@@ -86,12 +86,12 @@ public class Lobby implements Serializable {
         this.voiceChat = voiceChat;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getHostId() {
+        return hostId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setHostId(long userId) {
+        this.hostId = userId;
     }
 
     public String getToken() {
@@ -134,11 +134,11 @@ public class Lobby implements Serializable {
         this.privateKey = privateKey;
     }
 
-    public Set<User> getUsersInLobby() { return usersInLobby; }
+    public Set<Player> getPlayersInLobby() { return playersInLobby; }
 
-    public void addUserToLobby(User newUser) { usersInLobby.add(newUser); }
+    public void addPlayerToLobby(Player newPlayer) { playersInLobby.add(newPlayer); }
 
-    public void replaceUsersInLobby(Set<User> users){usersInLobby = users;}
+    public void replacePlayersInLobby(Set<Player> players){playersInLobby = players;}
 
     public Integer getCurrentNumPlayersAndBots() {
         return currentNumPlayersAndBots;
