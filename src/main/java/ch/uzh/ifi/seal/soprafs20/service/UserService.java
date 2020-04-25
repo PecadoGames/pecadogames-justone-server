@@ -141,7 +141,7 @@ public class UserService {
 
     public void acceptOrDeclineFriendRequest(User receiver, FriendPutDTO friendPutDTO) {
         if(!receiver.getToken().equals(friendPutDTO.getAccepterToken())){
-            throw new UnauthorizedException("Not allowed to accept/deny friendrequest!");
+            throw new UnauthorizedException("Not allowed to accept/deny friend request!");
         }
         User sender = getUser(friendPutDTO.getRequesterID());
         if (receiver.getFriendRequests().contains(sender)) {
@@ -167,7 +167,6 @@ public class UserService {
         return receiver;
     }
 
-    //TODO: @Mary review my changes to this method
     public boolean acceptOrDeclineLobbyInvite(Lobby lobby, LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
         User receiver = getUser(lobbyAcceptancePutDTO.getAccepterId());
         if (!receiver.getToken().equals(lobbyAcceptancePutDTO.getAccepterToken()) || !receiver.getLobbyInvites().contains(lobby)) {
