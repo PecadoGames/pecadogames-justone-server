@@ -58,7 +58,7 @@ public class LobbyControllerTest {
     @Test
     public void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
         Lobby lobby = new Lobby();
-        lobby.setId(1L);
+        lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setMaxPlayersAndBots(5);
         lobby.setVoiceChat(false);
@@ -80,11 +80,42 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$[0].voiceChat", is(lobby.isVoiceChat())))
                 .andExpect(jsonPath(("$[0].userId"), is(lobby.getUserId().intValue())));
     }
+
+    @Test
+    public void givenLobby_whenGetLobby_returnJson() throws Exception {
+        User user1 = new User();
+        User user2 = new User();
+        user1.setUsername("testUser1");
+        user1.setId(1L);
+        user2.setUsername("testUser2");
+        user2.setId(2L);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setUserId(1L);
+        lobby.addUserToLobby(user1);
+        lobby.addUserToLobby(user2);
+
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}",lobby.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lobbyId", is(lobby.getLobbyId().intValue())))
+                .andExpect(jsonPath("$.lobbyName", is(lobby.getLobbyName())))
+                .andExpect(jsonPath("$.userId", is(user1.getId().intValue())))
+                .andExpect(jsonPath("$.usersInLobby[0].username", is(user1.getUsername())))
+                .andExpect(jsonPath("$.usersInLobby[1].username", is(user2.getUsername())));
+    }
+
     @Test
     public void createLobby_validInput_publicLobby() throws Exception {
        // given
         Lobby lobby = new Lobby();
-        lobby.setId(1L);
+        lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setMaxPlayersAndBots(5);
         lobby.setVoiceChat(false);
@@ -113,7 +144,7 @@ public class LobbyControllerTest {
     public void createLobby_validInput_privateLobby() throws Exception {
         // given
         Lobby lobby = new Lobby();
-        lobby.setId(1L);
+        lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setMaxPlayersAndBots(5);
         lobby.setVoiceChat(false);
@@ -147,7 +178,7 @@ public class LobbyControllerTest {
     @Test
     public void updateExistingLobby_existingLobby() throws Exception {
         Lobby lobby = new Lobby();
-        lobby.setId(1L);
+        lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setUserId(1234);
         lobby.setToken("2020");
@@ -170,7 +201,7 @@ public class LobbyControllerTest {
     public void updateExistingLobby_NotFound() throws Exception {
         //given
         Lobby lobby = new Lobby();
-        lobby.setId(1L);
+        lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
 
         lobby.setUserId(1234);
@@ -206,7 +237,7 @@ public class LobbyControllerTest {
     @Test
     public void handleLobbyInvite_validInput_success() throws Exception {
         Lobby lobby = new Lobby();
-        lobby.setId(1L);
+        lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setMaxPlayersAndBots(5);
         lobby.setVoiceChat(false);
@@ -298,7 +329,7 @@ public class LobbyControllerTest {
         author.setToken("testToken");
 
         Lobby lobby = new Lobby();
-        lobby.setId(1L);
+        lobby.setLobbyId(1L);
 
         given(userService.getUser(Mockito.anyLong())).willReturn(author);
         given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
@@ -407,7 +438,7 @@ public class LobbyControllerTest {
     @Test
     public void createGame_validInput_success() throws Exception {
         Lobby lobby = new Lobby();
-        lobby.setId(1L);
+        lobby.setLobbyId(1L);
 
         GamePostDTO gamePostDTO = new GamePostDTO();
         Game game = new Game();

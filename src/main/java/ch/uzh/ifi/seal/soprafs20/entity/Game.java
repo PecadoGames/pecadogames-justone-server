@@ -1,7 +1,5 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
-
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;

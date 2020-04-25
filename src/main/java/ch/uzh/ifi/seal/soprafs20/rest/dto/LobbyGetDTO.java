@@ -3,11 +3,15 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 public class LobbyGetDTO {
     private String lobbyName;
 
-    private boolean voiceChat;
+    private Long lobbyId;
 
     private Long userId;
 
-    private Long lobbyId;
+    private boolean voiceChat;
+
+    private long lobbyScore;
+
+    private boolean isPrivate;
 
     private Integer currentNumPlayersAndBots;
 
