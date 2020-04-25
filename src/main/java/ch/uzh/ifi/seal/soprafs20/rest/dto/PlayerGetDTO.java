@@ -4,8 +4,8 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 
 public class PlayerGetDTO {
     private String username;
-    private UserStatus status;
-    private boolean isSent;
+//    private UserStatus status;
+    private boolean clueIsSent;
     private int score;
     private boolean guesser;
 
@@ -17,20 +17,20 @@ public class PlayerGetDTO {
         this.username = username;
     }
 
-    public UserStatus getStatus() {
-        return status;
+//    public UserStatus getStatus() {
+//        return status;
+//    }
+//
+//    public void setStatus(UserStatus status) {
+//        this.status = status;
+//    }
+
+    public boolean isClueIsSent() {
+        return clueIsSent;
     }
 
-    public void setStatus(UserStatus status) {
-        this.status = status;
-    }
-
-    public boolean isSent() {
-        return isSent;
-    }
-
-    public void setSent(boolean sent) {
-        isSent = sent;
+    public void setClueIsSent(boolean clueIsSent) {
+        this.clueIsSent = clueIsSent;
     }
 
     public int getScore() {
