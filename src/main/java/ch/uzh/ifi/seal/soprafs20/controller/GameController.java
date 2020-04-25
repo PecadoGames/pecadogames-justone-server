@@ -6,7 +6,9 @@ import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,9 +34,9 @@ public class GameController {
     @GetMapping(path = "lobbies/{lobbyId}/game", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public String getGame(@PathVariable long lobbyId) {
+    public GameGetDTO getGame(@PathVariable long lobbyId) {
         Game game = gameService.getGame(lobbyId);
-        return asJsonString(game);
+        return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
     }
     @PutMapping(path = "lobbies/{lobbyId}/game/clue",consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -47,7 +49,6 @@ public class GameController {
         User user = userService.getUser(messagesPutDTO.getUserId());
         String clue = messagesPutDTO.getMessage();
         currentGame = gameService.sendClue(currentGame,user,clue);
-
     }
     @PutMapping(path = "lobbies/{lobbyId}/game/word")
     @ResponseStatus(HttpStatus.OK)

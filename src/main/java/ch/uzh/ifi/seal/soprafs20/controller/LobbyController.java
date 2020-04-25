@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.*;
@@ -133,7 +134,15 @@ public class LobbyController {
     @GetMapping(path = "/lobbies/{lobbyId}/chat", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public String getChatMessages(@PathVariable long lobbyId) {
+    public String getChatMessages(@PathVariable long lobbyId,@RequestParam String token) {
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        for (User user: lobby.getUsersInLobby()){
+            if(user.getToken().equals(token)){
+                break;
+            } else {
+                throw new UnauthorizedException("User not allowed to get messages");
+            }
+        }
         Chat chat = chatService.getChat(lobbyId);
         return asJsonString(chat);
     }

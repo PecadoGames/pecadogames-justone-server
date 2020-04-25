@@ -24,6 +24,9 @@ public class Game {
     @Column
     private String currentWord;
 
+    @Column
+    private int overallScore;
+
     @ElementCollection
     private List<String> enteredClues = new ArrayList<>();
 
@@ -94,5 +97,13 @@ public class Game {
 
     public void setCurrentGuesser(User currentGuesser) {
         this.currentGuesser = currentGuesser;
+    }
+
+    public int getOverallScore() {
+        return overallScore;
+    }
+
+    public void setOverallScore(int overallScore) {
+        this.overallScore = overallScore;
     }
 }
