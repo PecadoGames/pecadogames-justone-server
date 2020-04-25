@@ -94,7 +94,7 @@ public class LobbyService {
         if (lobbyByUserId.isPresent()) {
             throw new ConflictException(String.format(baseErrorMessage, "userId", "is"));
         }
-        return true;
+
     }
 
     public void checkLobbyName(String username) {
