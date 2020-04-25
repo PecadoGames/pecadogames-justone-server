@@ -27,13 +27,15 @@ import java.util.List;
 public class LobbyController {
     private final LobbyService lobbyService;
     private final UserService userService;
+    private final PlayerService playerService;
     private final ChatService chatService;
     private final MessageService messageService;
     private final GameService gameService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, ChatService chatService, MessageService messageService, GameService gameService){
+    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService, ChatService chatService, MessageService messageService, GameService gameService){
         this.lobbyService = lobbyService;
         this.userService = userService;
+        this.playerService = playerService;
         this.chatService = chatService;
         this.messageService = messageService;
         this.gameService = gameService;
@@ -54,9 +56,11 @@ public class LobbyController {
         Lobby createdLobby;
         // convert API user to internal representation
         Lobby userLobby = DTOMapper.INSTANCE.convertLobbyPostDTOtoEntity(lobbyPostDTO);
-        User host = userService.getUser(lobbyPostDTO.getUserId());
+        User host = userService.getUser(lobbyPostDTO.getHostId());
+        //convert host from user to player
+        Player hostAsPlayer = playerService.convertUserToPlayer(host);
         // create lobby
-        createdLobby = lobbyService.createLobby(userLobby,host);
+        createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer);
 
         //create chat for lobby
         chatService.createChat(createdLobby.getLobbyId());
@@ -130,7 +134,11 @@ public class LobbyController {
     @ResponseBody
     public LobbyGetDTO handleLobbyInvite(@PathVariable long lobbyId, @RequestBody LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO);
+        if(userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO)) {
+            User user = userService.getUser(lobbyAcceptancePutDTO.getAccepterId());
+            Player player = playerService.convertUserToPlayer(user);
+            lobbyService.addPlayerToLobby(player, lobby);
+        }
 
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
@@ -140,11 +148,11 @@ public class LobbyController {
     @ResponseBody
     public String getChatMessages(@PathVariable long lobbyId,@RequestParam String token) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        for (User user: lobby.getUsersInLobby()){
-            if(user.getToken().equals(token)){
+        for (Player player : lobby.getPlayersInLobby()){
+            if(player.getToken().equals(token)){
                 break;
             } else {
-                throw new UnauthorizedException("User not allowed to get messages");
+                throw new UnauthorizedException("This player is not allowed to access this chat history!");
             }
         }
         Chat chat = chatService.getChat(lobbyId);
@@ -157,7 +165,7 @@ public class LobbyController {
     public void addChatMessage(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         Message message = DTOMapper.INSTANCE.convertMessagePutDTOtoEntity(messagePutDTO);
         message = messageService.createMessage(message);
-        User author  = userService.getUser(messagePutDTO.getUserId());
+        User author  = userService.getUser(messagePutDTO.getPlayerId());
         Lobby lobby = lobbyService.getLobby(lobbyId);
         chatService.addChatMessage(lobby, author.getToken(), message);
     }
@@ -167,8 +175,10 @@ public class LobbyController {
     @ResponseBody
     public void joinLobby(@PathVariable long lobbyId, @RequestBody JoinLeavePutDTO joinLeavePutDTO){
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        User user = userService.getUser(joinLeavePutDTO.getUserId());
-        lobbyService.addUserToLobby(user,lobby);
+        User user = userService.getUser(joinLeavePutDTO.getPlayerId());
+        //convert user into player
+        Player player = playerService.convertUserToPlayer(user);
+        lobbyService.addPlayerToLobby(player, lobby);
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/rageQuits", consumes = "application/json")
@@ -176,8 +186,8 @@ public class LobbyController {
     @ResponseBody
     public void leaveLobby(@PathVariable long lobbyId, @RequestBody JoinLeavePutDTO joinLeavePutDTO){
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        User user = userService.getUser(joinLeavePutDTO.getUserId());
-        lobbyService.removeUserFromLobby(user,lobby);
+        Player playerToBeRemoved = playerService.getPlayer(joinLeavePutDTO.getPlayerId());
+        lobbyService.removePlayerFromLobby(playerToBeRemoved, lobby);
     }
 
     @PostMapping(path = "lobbies/{lobbyId}", consumes = "application/json")

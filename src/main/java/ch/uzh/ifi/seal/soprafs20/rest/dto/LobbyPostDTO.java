@@ -7,7 +7,7 @@ public class LobbyPostDTO {
 
     private boolean voiceChat;
 
-    private Long userId;
+    private Long hostId;
 
     private String token; //user token!
 
@@ -39,12 +39,12 @@ public class LobbyPostDTO {
         this.voiceChat = voiceChat;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getHostId() {
+        return hostId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setHostId(long hostId) {
+        this.hostId = hostId;
     }
 
     public String getToken() {

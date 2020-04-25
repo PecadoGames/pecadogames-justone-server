@@ -2,7 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ public class GameServiceTest {
 
     private Game testGame;
     private Lobby testLobby;
-    private User testHost;
+    private Player testHost;
 
     @BeforeEach
     public void setUp() {
@@ -36,14 +36,14 @@ public class GameServiceTest {
 
         Mockito.when(gameRepository.save(Mockito.any())).thenReturn(testGame);
 
-        testHost = new User();
+        testHost = new Player();
         testHost.setId(2L);
         testHost.setToken("hostToken");
 
         testLobby = new Lobby();
         testLobby.setLobbyId(1L);
         testLobby.setToken("hostToken");
-        testLobby.addUserToLobby(testHost);
+        testLobby.addPlayerToLobby(testHost);
         testLobby.setPrivate(false);
 
 

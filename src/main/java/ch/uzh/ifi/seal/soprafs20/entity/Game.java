@@ -16,10 +16,10 @@ public class Game {
     private int roundsPlayed;
 
     @OneToMany
-    private List<User> players = new ArrayList<>();
+    private List<Player> players = new ArrayList<>();
 
     @OneToOne
-    private User currentGuesser;
+    private Player currentGuesser;
 
     @Column
     private String currentWord;
@@ -53,11 +53,11 @@ public class Game {
         this.roundsPlayed = roundsPlayed;
     }
 
-    public List<User> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
-    public void addPlayer(User player) {
+    public void addPlayer(Player player) {
         this.players.add(player);
     }
 
@@ -91,11 +91,11 @@ public class Game {
 
     public void setGameState(GameState state) { this.gameState = state; }
 
-    public User getCurrentGuesser() {
+    public Player getCurrentGuesser() {
         return currentGuesser;
     }
 
-    public void setCurrentGuesser(User currentGuesser) {
+    public void setCurrentGuesser(Player currentGuesser) {
         this.currentGuesser = currentGuesser;
     }
 

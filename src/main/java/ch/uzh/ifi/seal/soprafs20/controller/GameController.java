@@ -2,7 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
@@ -18,13 +18,15 @@ import org.springframework.web.bind.annotation.*;
 public class GameController {
     private final LobbyService lobbyService;
     private final UserService userService;
+    private final PlayerService playerService;
     private final ChatService chatService;
     private final MessageService messageService;
     private final GameService gameService;
 
-    GameController(LobbyService lobbyService, UserService userService, ChatService chatService, MessageService messageService, GameService gameService){
+    GameController(LobbyService lobbyService, UserService userService, PlayerService playerService, ChatService chatService, MessageService messageService, GameService gameService){
         this.lobbyService = lobbyService;
         this.userService = userService;
+        this.playerService = playerService;
         this.chatService = chatService;
         this.messageService = messageService;
         this.gameService = gameService;
@@ -40,14 +42,14 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/clue",consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagesPutDTO){
+    public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO){
         Game currentGame = gameService.getGame(lobbyId);
         if(!(currentGame.getGameState().equals(GameState.ENTERCLUESSTATE))){
             throw new ForbiddenException("Clues not accepted in current state");
         }
-        User user = userService.getUser(messagesPutDTO.getUserId());
-        String clue = messagesPutDTO.getMessage();
-        currentGame = gameService.sendClue(currentGame,user,clue);
+        Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
+        String clue = messagePutDTO.getMessage();
+        currentGame = gameService.sendClue(currentGame, player, clue);
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/game/word")
