@@ -1,7 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
-import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.PickWordState;
+import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
@@ -68,7 +68,7 @@ public class GameService {
         //init new game
         Game newGame = new Game();
         newGame.setLobbyId(lobby.getLobbyId());
-        newGame.setGameState(new PickWordState());
+        newGame.setGameState(GameState.PICKWORDSTATE);
 
 
         for(User user : lobby.getUsersInLobby()) {
@@ -77,7 +77,7 @@ public class GameService {
         //assign first guesser
         Random rand = new Random();
         User currentGuesser = newGame.getPlayers().get(rand.nextInt(newGame.getPlayers().size()));
-        newGame.setCurrentGuesser(currentGuesser);
+        currentGuesser.setGuesser(true);
 
         //set round count to 0
         newGame.setRoundsPlayed(0);

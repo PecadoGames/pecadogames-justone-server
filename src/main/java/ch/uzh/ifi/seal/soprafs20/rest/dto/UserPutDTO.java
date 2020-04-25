@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
 import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
 
@@ -9,7 +10,7 @@ import java.util.Date;
 public class UserPutDTO {
 
     private String username;
-    //@JsonFormat(pattern="dd.MM.yyyy")
+    @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
     private AvatarColor avatarColor;
     private String token;

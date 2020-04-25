@@ -1,8 +1,8 @@
 package ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates;
 
-public interface GameState {
+public enum GameState {
+    PICKWORDSTATE,
+    VOTEONCLUESTATE,
+    ENTERCLUESSTATE,
 
-    public GameState getNextState();
-    public GameState getPreviousState();
-    public void handle();
 }
