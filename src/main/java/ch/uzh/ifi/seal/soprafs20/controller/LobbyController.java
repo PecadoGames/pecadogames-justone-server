@@ -1,10 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
-import ch.uzh.ifi.seal.soprafs20.entity.Chat;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.Message;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
@@ -85,14 +81,33 @@ public class LobbyController {
         return lobbyGetDTOs;
     }
 
+    @PostMapping(path = "lobbies/{lobbyId}", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public ResponseEntity<Object> createGame(@PathVariable long lobbyId, @RequestBody GamePostDTO gamePostDTO) {
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        Game createdGame = gameService.createGame(lobby, gamePostDTO);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
+                .build().toUri();
+        ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).build();
+    }
 
     @PutMapping(path = "/lobbies/{lobbyId}", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void updateLobby(@PathVariable long lobbyId, @RequestBody LobbyPutDTO lobbyPutDTO){
-        Lobby lobby;
-        lobby = lobbyService.getLobby(lobbyId);
+        Lobby lobby = lobbyService.getLobby(lobbyId);
         lobbyService.updateLobby(lobby,lobbyPutDTO);
+    }
+
+    @GetMapping(path = "/lobbies/{lobbyId}", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public String getLobby(@PathVariable long lobbyId) {
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        String json = asJsonString(lobby);
+        return asJsonString(lobby);
     }
 
 
@@ -159,18 +174,6 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         User user = userService.getUser(joinLeavePutDTO.getUserId());
         lobbyService.removeUserFromLobby(user,lobby);
-    }
-
-    @PostMapping(path = "lobbies/{lobbyId}", consumes = "application/json")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public ResponseEntity<Object> createGame(@PathVariable long lobbyId, @RequestBody GamePostDTO gamePostDTO) {
-        Lobby lobby = lobbyService.getLobby(lobbyId);
-        Game createdGame = gameService.createGame(lobby, gamePostDTO);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
-                .build().toUri();
-        ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
-        return ResponseEntity.created(location).build();
     }
 
 
