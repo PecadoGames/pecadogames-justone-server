@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
@@ -30,6 +31,8 @@ public class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+    @InjectMocks
+    private PlayerService playerService;
 
     private User testUser;
 
@@ -414,17 +417,17 @@ public class UserServiceTest {
         receiver.setToken("testToken");
         receiver.setLobbyInvites(lobby);
 
+        Player player = new Player();
+        player.setToken("testToken");
+
         LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
         lobbyAcceptancePutDTO.setAccepterToken("testToken");
         lobbyAcceptancePutDTO.setAccepted(true);
 
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
 
-        userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO);
-
+        assertTrue(userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
         assertFalse(receiver.getLobbyInvites().contains(lobby));
-        assertTrue(lobby.getUsersInLobby().contains(receiver));
-        assertEquals(5, lobby.getCurrentNumPlayersAndBots());
     }
 
     @Test

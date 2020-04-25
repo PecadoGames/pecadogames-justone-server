@@ -32,7 +32,7 @@ public class PlayerService {
             return player;
         }
         else {
-            throw new NotFoundException("Couldn't find player.");
+            throw new NotFoundException("Couldn't find player. Did you convert the user into a player?");
         }
     }
 

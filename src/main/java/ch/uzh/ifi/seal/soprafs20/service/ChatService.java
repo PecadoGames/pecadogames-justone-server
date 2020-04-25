@@ -1,9 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
-import ch.uzh.ifi.seal.soprafs20.entity.Chat;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.Message;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
@@ -45,9 +42,9 @@ public class ChatService {
 
     public void addChatMessage(Lobby lobby, String token, Message message) {
         // Long id = chatPutDTO.getUserId();
-        for (User user : lobby.getUsersInLobby()) {
-            if (user.getToken().equals(token)) {
-                message.setAuthorUsername(user.getUsername());
+        for (Player player : lobby.getPlayersInLobby()) {
+            if (player.getToken().equals(token)) {
+                message.setAuthorUsername(player.getUsername());
                 Chat chat = getChat(lobby.getLobbyId());
                 chat.setMessages(message);
                 return;

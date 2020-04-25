@@ -1,9 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
-import ch.uzh.ifi.seal.soprafs20.entity.Chat;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.Message;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,13 +46,13 @@ public class ChatServiceTest {
         Message message = new Message();
         message.setText("Hello world");
 
-        User testUser = new User();
-        testUser.setToken("testToken");
-        testUser.setUsername("testUsername");
+        Player testPlayer = new Player();
+        testPlayer.setToken("testToken");
+        testPlayer.setUsername("testUsername");
 
         Lobby lobby = new Lobby();
         lobby.setToken("testToken");
-        lobby.addUserToLobby(testUser);
+        lobby.addPlayerToLobby(testPlayer);
 
         Mockito.when(chatRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testChat));
 
@@ -68,13 +65,13 @@ public class ChatServiceTest {
         Message message = new Message();
         message.setText("Hello world");
 
-        User testUser = new User();
-        testUser.setToken("testToken");
-        testUser.setUsername("testUsername");
+        Player testPlayer = new Player();
+        testPlayer.setToken("testToken");
+        testPlayer.setUsername("testUsername");
 
         Lobby lobby = new Lobby();
         lobby.setToken("wrongToken");
-        lobby.addUserToLobby(testUser);
+        lobby.addPlayerToLobby(testPlayer);
 
         Mockito.when(chatRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testChat));
 

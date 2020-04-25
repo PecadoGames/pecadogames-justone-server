@@ -2,26 +2,26 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
 public class MessagePutDTO {
 
-    private Long userId;
+    private Long playerId;
 
-    private String userToken;
+    private String playerToken;
 
     private String message;
 
-    public Long getUserId() {
-        return userId;
+    public Long getPlayerId() {
+        return playerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setPlayerId(Long playerId) {
+        this.playerId = playerId;
     }
 
-    public String getUserToken() {
-        return userToken;
+    public String getPlayerToken() {
+        return playerToken;
     }
 
-    public void setUserToken(String userToken) {
-        this.userToken = userToken;
+    public void setPlayerToken(String playerToken) {
+        this.playerToken = playerToken;
     }
 
     public String getMessage() {

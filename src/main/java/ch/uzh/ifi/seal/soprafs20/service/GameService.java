@@ -2,9 +2,9 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.PickWordState;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
@@ -71,12 +71,12 @@ public class GameService {
         newGame.setGameState(new PickWordState());
 
 
-        for(User user : lobby.getUsersInLobby()) {
-            newGame.addPlayer(user);
+        for(Player player : lobby.getPlayersInLobby()) {
+            newGame.addPlayer(player);
         }
         //assign first guesser
         Random rand = new Random();
-        User currentGuesser = newGame.getPlayers().get(rand.nextInt(newGame.getPlayers().size()));
+        Player currentGuesser = newGame.getPlayers().get(rand.nextInt(newGame.getPlayers().size()));
         newGame.setCurrentGuesser(currentGuesser);
 
         //set round count to 0
@@ -94,23 +94,23 @@ public class GameService {
     /**
      *
      * @param game
-     * @param user
+     * @param player
      * @param clue
      * @return game with updated clue list
      */
-    public Game sendClue(Game game, User user, String clue){
-        if(!game.getPlayers().contains(user) || user.isSent() || game.getCurrentGuesser().equals(user)){
+    public Game sendClue(Game game, Player player, String clue){
+        if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
             throw new ForbiddenException("User not allowed to send clue");
         }
         game.addClue(clue);
-        user.setSent(true);
+        player.setClueIsSent(true);
         int counter = 0;
-        for(User player: game.getPlayers()){
-            if (player.isSent()){
+        for(Player playerInGame : game.getPlayers()){
+            if (player.isClueIsSent()){
                 counter++;
             }
         }
-        if(counter == game.getPlayers().size()-1){
+        if(counter == game.getPlayers().size() - 1){
             //game.setGameState(); set next game State
         }
         return game;

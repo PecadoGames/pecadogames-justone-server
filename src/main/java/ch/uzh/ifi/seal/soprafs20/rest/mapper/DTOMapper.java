@@ -56,7 +56,7 @@ public interface DTOMapper {
 
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "voiceChat", target = "voiceChat")
-    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "hostId", target = "hostId")
     @Mapping(source = "lobbyId", target = "lobbyId")
     @Mapping(source = "currentNumPlayersAndBots", target = "currentNumPlayersAndBots")
     @Mapping(source = "maxPlayersAndBots",target = "maxPlayersAndBots")
@@ -65,7 +65,7 @@ public interface DTOMapper {
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "maxPlayersAndBots", target = "maxPlayersAndBots")
     @Mapping(source = "voiceChat", target = "voiceChat")
-    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "hostId", target = "hostId")
     @Mapping(source = "token", target = "token")
     @Mapping(source = "private", target = "private")
     Lobby convertLobbyPostDTOtoEntity(LobbyPostDTO lobbyPostDTO);
@@ -76,16 +76,14 @@ public interface DTOMapper {
     @Mapping(source = "lobbyId", target = "lobbyId")
     InviteGetDTO convertEntityToInviteGetDTO(Lobby lobby);
 
-    @Mapping(source = "userId", target = "authorId")
+    @Mapping(source = "playerId", target = "authorId")
     @Mapping(source = "message", target = "text")
     Message convertMessagePutDTOtoEntity(MessagePutDTO messagePutDTO);
 
 
     @Mapping(source = "username", target = "username")
     @Mapping(source = "status",target = "status")
-    @Mapping(source = "sent",target = "sent")
     @Mapping(source = "score", target = "score")
-    @Mapping(source = "guesser",target = "guesser")
     PlayerGetDTO convertEntityToPlayerGetDTO(User p);
 
 
