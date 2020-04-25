@@ -33,7 +33,7 @@ public class Game {
     @ElementCollection
     private List<String> words = new ArrayList<>();
 
-    @Transient
+    @Column
     private GameState gameState;
 
 

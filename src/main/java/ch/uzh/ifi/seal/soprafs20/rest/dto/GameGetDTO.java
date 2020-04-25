@@ -4,14 +4,15 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class GameGetDTO {
 
-    private Set<PlayerGetDTO> players;
+    private Set<PlayerGetDTO> players = new HashSet<>();
     private long lobbyId;
     private int roundsPlayed;
-    private String gameState;
+    private GameState gameState;
     private int overallScore;
 
 
@@ -42,12 +43,12 @@ public class GameGetDTO {
         this.roundsPlayed = roundsPlayed;
     }
 
-    public String getGameState() {
+    public GameState getGameState() {
         return gameState;
     }
 
     public void setGameState(GameState gameState) {
-        this.gameState = gameState.toString();
+        this.gameState = gameState;
     }
 
     public int getOverallScore() {
