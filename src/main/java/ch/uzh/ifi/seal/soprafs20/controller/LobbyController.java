@@ -1,10 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
-import ch.uzh.ifi.seal.soprafs20.entity.Chat;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.Message;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
-import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
@@ -190,17 +186,6 @@ public class LobbyController {
         lobbyService.removePlayerFromLobby(playerToBeRemoved, lobby);
     }
 
-    @PostMapping(path = "lobbies/{lobbyId}", consumes = "application/json")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public ResponseEntity<Object> createGame(@PathVariable long lobbyId, @RequestBody GamePostDTO gamePostDTO) {
-        Lobby lobby = lobbyService.getLobby(lobbyId);
-        Game createdGame = gameService.createGame(lobby, gamePostDTO);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
-                .build().toUri();
-        ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
-        return ResponseEntity.created(location).build();
-    }
 
 
     private String asJsonString(final Object object) {
