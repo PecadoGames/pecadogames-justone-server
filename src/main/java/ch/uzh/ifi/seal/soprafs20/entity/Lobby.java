@@ -1,6 +1,8 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -30,6 +32,7 @@ public class Lobby implements Serializable {
     private Long userId;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String userToken;
 
     @Column
@@ -39,6 +42,7 @@ public class Lobby implements Serializable {
     private boolean isPrivate;
 
     @Column
+    @JsonIgnore
     private String privateKey;
 
     //current number of player(and bots) in lobby
@@ -56,9 +60,7 @@ public class Lobby implements Serializable {
         return lobbyId;
     }
 
-    public void setId(Long id) {
-        this.lobbyId = id;
-    }
+    public void setLobbyId(Long id) { this.lobbyId = id; }
 
     public String getLobbyName() {
         return lobbyName;
@@ -114,10 +116,6 @@ public class Lobby implements Serializable {
 
     public void setLobbyScore(Long lobbyScore) {
         this.lobbyScore = lobbyScore;
-    }
-
-    public void setLobbyId(Long lobbyId) {
-        this.lobbyId = lobbyId;
     }
 
     public boolean isPrivate() {
