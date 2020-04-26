@@ -56,6 +56,8 @@ public class LobbyService {
         }
         newLobby.addPlayerToLobby(host);
         newLobby.setCurrentNumPlayersAndBots(newLobby.getPlayersInLobby().size());
+        newLobby.addPlayerToLobby(host);
+        newLobby.setCurrentNumPlayersAndBots(newLobby.getPlayersInLobby().size());
         if(newLobby.getMaxPlayersAndBots() > 7 || newLobby.getMaxPlayersAndBots() < 3){
             newLobby.setMaxPlayersAndBots(7);
         }

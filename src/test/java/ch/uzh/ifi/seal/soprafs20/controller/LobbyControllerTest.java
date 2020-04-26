@@ -269,8 +269,15 @@ public class LobbyControllerTest {
     public void getChat_validInput_returnsJson() throws Exception {
         Calendar calndr = Calendar.getInstance();
         String tmZ = calndr.getTimeZone().getDisplayName();
-        SimpleDateFormat sF = new SimpleDateFormat( "dd.MM.yyyy hh:mm:ss");
+        SimpleDateFormat sF = new SimpleDateFormat( "hh:mm:ss");
         sF.setTimeZone(TimeZone.getTimeZone(tmZ));
+
+        Player player = new Player();
+        player.setToken("hostToken");
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.addPlayerToLobby(player);
 
         Message message1 = new Message();
         message1.setAuthorId(1L);
@@ -290,8 +297,11 @@ public class LobbyControllerTest {
         chat.setMessages(message2);
 
         given(chatService.getChat(Mockito.any())).willReturn(chat);
+        given(lobbyService.getLobby(Mockito.any())).willReturn(lobby);
 
-        MockHttpServletRequestBuilder getRequest = get("/lobbies/" + chat.getLobbyId() + "/chat").contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/" + chat.getLobbyId() + "/chat")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "hostToken");
 
 
         mockMvc.perform(getRequest)
