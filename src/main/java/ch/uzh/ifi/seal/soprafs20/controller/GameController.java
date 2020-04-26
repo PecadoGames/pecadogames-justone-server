@@ -7,6 +7,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,7 +45,7 @@ public class GameController {
     @ResponseBody
     public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO){
         Game currentGame = gameService.getGame(lobbyId);
-        if(!(currentGame.getGameState().equals(GameState.ENTERCLUESSTATE))){
+        if(!currentGame.getGameState().equals(GameState.ENTERCLUESSTATE)){
             throw new ForbiddenException("Clues not accepted in current state");
         }
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
@@ -57,12 +58,36 @@ public class GameController {
     @ResponseBody
     public String pickWord(@PathVariable long lobbyId){
         Game game = gameService.getGame(lobbyId);
-        if(!(game.getGameState().equals(GameState.PICKWORDSTATE))){
-            throw new ForbiddenException("Cant choose word in current state");
+        if(!game.getGameState().equals(GameState.PICKWORDSTATE)){
+            throw new ForbiddenException("Can't choose word in current state");
         }
         return gameService.chooseWordAtRandom(game.getWords());
+    }
+
+    @PutMapping(path = "lobbies/{lobbyId}/game/guess")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void sendGuess(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
+        Game game = gameService.getGame(lobbyId);
+        if(!game.getGameState().equals(GameState.ENTERGUESSSTATE)) {
+            throw new ForbiddenException("Can't submit guess in current state!");
+        }
+        gameService.submitGuess(game, messagePutDTO);
+    }
+
+    @PutMapping(path = "lobbies/{lobbyId}/game/transition")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void startNewRound(@PathVariable long lobbyId, @RequestBody RequestPutDTO requestPutDTO) {
+        Game game = gameService.getGame(lobbyId);
+        if(!game.getGameState().equals(GameState.TRANSITIONSTATE)) {
+            throw new ForbiddenException("Can't start new round in current state!");
+        }
 
     }
+
+
+
 
     private String asJsonString(final Object object) {
         try {

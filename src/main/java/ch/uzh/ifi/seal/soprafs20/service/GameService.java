@@ -2,8 +2,6 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
@@ -13,6 +11,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +83,7 @@ public class GameService {
         //set round count to 0
         newGame.setRoundsPlayed(0);
 
-        //select 13 random words from the words.txt
+        //select 13 random words from words.txt
         WordReader reader = new WordReader();
         newGame.setWords(reader.getRandomWords(13));
 
@@ -117,6 +116,18 @@ public class GameService {
         }
         return game;
     }
+
+    public Game submitGuess(Game game, MessagePutDTO messagePutDTO) {
+        if(!game.getCurrentGuesser().getToken().equals(messagePutDTO.getPlayerToken())) {
+            throw new ForbiddenException("User is not allowed to submit a guess!");
+        }
+
+        game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
+        game.setGameState(GameState.TRANSITIONSTATE);
+        return game;
+    }
+
+
 
     /**
      * Helper function that returns a random word from list and deletes it from list
