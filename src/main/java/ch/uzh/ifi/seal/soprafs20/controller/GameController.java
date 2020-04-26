@@ -10,7 +10,8 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
-import ch.uzh.ifi.seal.soprafs20.service.*;
+import ch.uzh.ifi.seal.soprafs20.service.GameService;
+import ch.uzh.ifi.seal.soprafs20.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -18,37 +19,41 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.TimeUnit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 public class GameController {
-    private final LobbyService lobbyService;
-    private final UserService userService;
     private final PlayerService playerService;
-    private final ChatService chatService;
-    private final MessageService messageService;
     private final GameService gameService;
 
-    GameController(LobbyService lobbyService, UserService userService, PlayerService playerService, ChatService chatService, MessageService messageService, GameService gameService){
-        this.lobbyService = lobbyService;
-        this.userService = userService;
+    GameController(PlayerService playerService, GameService gameService){
         this.playerService = playerService;
-        this.chatService = chatService;
-        this.messageService = messageService;
         this.gameService = gameService;
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GameGetDTO getGame(@PathVariable long lobbyId, @RequestParam("token") String token) {
+    public GameGetDTO getGame(@PathVariable Long lobbyId, @RequestParam("token") String token) {
         Game game = gameService.getGame(lobbyId);
 
         GameGetDTO gameGetDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+
+        List<String> tokens = new ArrayList<>();
+        for(Player player : game.getPlayers()) {
+            tokens.add(player.getToken());
+        }
+        if(!tokens.contains(token)) {
+            throw new UnauthorizedException("You are not allowed to access this game instance!");
+        }
         //if guesser requests game, eliminate current word from dto
         if(game.getCurrentGuesser().getToken().equals(token)) {
             gameGetDTO.setCurrentWord(null);
         }
         return gameGetDTO;
     }
+
     @PutMapping(path = "lobbies/{lobbyId}/game/clue",consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody

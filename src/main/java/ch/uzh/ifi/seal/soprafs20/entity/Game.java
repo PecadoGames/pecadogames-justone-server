@@ -10,7 +10,7 @@ public class Game {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private long lobbyId;
+    private Long lobbyId;
 
     @Column
     private int roundsPlayed;
@@ -45,11 +45,11 @@ public class Game {
     @Column
     private String currentGuess;
 
-    public long getLobbyId() {
+    public Long getLobbyId() {
         return lobbyId;
     }
 
-    public void setLobbyId(long lobbyId) {
+    public void setLobbyId(Long lobbyId) {
         this.lobbyId = lobbyId;
     }
 
