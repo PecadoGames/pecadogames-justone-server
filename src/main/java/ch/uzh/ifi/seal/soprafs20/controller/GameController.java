@@ -71,19 +71,22 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/word")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void pickWord(@PathVariable long lobbyId){
+    public void pickWord(@PathVariable long lobbyId, String token){
         Game game = gameService.getGame(lobbyId);
+        if(!game.getCurrentGuesser().getToken().equals(token)){
+            throw new UnauthorizedException("Not allowed to pick a word!");
+        }
         if(!game.getGameState().equals(GameState.PICKWORDSTATE)){
             throw new ForbiddenException("Can't choose word in current state");
         }
-
         game.setCurrentWord(gameService.chooseWordAtRandom(game.getWords()));
+        game.setGameState(GameState.ENTERCLUESSTATE);
         gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game/timer")
     @ResponseStatus(HttpStatus.OK)
-    public String getTimer(@PathVariable long lobbyId,@RequestParam long token) {
+    public String getTimer(@PathVariable long lobbyId,@RequestParam String token) {
         long currentTime = System.currentTimeMillis();
 
         Game game = gameService.getGame(lobbyId);
@@ -123,9 +126,6 @@ public class GameController {
         }
 
     }
-
-
-
 
     private String asJsonString(final Object object) {
         try {

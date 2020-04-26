@@ -107,7 +107,7 @@ public class GameService {
         if(sentTime - game.getStartTimeSeconds() > 60){
             player.setClueIsSent(true);
             game.addClue("");
-            throw new ForbiddenException("Time ran out!");
+//            throw new ForbiddenException("Time ran out!");
         }
         game.addClue(clue);
         player.setClueIsSent(true);
