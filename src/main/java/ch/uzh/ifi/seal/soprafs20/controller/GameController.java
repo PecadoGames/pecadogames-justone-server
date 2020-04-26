@@ -36,9 +36,15 @@ public class GameController {
     @GetMapping(path = "lobbies/{lobbyId}/game", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GameGetDTO getGame(@PathVariable long lobbyId) {
+    public GameGetDTO getGame(@PathVariable long lobbyId, @RequestParam("token") String token) {
         Game game = gameService.getGame(lobbyId);
-        return DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+
+        GameGetDTO gameGetDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+        //if guesser requests game, eliminate current word from dto
+        if(game.getCurrentGuesser().getToken().equals(token)) {
+            gameGetDTO.setCurrentWord(null);
+        }
+        return gameGetDTO;
     }
     @PutMapping(path = "lobbies/{lobbyId}/game/clue",consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)

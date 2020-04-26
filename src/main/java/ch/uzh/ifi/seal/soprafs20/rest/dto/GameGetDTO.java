@@ -12,6 +12,7 @@ public class GameGetDTO {
     private Set<PlayerGetDTO> players = new HashSet<>();
     private long lobbyId;
     private int roundsPlayed;
+    private String currentWord;
     private GameState gameState;
     private int overallScore;
 
@@ -42,6 +43,10 @@ public class GameGetDTO {
     public void setRoundsPlayed(int roundsPlayed) {
         this.roundsPlayed = roundsPlayed;
     }
+
+    public String getCurrentWord() { return currentWord; }
+
+    public void setCurrentWord(String currentWord) { this.currentWord = currentWord; }
 
     public GameState getGameState() {
         return gameState;
