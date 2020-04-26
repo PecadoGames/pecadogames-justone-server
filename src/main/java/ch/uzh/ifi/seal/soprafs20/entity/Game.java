@@ -40,6 +40,9 @@ public class Game {
     private boolean isGuessCorrect;
 
     @Column
+    private Long startTimeSeconds;
+
+    @Column
     private String currentGuess;
 
     public long getLobbyId() {
@@ -118,6 +121,14 @@ public class Game {
 
     public void setGuessCorrect(boolean guessCorrect) {
         isGuessCorrect = guessCorrect;
+    }
+
+    public Long getStartTimeSeconds() {
+        return startTimeSeconds;
+    }
+
+    public void setStartTimeSeconds(long startTime) {
+        this.startTimeSeconds = startTime;
     }
 
     public String getCurrentGuess() { return currentGuess; }

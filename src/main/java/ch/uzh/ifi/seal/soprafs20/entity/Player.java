@@ -25,9 +25,6 @@ public class Player {
     private AvatarColor avatarColor;
 
     @Column
-    private boolean isGuesser;
-
-    @Column
     private boolean clueIsSent;
 
     @Column
@@ -66,10 +63,6 @@ public class Player {
     public void setAvatarColor(AvatarColor avatarColor) {
         this.avatarColor = avatarColor;
     }
-
-    public boolean isGuesser() { return isGuesser; }
-
-    public void setIsGuesser(boolean guesser) { this.isGuesser = guesser; }
 
     public boolean isClueIsSent() {
         return clueIsSent;
