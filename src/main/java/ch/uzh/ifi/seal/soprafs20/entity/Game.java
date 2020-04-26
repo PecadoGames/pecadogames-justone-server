@@ -36,6 +36,8 @@ public class Game {
     @Column
     private GameState gameState;
 
+    @Column
+    private boolean isGuessCorrect;
 
     public long getLobbyId() {
         return lobbyId;
@@ -105,5 +107,13 @@ public class Game {
 
     public void setOverallScore(int overallScore) {
         this.overallScore = overallScore;
+    }
+
+    public boolean isGuessCorrect() {
+        return isGuessCorrect;
+    }
+
+    public void setGuessCorrect(boolean guessCorrect) {
+        isGuessCorrect = guessCorrect;
     }
 }
