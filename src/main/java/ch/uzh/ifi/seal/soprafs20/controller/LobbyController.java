@@ -142,7 +142,7 @@ public class LobbyController {
     @GetMapping(path = "/lobbies/{lobbyId}/chat", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public String getChatMessages(@PathVariable long lobbyId,@RequestParam String token) {
+    public String getChatMessages(@PathVariable long lobbyId,@RequestParam("token") String token) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         for (Player player : lobby.getPlayersInLobby()){
             if(player.getToken().equals(token)){

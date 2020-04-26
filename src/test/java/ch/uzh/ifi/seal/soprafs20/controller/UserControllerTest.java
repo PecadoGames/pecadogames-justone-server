@@ -280,6 +280,7 @@ public class UserControllerTest {
     public void givenFriendRequests_whenGetFriendRequests_thenReturnJsonArray() throws Exception {
         User user1 = new User();
         user1.setId(1L);
+        user1.setToken("testToken");
 
         User user2 = new User();
         user2.setId(2L);
@@ -289,10 +290,12 @@ public class UserControllerTest {
         given(userService.getUser(Mockito.any())).willReturn(user1);
 
         // when
-        MockHttpServletRequestBuilder getRequest = get("/users/" + user1.getId() + "/friendRequests").contentType(MediaType.APPLICATION_JSON);
-
+        MockHttpServletRequestBuilder getRequest = get("/users/" + user1.getId() + "/friendRequests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", user1.getToken());
         //then
-        mockMvc.perform(getRequest).andExpect(status().isOk())
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(user2.getId().intValue())));
     }
