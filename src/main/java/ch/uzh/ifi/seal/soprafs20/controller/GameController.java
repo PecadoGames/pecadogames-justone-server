@@ -66,7 +66,7 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/word")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public String pickWord(@PathVariable long lobbyId){
+    public void pickWord(@PathVariable long lobbyId){
         Game game = gameService.getGame(lobbyId);
         if(!game.getGameState().equals(GameState.PICKWORDSTATE)){
             throw new ForbiddenException("Can't choose word in current state");
