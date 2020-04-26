@@ -13,8 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -63,4 +62,58 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.currentWord", is(game.getCurrentWord())));
     }
 
+    @Test
+    public void getGame_guesserToken_returnJson() throws Exception {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("token2");
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.addPlayer(player2);
+        game.setCurrentGuesser(player1);
+        game.setCurrentWord("Erdbeermarmeladebrot");
+
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", player1.getToken());
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lobbyId", is(game.getLobbyId().intValue())))
+                .andExpect(jsonPath("$.roundsPlayed", is(game.getRoundsPlayed())))
+                .andExpect(jsonPath("$.players", hasSize(2)))
+                .andExpect(jsonPath("$.currentWord", is(nullValue())));
+    }
+
+    @Test
+    public void getGame_invalidToken_throwsException() throws Exception{
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.setCurrentGuesser(player1);
+        game.setCurrentWord("Erdbeermarmeladebrot");
+
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "wrongToken");
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isUnauthorized());
+    }
 }
