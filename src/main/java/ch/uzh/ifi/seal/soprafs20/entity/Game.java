@@ -39,6 +39,9 @@ public class Game {
     @Column
     private boolean isGuessCorrect;
 
+    @Column
+    private String currentGuess;
+
     public long getLobbyId() {
         return lobbyId;
     }
@@ -116,4 +119,8 @@ public class Game {
     public void setGuessCorrect(boolean guessCorrect) {
         isGuessCorrect = guessCorrect;
     }
+
+    public String getCurrentGuess() { return currentGuess; }
+
+    public void setCurrentGuess(String currentGuess) { this.currentGuess = currentGuess; }
 }
