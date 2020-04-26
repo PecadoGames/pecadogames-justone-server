@@ -12,6 +12,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,14 +118,28 @@ public class GameService {
         return game;
     }
 
-    public Game submitGuess(Game game, MessagePutDTO messagePutDTO) {
+    public void submitGuess(Game game, MessagePutDTO messagePutDTO) {
         if(!game.getCurrentGuesser().getToken().equals(messagePutDTO.getPlayerToken())) {
             throw new ForbiddenException("User is not allowed to submit a guess!");
         }
-
+        game.setCurrentGuess(messagePutDTO.getMessage());
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
         game.setGameState(GameState.TRANSITIONSTATE);
-        return game;
+    }
+
+    public void startNewRound(Game game, RequestPutDTO requestPutDTO) {
+        if(!game.getCurrentGuesser().getToken().equals(requestPutDTO.getToken())) {
+            throw new ForbiddenException("User is not allowed to start a new round!");
+        }
+        game.setRoundsPlayed(game.getRoundsPlayed() + 1);
+
+        int index = game.getPlayers().indexOf(game.getCurrentGuesser());
+        Player currentGuesser = game.getPlayers().get((index + 1) % game.getPlayers().size());
+        game.setCurrentGuesser(currentGuesser);
+
+        game.setGameState(GameState.PICKWORDSTATE);
+
+        //ToDo: Update scores of player and overall score
     }
 
 
