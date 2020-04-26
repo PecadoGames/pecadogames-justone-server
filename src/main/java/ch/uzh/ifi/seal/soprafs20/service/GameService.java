@@ -100,9 +100,14 @@ public class GameService {
      * @param clue
      * @return game with updated clue list
      */
-    public Game sendClue(Game game, Player player, String clue){
+    public Game sendClue(Game game, Player player, String clue,long sentTime){
         if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
             throw new ForbiddenException("User not allowed to send clue");
+        }
+        if(sentTime - game.getStartTimeSeconds() > 60){
+            player.setClueIsSent(true);
+            game.addClue("");
+            throw new ForbiddenException("Time ran out!");
         }
         game.addClue(clue);
         player.setClueIsSent(true);
@@ -114,15 +119,18 @@ public class GameService {
         }
         if(counter == game.getPlayers().size() - 1){
             //game.setGameState(); set next game State
+            game.setStartTimeSeconds(System.currentTimeMillis());
         }
         return game;
     }
 
-    public void submitGuess(Game game, MessagePutDTO messagePutDTO) {
+    public void submitGuess(Game game, MessagePutDTO messagePutDTO, long currentTimeSeconds) {
         if(!game.getCurrentGuesser().getToken().equals(messagePutDTO.getPlayerToken())) {
             throw new ForbiddenException("User is not allowed to submit a guess!");
         }
-        game.setCurrentGuess(messagePutDTO.getMessage());
+        if(currentTimeSeconds - game.getStartTimeSeconds() > 60){
+            throw new ForbiddenException("Time ran out!");
+        }
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
         game.setGameState(GameState.TRANSITIONSTATE);
     }
@@ -140,6 +148,10 @@ public class GameService {
         game.setGameState(GameState.PICKWORDSTATE);
 
         //ToDo: Update scores of player and overall score
+    }
+
+    public void setStartTime(long time, Game game){
+        game.setStartTimeSeconds(time);
     }
 
 
