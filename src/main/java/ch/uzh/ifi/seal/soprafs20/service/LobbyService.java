@@ -61,7 +61,7 @@ public class LobbyService {
         if(newLobby.getMaxPlayersAndBots() > 7 || newLobby.getMaxPlayersAndBots() < 3){
             newLobby.setMaxPlayersAndBots(7);
         }
-        newLobby.setCurrentNumPlayersAndBots(newLobby.getUsersInLobby().size());
+        newLobby.setCurrentNumPlayersAndBots(newLobby.getPlayersInLobby().size());
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();
         return newLobby;

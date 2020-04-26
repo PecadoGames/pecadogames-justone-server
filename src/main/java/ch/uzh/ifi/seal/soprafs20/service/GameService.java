@@ -58,7 +58,7 @@ public class GameService {
      * @return
      */
     public Game createGame(Lobby lobby, GamePostDTO gamePostDTO) {
-        if(!lobby.getToken().equals(gamePostDTO.getUserToken())) {
+        if(!lobby.getToken().equals(gamePostDTO.getHostToken())) {
             throw new UnauthorizedException("You are not allowed to start the game.");
         }
         if(lobby.isGameStarted()){
@@ -79,7 +79,7 @@ public class GameService {
         //assign first guesser
         Random rand = new Random();
         Player currentGuesser = newGame.getPlayers().get(rand.nextInt(newGame.getPlayers().size()));
-        currentGuesser.setIsGuesser(true);
+        newGame.setCurrentGuesser(currentGuesser);
 
         //set round count to 0
         newGame.setRoundsPlayed(0);

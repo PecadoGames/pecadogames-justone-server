@@ -3,23 +3,23 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 public class GamePostDTO {
 
     //ID of lobby host
-    private long userId;
+    private long hostId;
 
-    private String userToken;
+    private String hostToken;
 
-    public long getUserId() {
-        return userId;
+    public long getHostId() {
+        return hostId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setHostId(long hostId) {
+        this.hostId = hostId;
     }
 
-    public String getUserToken() {
-        return userToken;
+    public String getHostToken() {
+        return hostToken;
     }
 
-    public void setUserToken(String userToken) {
-        this.userToken = userToken;
+    public void setHostToken(String hostToken) {
+        this.hostToken = hostToken;
     }
 }

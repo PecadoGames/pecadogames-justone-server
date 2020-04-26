@@ -57,8 +57,8 @@ public class GameServiceTest {
     @Test
     public void create_Game_validInput_success() {
         GamePostDTO gamePostDTO = new GamePostDTO();
-        gamePostDTO.setUserId(testHost.getId());
-        gamePostDTO.setUserToken(testHost.getToken());
+        gamePostDTO.setHostId(testHost.getId());
+        gamePostDTO.setHostToken(testHost.getToken());
 
         Game testGame = new Game();
         Game game = gameService.createGame(testLobby, gamePostDTO);
