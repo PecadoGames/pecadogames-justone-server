@@ -91,9 +91,9 @@ public class LobbyController {
     @ResponseBody
     public ResponseEntity<Object> createGame(@PathVariable long lobbyId, @RequestBody GamePostDTO gamePostDTO) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        if(lobby.getCurrentNumPlayersAndBots() < 3 || lobby.getCurrentNumPlayersAndBots() > 7){
-            throw new ConflictException("Invalid amount of players to start the game");
-        }
+//        if(lobby.getCurrentNumPlayersAndBots() < 3 || lobby.getCurrentNumPlayersAndBots() > 7){
+//            throw new ConflictException("Invalid amount of players to start the game");
+//        }
         Game createdGame = gameService.createGame(lobby, gamePostDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
                 .build().toUri();
@@ -147,14 +147,17 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public String getChatMessages(@PathVariable long lobbyId,@RequestParam String token) {
+        boolean found = false;
         Lobby lobby = lobbyService.getLobby(lobbyId);
         for (Player player : lobby.getPlayersInLobby()){
             if(player.getToken().equals(token)){
-                break;
+                found = true;
             } else {
-                throw new UnauthorizedException("This player is not allowed to access this chat history!");
+                found = false;
             }
         }
+        if(!found)
+            throw new UnauthorizedException("This player is not allowed to access this chat history!");
         Chat chat = chatService.getChat(lobbyId);
         return asJsonString(chat);
     }

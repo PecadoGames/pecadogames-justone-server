@@ -65,7 +65,7 @@ public class GameController {
         }
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
         String clue = messagePutDTO.getMessage();
-        currentGame = gameService.sendClue(currentGame, player, clue,sentTimeSeconds);
+        currentGame = gameService.sendClue(currentGame, player, clue, sentTimeSeconds);
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/game/word")
@@ -88,19 +88,21 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     public String getTimer(@PathVariable long lobbyId,@RequestParam String token) {
         long currentTime = System.currentTimeMillis();
-
+        boolean found = false;
         Game game = gameService.getGame(lobbyId);
         for(Player p : game.getPlayers()){
             if(p.getToken().equals(token))
-                break;
+                found = true;
             else
-                throw new UnauthorizedException("Not allowed to retrieve timer for this game!");
+                found = false;
         }
+        if(!found)
+            throw new UnauthorizedException("Not allowed to retrieve timer for this game!");
         if(game.getStartTimeSeconds() == null){
             return "No timer started yet";
         } else {
             long remaining = 60 - (TimeUnit.MILLISECONDS.toSeconds(currentTime) - game.getStartTimeSeconds());
-            return String.format("Remaining time: %d seconds", remaining);
+            return String.format("%d", remaining);
         }
     }
 
