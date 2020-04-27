@@ -1,9 +1,15 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
+import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
+import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import ch.uzh.ifi.seal.soprafs20.service.PlayerService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +20,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,7 +33,6 @@ public class GameControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @MockBean
     private PlayerService playerService;
     @MockBean
@@ -115,5 +123,79 @@ public class GameControllerTest {
 
         mockMvc.perform(getRequest)
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void sendClue_validInput() throws Exception{
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("token2");
+
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.setCurrentGuesser(player1);
+        game.setCurrentWord("Erdbeermarmeladebrot");
+        game.getEnteredClues().add("Zopf");
+        game.setGameState(GameState.ENTERCLUESSTATE);
+
+        MessagePutDTO messagePutDTO = new MessagePutDTO();
+        messagePutDTO.setMessage("Zopf");
+        messagePutDTO.setPlayerId(2L);
+        messagePutDTO.setPlayerToken("token2");
+
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        given(gameService.sendClue(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyLong())).willReturn(game);
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(messagePutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void sendClue_validInput_wrongState() throws Exception {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("token2");
+
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.setCurrentGuesser(player1);
+        game.setCurrentWord("Erdbeermarmeladebrot");
+        game.getEnteredClues().add("Zopf");
+        game.setGameState(GameState.PICKWORDSTATE);
+
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().is4xxClientError());
+    }
+
+    private String asJsonString(final Object object) {
+        try {
+            return new ObjectMapper().writeValueAsString(object);
+        }
+        catch (JsonProcessingException e) {
+            throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
+        }
     }
 }
