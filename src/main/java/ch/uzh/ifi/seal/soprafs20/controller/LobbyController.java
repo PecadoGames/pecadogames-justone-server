@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
@@ -90,6 +91,9 @@ public class LobbyController {
     @ResponseBody
     public ResponseEntity<Object> createGame(@PathVariable long lobbyId, @RequestBody GamePostDTO gamePostDTO) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
+        if(lobby.getCurrentNumPlayersAndBots() < 3 || lobby.getCurrentNumPlayersAndBots() > 7){
+            throw new ConflictException("Invalid amount of players to start the game");
+        }
         Game createdGame = gameService.createGame(lobby, gamePostDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
                 .build().toUri();

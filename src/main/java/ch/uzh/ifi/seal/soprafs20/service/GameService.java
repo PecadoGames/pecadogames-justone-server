@@ -76,6 +76,11 @@ public class GameService {
         for(Player player : lobby.getPlayersInLobby()) {
             newGame.addPlayer(player);
         }
+
+        if(newGame.getPlayers().size() == 3){
+            newGame.setSpecialGame(true);
+        } else {newGame.setSpecialGame(false);}
+
         //assign first guesser
         Random rand = new Random();
         Player currentGuesser = newGame.getPlayers().get(rand.nextInt(newGame.getPlayers().size()));
