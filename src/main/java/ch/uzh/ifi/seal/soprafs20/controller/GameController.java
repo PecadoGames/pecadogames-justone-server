@@ -124,7 +124,7 @@ public class GameController {
         if(!game.getGameState().equals(GameState.TRANSITIONSTATE)) {
             throw new ForbiddenException("Can't start new round in current state!");
         }
-
+        gameService.startNewRound(game, requestPutDTO);
     }
 
     private String asJsonString(final Object object) {

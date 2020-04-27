@@ -10,6 +10,7 @@ import java.util.Set;
 public class GameGetDTO {
 
     private Set<PlayerGetDTO> players = new HashSet<>();
+    private PlayerGetDTO currentGuesser;
     private long lobbyId;
     private int roundsPlayed;
     private String currentWord;
@@ -26,6 +27,12 @@ public class GameGetDTO {
             PlayerGetDTO player = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(p);
             this.players.add(player);
         }
+    }
+
+    public PlayerGetDTO getCurrentGuesser() { return currentGuesser; }
+
+    public void setCurrentGuesser(Player player) {
+        this.currentGuesser = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(player);
     }
 
     public long getLobbyId() {

@@ -1,13 +1,10 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
-import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
-
 public class PlayerGetDTO {
     private String username;
 //    private UserStatus status;
     private boolean clueIsSent;
     private int score;
-    private boolean guesser;
 
     public String getUsername() {
         return username;
@@ -39,13 +36,5 @@ public class PlayerGetDTO {
 
     public void setScore(int score) {
         this.score = score;
-    }
-
-    public boolean isGuesser() {
-        return guesser;
-    }
-
-    public void setGuesser(boolean guesser) {
-        this.guesser = guesser;
     }
 }
