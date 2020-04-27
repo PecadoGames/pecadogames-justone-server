@@ -109,17 +109,50 @@ public class GameService {
             game.addClue("");
 //            throw new ForbiddenException("Time ran out!");
         }
-        game.addClue(clue);
-        player.setClueIsSent(true);
+        if(!game.isSpecialGame()) {
+            game.addClue(clue);
+            player.setClueIsSent(true);
+        } else {
+            sendClueSpecial(game,player,clue);//handle double clue input from player
+        }
         int counter = 0;
         for(Player playerInGame : game.getPlayers()){
             if (player.isClueIsSent()){
                 counter++;
             }
         }
-        if(counter == game.getPlayers().size() - 1){
+        if(counter == game.getPlayers().size() - 1 && !game.isSpecialGame()){
             //game.setGameState(); set next game State
             game.setStartTimeSeconds(System.currentTimeMillis());
+        }
+        if(counter == (game.getPlayers().size() - 1) * 2 && game.isSpecialGame()){
+            //game.setGameState();
+            game.setStartTimeSeconds(System.currentTimeMillis());
+        }
+        return game;
+    }
+
+    /**
+     * method adds clue and token of player to clues. When a player enters their second clue, their token is replaced with it
+     * @param game
+     * @param player
+     * @param clue
+     * @return
+     */
+    private Game sendClueSpecial(Game game, Player player, String clue) {
+        if(game.getEnteredClues().isEmpty()){
+            game.addClue(clue);
+            game.addClue(player.getToken());
+        } else {
+            for (String storedClue : game.getEnteredClues()) {
+                if (player.getToken().equals(storedClue)) {
+                    game.getEnteredClues().removeIf(enteredClue -> player.getToken().equals(enteredClue));
+                    game.addClue(clue);
+                    player.setClueIsSent(true);
+                }
+            }
+            game.addClue(clue);
+            game.addClue(player.getToken());
         }
         return game;
     }

@@ -27,6 +27,9 @@ public class Game {
     @Column
     private int overallScore;
 
+    @Column(nullable = false)
+    private boolean specialGame;
+
     @ElementCollection
     private List<String> enteredClues = new ArrayList<>();
 
@@ -134,4 +137,12 @@ public class Game {
     public String getCurrentGuess() { return currentGuess; }
 
     public void setCurrentGuess(String currentGuess) { this.currentGuess = currentGuess; }
+
+    public boolean isSpecialGame() {
+        return specialGame;
+    }
+
+    public void setSpecialGame(boolean specialGame) {
+        this.specialGame = specialGame;
+    }
 }
