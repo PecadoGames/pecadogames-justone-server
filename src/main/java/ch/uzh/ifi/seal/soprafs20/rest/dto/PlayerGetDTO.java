@@ -4,6 +4,7 @@ public class PlayerGetDTO {
     private String username;
 //    private UserStatus status;
     private boolean clueIsSent;
+    private Long id;
     private int score;
 
     public String getUsername() {
@@ -36,5 +37,12 @@ public class PlayerGetDTO {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public Long getID() {
+        return id;
+    }
+    public void setId(Long playerId) {
+        this.id = playerId;
     }
 }
