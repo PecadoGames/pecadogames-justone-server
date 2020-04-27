@@ -71,7 +71,7 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/word")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void pickWord(@PathVariable long lobbyId, String token){
+    public void pickWord(@PathVariable long lobbyId,@RequestParam String token){
         Game game = gameService.getGame(lobbyId);
         if(!game.getCurrentGuesser().getToken().equals(token)){
             throw new UnauthorizedException("Not allowed to pick a word!");
