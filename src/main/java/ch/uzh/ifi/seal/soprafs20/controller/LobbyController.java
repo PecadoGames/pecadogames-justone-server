@@ -152,6 +152,7 @@ public class LobbyController {
         for (Player player : lobby.getPlayersInLobby()){
             if(player.getToken().equals(token)){
                 found = true;
+                break;
             } else {
                 found = false;
             }

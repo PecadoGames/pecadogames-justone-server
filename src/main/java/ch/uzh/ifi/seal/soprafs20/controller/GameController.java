@@ -91,8 +91,10 @@ public class GameController {
         boolean found = false;
         Game game = gameService.getGame(lobbyId);
         for(Player p : game.getPlayers()){
-            if(p.getToken().equals(token))
+            if(p.getToken().equals(token)) {
                 found = true;
+                break;
+            }
             else
                 found = false;
         }
@@ -102,6 +104,8 @@ public class GameController {
             return "No timer started yet";
         } else {
             long remaining = 60 - (TimeUnit.MILLISECONDS.toSeconds(currentTime) - game.getStartTimeSeconds());
+            if(remaining <= 0)
+                return "0";
             return String.format("%d", remaining);
         }
     }
