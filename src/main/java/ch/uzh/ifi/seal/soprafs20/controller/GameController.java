@@ -54,12 +54,12 @@ public class GameController {
         return gameGetDTO;
     }
 
-    @PutMapping(path = "lobbies/{lobbyId}/game/clue",consumes = "application/json")
+    @PutMapping(path = "lobbies/{lobbyId}/game/clue", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO){
-        long sentTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
         Game currentGame = gameService.getGame(lobbyId);
+        long sentTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
         if(!currentGame.getGameState().equals(GameState.ENTERCLUESSTATE)){
             throw new ForbiddenException("Clues not accepted in current state");
         }
@@ -71,17 +71,12 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/word")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void pickWord(@PathVariable long lobbyId,@RequestParam String token){
+    public void pickWord(@PathVariable long lobbyId,@RequestParam("token") String token){
         Game game = gameService.getGame(lobbyId);
-        if(!game.getCurrentGuesser().getToken().equals(token)){
-            throw new UnauthorizedException("Not allowed to pick a word!");
-        }
         if(!game.getGameState().equals(GameState.PICKWORDSTATE)){
             throw new ForbiddenException("Can't choose word in current state");
         }
-        game.setCurrentWord(gameService.chooseWordAtRandom(game.getWords()));
-        game.setGameState(GameState.ENTERCLUESSTATE);
-        gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+        gameService.pickWord(token, game);
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game/timer")

@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -135,6 +136,15 @@ public class GameService {
             game.setStartTimeSeconds(System.currentTimeMillis());
         }
         return game;
+    }
+
+    public void pickWord(String token, Game game) {
+        if(!game.getCurrentGuesser().getToken().equals(token)){
+            throw new UnauthorizedException("This user is not allowed to pick a word!");
+        }
+        game.setCurrentWord(chooseWordAtRandom(game.getWords()));
+        game.setGameState(GameState.ENTERCLUESSTATE);
+        setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
     }
 
     /**

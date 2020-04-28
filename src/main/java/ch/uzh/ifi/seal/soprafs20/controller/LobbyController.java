@@ -2,7 +2,6 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
@@ -117,7 +116,6 @@ public class LobbyController {
         String json = asJsonString(lobby);
         return asJsonString(lobby);
     }
-
 
     @PutMapping(path = "/lobbies/{lobbyId}/invitations", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
