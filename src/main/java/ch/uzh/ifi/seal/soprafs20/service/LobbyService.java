@@ -115,8 +115,7 @@ public class LobbyService {
         }
         //player that is not host wants to join but they are already in lobby
         if(!lobby.getHostId().equals(playerToAdd.getId()) && lobby.getPlayersInLobby().contains(playerToAdd)){
-            throw new ConflictException("User is already in lobby!");
-        }
+            throw new ConflictException("User is already in lobby!");        }
         if(lobby.getHostId().equals(playerToAdd.getId())){
             throw new ConflictException("Host cannot join their own lobby!");
         }

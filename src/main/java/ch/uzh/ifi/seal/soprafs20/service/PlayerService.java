@@ -53,4 +53,8 @@ public class PlayerService {
 
         return player;
     }
+
+    public void deletePlayer(Player player) {
+        playerRepository.delete(player);
+    }
 }

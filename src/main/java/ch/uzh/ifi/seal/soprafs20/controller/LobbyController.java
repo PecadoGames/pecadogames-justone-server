@@ -190,6 +190,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         Player playerToBeRemoved = playerService.getPlayer(joinLeavePutDTO.getPlayerId());
         lobbyService.removePlayerFromLobby(playerToBeRemoved, lobby);
+        playerService.deletePlayer(playerToBeRemoved);
     }
 
 
