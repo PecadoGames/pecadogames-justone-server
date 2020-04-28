@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.InternalTimer;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -106,15 +109,15 @@ public class GameService {
      * @param clue
      * @return game with updated clue list
      */
-    public Game sendClue(Game game, Player player, String clue,long sentTime){
+    public boolean sendClue(Game game, Player player, String clue){
+//        if(isTimeOver(game)){
+//            game.setGameState(GameState.NLPSTATE);
+//            return game;
+//        }
         if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
             throw new ForbiddenException("User not allowed to send clue");
         }
-        if(sentTime - game.getStartTimeSeconds() > 60){
-            player.setClueIsSent(true);
-            game.addClue("");
-            throw new ForbiddenException("Time ran out!");
-        }
+
         if(!game.isSpecialGame()) {
             game.addClue(clue);
             player.setClueIsSent(true);
@@ -128,14 +131,18 @@ public class GameService {
             }
         }
         if(counter == game.getPlayers().size() - 1 && !game.isSpecialGame()){
-            //game.setGameState(); set next game State
-            game.setStartTimeSeconds(System.currentTimeMillis());
+            game.setGameState(GameState.NLPSTATE);
+            return true;
+//            game.setGameState(); set next game State
+//            game.setStartTimeSeconds(System.currentTimeMillis());
         }
-        if(counter == (game.getPlayers().size() - 1) * 2 && game.isSpecialGame()){
-            //game.setGameState();
-            game.setStartTimeSeconds(System.currentTimeMillis());
-        }
-        return game;
+        else if(counter == (game.getPlayers().size() - 1) * 2 && game.isSpecialGame()){
+            game.setGameState(GameState.NLPSTATE);
+            return true;
+//            game.setGameState();
+//            game.setStartTimeSeconds(System.currentTimeMillis());
+        } else
+            return false;
     }
 
     public void pickWord(String token, Game game) {
@@ -145,6 +152,10 @@ public class GameService {
         game.setCurrentWord(chooseWordAtRandom(game.getWords()));
         game.setGameState(GameState.ENTERCLUESSTATE);
         setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
+        if(game.getTimer() == null){
+            InternalTimer internalTimer = new InternalTimer();
+            setTimer(game,internalTimer);
+        }
     }
 
     /**
@@ -216,5 +227,24 @@ public class GameService {
         return currentWord;
     }
 
+    public String getTime(String time){
+        return time;
+    }
+    public void setState(Game game, GameState gameState){
+        game.setGameState(gameState);
+    }
 
+    /**
+     * Intern timer for server, if timer ends transition to next state
+     * @param game
+     * @param gameState - state to which the game transitions if timer is finished
+     */
+    public void timer(Game game,GameState gameState){
+        InternalTimer internalTimer = new InternalTimer();
+//        internalTimerService.createInternalTimer(internalTimer,60,game.getStartTimeSeconds());
+    }
+
+    public void setTimer(Game game, InternalTimer internalTimer) {
+        game.setTimer(internalTimer);
+    }
 }

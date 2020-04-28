@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.InternalTimer;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
@@ -11,6 +12,7 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
+import ch.uzh.ifi.seal.soprafs20.service.InternalTimerService;
 import ch.uzh.ifi.seal.soprafs20.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,10 +28,12 @@ import java.util.List;
 public class GameController {
     private final PlayerService playerService;
     private final GameService gameService;
+    private final InternalTimerService internalTimerService;
 
-    GameController(PlayerService playerService, GameService gameService){
+    GameController(PlayerService playerService, GameService gameService, InternalTimerService internalTimerService){
         this.playerService = playerService;
         this.gameService = gameService;
+        this.internalTimerService = internalTimerService;
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game", produces = "application/json")
@@ -58,14 +62,21 @@ public class GameController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO){
+        boolean advance;
         Game currentGame = gameService.getGame(lobbyId);
-        long sentTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
         if(!currentGame.getGameState().equals(GameState.ENTERCLUESSTATE)){
             throw new ForbiddenException("Clues not accepted in current state");
         }
+        if(!currentGame.getTimer().isRunning()){
+            throw new ForbiddenException("Time ran out!");
+        }
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
         String clue = messagePutDTO.getMessage();
-        currentGame = gameService.sendClue(currentGame, player, clue, sentTimeSeconds);
+        advance = gameService.sendClue(currentGame, player, clue);
+        if(advance){
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),currentGame);
+            gameService.timer(currentGame,GameState.VOTEONCLUESSTATE);
+        }
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/game/word")
@@ -77,6 +88,8 @@ public class GameController {
             throw new ForbiddenException("Can't choose word in current state");
         }
         gameService.pickWord(token, game);
+
+        internalTimerService.createInternalTimer(game,60,game.getStartTimeSeconds(),GameState.NLPSTATE);
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game/timer")
@@ -98,10 +111,7 @@ public class GameController {
         if(game.getStartTimeSeconds() == null){
             return "No timer started yet";
         } else {
-            long remaining = 60 - (TimeUnit.MILLISECONDS.toSeconds(currentTime) - game.getStartTimeSeconds());
-            if(remaining <= 0)
-                return "0";
-            return String.format("%d", remaining);
+            return Long.toString(internalTimerService.getTime(game.getTimer()));
         }
     }
 

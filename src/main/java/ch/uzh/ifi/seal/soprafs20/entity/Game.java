@@ -1,5 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
+
+import javax.annotation.Resource;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +49,12 @@ public class Game {
 
     @Column
     private String currentGuess;
+
+    @Column
+    private long time;
+
+    @OneToOne(cascade = {CascadeType.ALL})
+    private InternalTimer timer;
 
     public Long getLobbyId() {
         return lobbyId;
@@ -144,5 +152,21 @@ public class Game {
 
     public void setSpecialGame(boolean specialGame) {
         this.specialGame = specialGame;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = (time);
+    }
+
+    public InternalTimer getTimer() {
+        return timer;
+    }
+
+    public void setTimer(InternalTimer timer) {
+        this.timer = timer;
     }
 }
