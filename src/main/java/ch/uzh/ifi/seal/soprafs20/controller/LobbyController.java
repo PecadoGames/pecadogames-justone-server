@@ -56,7 +56,7 @@ public class LobbyController {
         //convert host from user to player
         Player hostAsPlayer = playerService.convertUserToPlayer(host);
         // create lobby
-        createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer);
+        createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer, lobbyPostDTO.getToken());
 
         //create chat for lobby
         chatService.createChat(createdLobby.getLobbyId());
@@ -135,7 +135,7 @@ public class LobbyController {
         if(userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO)) {
             User user = userService.getUser(lobbyAcceptancePutDTO.getAccepterId());
             Player player = playerService.convertUserToPlayer(user);
-            lobbyService.addPlayerToLobby(player, lobby);
+            lobbyService.addPlayerToLobby(lobbyAcceptancePutDTO.getAccepterToken(), player, lobby);
         }
 
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
@@ -180,7 +180,7 @@ public class LobbyController {
         User user = userService.getUser(joinLeavePutDTO.getPlayerId());
         //convert user into player
         Player player = playerService.convertUserToPlayer(user);
-        lobbyService.addPlayerToLobby(player, lobby);
+        lobbyService.addPlayerToLobby(joinLeavePutDTO.getPlayerToken(), player, lobby);
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/rageQuits", consumes = "application/json")

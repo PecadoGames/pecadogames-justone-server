@@ -58,7 +58,7 @@ public class LobbyServiceTest {
     @Test
     public void createLobby_validInput_publicLobby(){
         testLobby.setPrivate(false);
-        Lobby lobby = lobbyService.createLobby(testLobby,host);
+        Lobby lobby = lobbyService.createLobby(testLobby, host, host.getToken());
 
         Mockito.verify(lobbyRepository,Mockito.times(1)).save(Mockito.any());
 
@@ -72,7 +72,7 @@ public class LobbyServiceTest {
     @Test
     public void createLobby_validInput_privateLobby(){
         testLobby.setPrivate(true);
-        Lobby lobby = lobbyService.createLobby(testLobby,host);
+        Lobby lobby = lobbyService.createLobby(testLobby, host, host.getToken());
 
         Mockito.verify(lobbyRepository,Mockito.times(1)).save(Mockito.any());
 
@@ -156,7 +156,7 @@ public class LobbyServiceTest {
     @Test
     public void getLobby(){
         testLobby.setPrivate(false);
-        Lobby lobby = lobbyService.createLobby(testLobby,host);
+        Lobby lobby = lobbyService.createLobby(testLobby, host, host.getToken());
         Lobby foundLobby = lobbyService.getLobby(lobby.getLobbyId());
 
         Mockito.verify(lobbyRepository, Mockito.times(1)).findById(Mockito.any());
@@ -171,7 +171,7 @@ public class LobbyServiceTest {
 
 
         testLobby.setPrivate(false);
-        lobbyService.createLobby(testLobby,host);
+        lobbyService.createLobby(testLobby, host, host.getToken());
 
         Mockito.when(lobbyRepository.findById(Mockito.any())).thenReturn(null);
         assertThrows(NullPointerException.class,() -> lobbyService.getLobby(1L));
@@ -248,7 +248,7 @@ public class LobbyServiceTest {
         testLobby.setPrivate(false);
         testLobby.addPlayerToLobby(host);
 
-        lobbyService.addPlayerToLobby(player2,testLobby);
+        lobbyService.addPlayerToLobby(player2.getToken(), player2, testLobby);
 
         assertEquals(2, testLobby.getPlayersInLobby().size());
     }
@@ -267,7 +267,7 @@ public class LobbyServiceTest {
         testLobby.addPlayerToLobby(host);
         testLobby.addPlayerToLobby(player2);
 
-        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addPlayerToLobby(player2,testLobby);;});
+        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addPlayerToLobby(player2.getToken(), player2, testLobby);;});
         //assertEquals("User already in lobby", ex.getMessage());
     }
 
@@ -285,7 +285,7 @@ public class LobbyServiceTest {
         testLobby.addPlayerToLobby(host);
         testLobby.addPlayerToLobby(player2);
 
-        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addPlayerToLobby(host,testLobby);;});
+        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addPlayerToLobby(host.getToken(), host, testLobby);;});
         //assertEquals("Host cannot join their own lobby",ex.getMessage());
     }
 
@@ -316,7 +316,7 @@ public class LobbyServiceTest {
         testLobby.addPlayerToLobby(player2);
         testLobby.addPlayerToLobby(player3);
 
-        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addPlayerToLobby(player4,testLobby);;});
+        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addPlayerToLobby(player4.getToken(), player4,testLobby);;});
         //assertEquals("Lobby is full",ex.getMessage());
     }
 
@@ -348,7 +348,7 @@ public class LobbyServiceTest {
         testLobby.addPlayerToLobby(player2);
         testLobby.addPlayerToLobby(player3);
 
-        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addPlayerToLobby(player4, testLobby);});
+        Throwable ex = assertThrows(ConflictException.class,() ->{lobbyService.addPlayerToLobby(player4.getToken(), player4, testLobby);});
         //assertEquals("Cant join the lobby, the game is already under way!",ex.getMessage());
     }
 
@@ -415,7 +415,7 @@ public class LobbyServiceTest {
 
 
         Throwable ex = assertThrows(ConflictException.class,()->{lobbyService.removePlayerFromLobby(player2, testLobby);});
-        assertEquals("Cannot leave lobby, game already started",ex.getMessage());
+        assertTrue(ex.getMessage().contains("game already started"));
     }
 
 }

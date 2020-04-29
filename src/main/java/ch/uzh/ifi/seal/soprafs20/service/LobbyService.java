@@ -48,7 +48,10 @@ public class LobbyService {
         }
     }
 
-    public Lobby createLobby(Lobby newLobby, Player host){
+    public Lobby createLobby(Lobby newLobby, Player host, String hostToken){
+        if(!host.getToken().equals(hostToken)) {
+            throw new UnauthorizedException("You are not allowed to create a lobby in the name of this user!");
+        }
         checkLobbyName(newLobby.getLobbyName());
         checkIfLobbyExists(newLobby);
         if(newLobby.isPrivate()){
@@ -109,9 +112,12 @@ public class LobbyService {
         }
     }
 
-    public void addPlayerToLobby(Player playerToAdd, Lobby lobby){
+    public void addPlayerToLobby(String playerToken, Player playerToAdd, Lobby lobby){
         if(lobby.isGameStarted()){
             throw new ConflictException("Cant join the lobby, the game is already under way!");
+        }
+        if(!playerToAdd.getToken().equals(playerToken)) {
+            throw new UnauthorizedException("You are not allowed to join as this player!");
         }
         //player that is not host wants to join but they are already in lobby
         if(!lobby.getHostId().equals(playerToAdd.getId()) && lobby.getPlayersInLobby().contains(playerToAdd)){
@@ -127,7 +133,7 @@ public class LobbyService {
 
     public void removePlayerFromLobby(Player playerToRemove, Lobby lobby){
         if(lobby.isGameStarted()){
-            throw new ConflictException("Cannot leave lobby, game already started");
+            throw new ConflictException("Cannot leave lobby, game already started!");
         }
         if(playerToRemove.getId().equals(lobby.getHostId())){
             //host leaves lobby and is alone

@@ -129,7 +129,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setToken("1");
 
 
-        given(lobbyService.createLobby(Mockito.any(),Mockito.any())).willReturn(lobby);
+        given(lobbyService.createLobby(Mockito.any(),Mockito.any(), Mockito.anyString())).willReturn(lobby);
 
         MockHttpServletRequestBuilder postRequest = post("/lobbies")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -161,7 +161,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setToken("1");
 
 
-        given(lobbyService.createLobby(Mockito.any(),Mockito.any())).willReturn(lobby);
+        given(lobbyService.createLobby(Mockito.any(),Mockito.any(),Mockito.any())).willReturn(lobby);
 
         MockHttpServletRequestBuilder postRequest = post("/lobbies")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -417,7 +417,7 @@ public class LobbyControllerTest {
         joinLeavePutDTO.setPlayerId(2L);
         joinLeavePutDTO.setPlayerToken("testToken");
 
-        doNothing().when(lobbyService).addPlayerToLobby(Mockito.any(),Mockito.any());
+        doNothing().when(lobbyService).addPlayerToLobby(Mockito.any(),Mockito.any(), Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/joins","1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -433,7 +433,7 @@ public class LobbyControllerTest {
         joinLeavePutDTO.setPlayerId(2L);
         joinLeavePutDTO.setPlayerToken("testToken");
 
-        doNothing().when(lobbyService).addPlayerToLobby(Mockito.any(),Mockito.any());
+        doNothing().when(lobbyService).addPlayerToLobby(Mockito.any(),Mockito.any(), Mockito.any());
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/joins","1")
                 .contentType(MediaType.APPLICATION_JSON)
