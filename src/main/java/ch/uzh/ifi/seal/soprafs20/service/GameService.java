@@ -131,14 +131,10 @@ public class GameService {
         if(counter == game.getPlayers().size() - 1 && !game.isSpecialGame()){
             game.setGameState(GameState.NLPSTATE);
             return true;
-//            game.setGameState(); set next game State
-//            game.setStartTimeSeconds(System.currentTimeMillis());
         }
         else if(counter == (game.getPlayers().size() - 1) * 2 && game.isSpecialGame()){
             game.setGameState(GameState.NLPSTATE);
             return true;
-//            game.setGameState();
-//            game.setStartTimeSeconds(System.currentTimeMillis());
         } else
             return false;
     }
@@ -164,10 +160,7 @@ public class GameService {
      * @return
      */
     private Game sendClueSpecial(Game game, Player player, String clue) {
-        if(game.getEnteredClues().isEmpty()){
-            game.addClue(clue);
-            game.addClue(player.getToken());
-        } else {
+        if (!game.getEnteredClues().isEmpty()) {
             for (String storedClue : game.getEnteredClues()) {
                 if (player.getToken().equals(storedClue)) {
                     game.getEnteredClues().removeIf(enteredClue -> player.getToken().equals(enteredClue));
@@ -175,9 +168,9 @@ public class GameService {
                     player.setClueIsSent(true);
                 }
             }
-            game.addClue(clue);
-            game.addClue(player.getToken());
         }
+        game.addClue(clue);
+        game.addClue(player.getToken());
         return game;
     }
 

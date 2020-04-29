@@ -2,7 +2,6 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
-import ch.uzh.ifi.seal.soprafs20.entity.InternalTimer;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
@@ -19,10 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.concurrent.TimeUnit;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 public class GameController {
@@ -79,7 +77,7 @@ public class GameController {
         }
     }
 
-    @PutMapping(path = "lobbies/{lobbyId}/game/word")
+    @GetMapping(path = "lobbies/{lobbyId}/game/word")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void pickWord(@PathVariable long lobbyId,@RequestParam("token") String token){
@@ -94,7 +92,7 @@ public class GameController {
 
     @GetMapping(path = "lobbies/{lobbyId}/game/timer")
     @ResponseStatus(HttpStatus.OK)
-    public String getTimer(@PathVariable long lobbyId,@RequestParam String token) {
+    public String getTimer(@PathVariable long lobbyId, @RequestParam String token) {
         long currentTime = System.currentTimeMillis();
         boolean found = false;
         Game game = gameService.getGame(lobbyId);
@@ -103,8 +101,6 @@ public class GameController {
                 found = true;
                 break;
             }
-            else
-                found = false;
         }
         if(!found)
             throw new UnauthorizedException("Not allowed to retrieve timer for this game!");

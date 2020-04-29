@@ -95,7 +95,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star");
         long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
-        testGame = gameService.sendClue(testGame,player2,"star", sendTime);
+        gameService.sendClue(testGame,player2,"star");
         assertEquals("star",testGame.getEnteredClues().get(0));
         assertTrue(player2.isClueIsSent());
     }
@@ -112,7 +112,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star");
         long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
-        Exception ex = assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame,testHost,"star", sendTime);});
+        Exception ex = assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame,testHost,"star");});
         assertEquals("User not allowed to send clue",ex.getMessage());
         assertTrue(testGame.getEnteredClues().isEmpty());
         assertFalse(testHost.isClueIsSent());
@@ -130,7 +130,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star");
         long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) + 1000;
 
-        Exception ex = assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame,player2,"star", sendTime);});
+        Exception ex = assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame,player2,"star");});
         assertEquals("Time ran out!",ex.getMessage());
         assertEquals("",testGame.getEnteredClues().get(0));
         assertTrue(player2.isClueIsSent());
@@ -148,7 +148,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star");
         long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
-        testGame = gameService.sendClue(testGame,player2,"star", sendTime);
+        gameService.sendClue(testGame,player2,"star");
 
         assertEquals("star",testGame.getEnteredClues().get(0));
         assertEquals("token2",testGame.getEnteredClues().get(1));
@@ -169,7 +169,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star");
         long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
-        testGame = gameService.sendClue(testGame,player2,"wars", sendTime);
+        gameService.sendClue(testGame,player2,"wars");
 
         assertEquals("star",testGame.getEnteredClues().get(0));
         assertEquals("wars",testGame.getEnteredClues().get(1));
@@ -191,7 +191,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("badbunny");
         long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
-        Exception ex = assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame,player2,"wars", sendTime);});
+        Exception ex = assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame,player2,"wars");});
 
         assertEquals("User not allowed to send clue",ex.getMessage());
         assertEquals(2,testGame.getEnteredClues().size());

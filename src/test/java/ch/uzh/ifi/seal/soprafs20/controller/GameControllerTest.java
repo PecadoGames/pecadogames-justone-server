@@ -4,9 +4,9 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
+import ch.uzh.ifi.seal.soprafs20.service.InternalTimerService;
 import ch.uzh.ifi.seal.soprafs20.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,10 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,6 +37,8 @@ public class GameControllerTest {
     private PlayerService playerService;
     @MockBean
     private GameService gameService;
+    @MockBean
+    private InternalTimerService internalTimerService;
 
     @Test
     public void givenGame_whenGetGame_returnJson() throws Exception {
@@ -151,7 +153,6 @@ public class GameControllerTest {
         messagePutDTO.setPlayerToken("token2");
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
-        given(gameService.sendClue(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyLong())).willReturn(game);
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -171,7 +172,6 @@ public class GameControllerTest {
         player2.setId(2L);
         player2.setToken("token2");
 
-
         Game game = new Game();
         game.setLobbyId(1L);
         game.setRoundsPlayed(1);
@@ -187,7 +187,62 @@ public class GameControllerTest {
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(putRequest)
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void pickWord_validInput_success() throws Exception {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("token2");
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.setCurrentGuesser(player1);
+        game.setGameState(GameState.PICKWORDSTATE);
+        game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game/word", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", player1.getToken());
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void pickWord_validInput_wrongState() throws Exception {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("token2");
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.setCurrentGuesser(player1);
+        game.setGameState(GameState.NLPSTATE);
+        game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game/word", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", player1.getToken());
+
+        mockMvc.perform(getRequest).andExpect(status().is4xxClientError());
     }
 
     private String asJsonString(final Object object) {
