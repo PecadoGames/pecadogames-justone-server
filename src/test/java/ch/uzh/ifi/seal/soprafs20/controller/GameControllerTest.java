@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import ch.uzh.ifi.seal.soprafs20.service.InternalTimerService;
@@ -176,15 +177,19 @@ public class GameControllerTest {
         game.setLobbyId(1L);
         game.setRoundsPlayed(1);
         game.addPlayer(player1);
-        game.setCurrentGuesser(player1);
-        game.setCurrentWord("Erdbeermarmeladebrot");
-        game.getEnteredClues().add("Zopf");
         game.setGameState(GameState.PICKWORDSTATE);
 
-        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        MessagePutDTO messagePutDTO = new MessagePutDTO();
+        messagePutDTO.setMessage("Zopf");
+        messagePutDTO.setPlayerId(2L);
+        messagePutDTO.setPlayerToken("token2");
+
+        //given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        given(gameService.sendClue(Mockito.any(), Mockito.any(), Mockito.any())).willThrow(new ForbiddenException("ex"));
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
-                .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(messagePutDTO));
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isForbidden());
