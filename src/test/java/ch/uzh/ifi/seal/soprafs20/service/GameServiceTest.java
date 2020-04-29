@@ -54,17 +54,24 @@ public class GameServiceTest {
         testLobby.setLobbyId(1L);
         testLobby.setToken("hostToken");
         testLobby.addPlayerToLobby(testHost);
+
         testGame.addPlayer(player2);
+        testGame.addPlayer(testHost);
         testGame.setCurrentGuesser(testHost);
         testLobby.setPrivate(false);
 
-
-
+        Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testGame));
     }
 
     @Test
     public void getGame_validInput_success() {
+        Game game = gameService.getGame(testGame.getLobbyId());
 
+        assertEquals(testGame.getLobbyId(), game.getLobbyId());
+        assertEquals(testGame.getRoundsPlayed(), game.getRoundsPlayed());
+        assertTrue(game.getPlayers().contains(testHost));
+        assertTrue(game.getPlayers().contains(player2));
+        assertEquals(testGame.getCurrentGuesser(), game.getCurrentGuesser());
     }
 
     @Test
@@ -78,9 +85,8 @@ public class GameServiceTest {
         Mockito.verify(gameRepository,Mockito.times(1)).save(Mockito.any());
 
         assertEquals(testLobby.getLobbyId(), game.getLobbyId());
-//        assertTrue(game.getPlayers().contains(testHost));
-//        assertEquals(0, game.getRoundsPlayed());
-//        assertEquals(13, game.getWords().size());
+        assertTrue(game.getPlayers().contains(testHost));
+        assertEquals(0, game.getRoundsPlayed());
     }
 
     @Test
@@ -159,6 +165,7 @@ public class GameServiceTest {
     public void sendClue_specialGame_secondClue_success(){
         testGame.setGameState(GameState.ENTERCLUESSTATE);
         testGame.setSpecialGame(true);
+        testGame.setCurrentWord("star wars");
         testGame.getEnteredClues().add("star");
         testGame.getEnteredClues().add("token2");
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));

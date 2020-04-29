@@ -77,13 +77,11 @@ public interface DTOMapper {
     @Mapping(source = "message", target = "text")
     Message convertMessagePutDTOtoEntity(MessagePutDTO messagePutDTO);
 
-
     @Mapping(source = "id", target = "id")
     @Mapping(source = "username", target = "username")
     @Mapping(source = "score", target = "score")
     @Mapping(source = "clueIsSent",target = "clueIsSent")
     PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
-
 
     @Mapping(source = "lobbyId",target = "lobbyId")
     @Mapping(source = "roundsPlayed",target = "roundsPlayed")
