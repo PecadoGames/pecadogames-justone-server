@@ -60,7 +60,6 @@ public class GameController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO){
-        boolean advance;
         Game currentGame = gameService.getGame(lobbyId);
         if(!currentGame.getGameState().equals(GameState.ENTERCLUESSTATE)){
             throw new ForbiddenException("Clues not accepted in current state");
@@ -70,10 +69,10 @@ public class GameController {
         }
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
         String clue = messagePutDTO.getMessage();
-        advance = gameService.sendClue(currentGame, player, clue);
-        if(advance){
+        if(gameService.sendClue(currentGame, player, clue)){
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),currentGame);
             gameService.timer(currentGame,GameState.VOTEONCLUESSTATE);
+
         }
     }
 
@@ -86,7 +85,6 @@ public class GameController {
             throw new ForbiddenException("Can't choose word in current state");
         }
         gameService.pickWord(token, game);
-
         internalTimerService.createInternalTimer(game,60,game.getStartTimeSeconds(),GameState.NLPSTATE);
     }
 
