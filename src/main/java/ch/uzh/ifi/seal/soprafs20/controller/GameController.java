@@ -61,12 +61,6 @@ public class GameController {
     @ResponseBody
     public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO){
         Game currentGame = gameService.getGame(lobbyId);
-        if(!currentGame.getGameState().equals(GameState.ENTERCLUESSTATE)){
-            throw new ForbiddenException("Clues not accepted in current state");
-        }
-        if(!currentGame.getTimer().isRunning()){
-            throw new ForbiddenException("Time ran out!");
-        }
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
         String clue = messagePutDTO.getMessage();
         if(gameService.sendClue(currentGame, player, clue)){

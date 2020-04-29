@@ -41,7 +41,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @Override
     public ResponseEntity handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request){
-        log.error(String.format("HttpMessageNotReadable raised %s","Invalid date!"));
+        log.error(String.format("HttpMessageNotReadable raised %s","Invalid format!"));
         return new ResponseEntity("Invalid format!",HttpStatus.CONFLICT);
     }
 

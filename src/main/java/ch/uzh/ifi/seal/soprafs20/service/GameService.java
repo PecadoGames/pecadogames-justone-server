@@ -118,6 +118,12 @@ public class GameService {
             throw new ForbiddenException("User not allowed to send clue");
         }
 
+        if(!game.getGameState().equals(GameState.ENTERCLUESSTATE)){
+            throw new ForbiddenException("Clues not accepted in current state");
+        }
+//        if(!game.getTimer().isRunning()){
+//            throw new ForbiddenException("Time ran out!");
+//        }
         if (!game.isSpecialGame()) {
             game.addClue(clue);
             player.setClueIsSent(true);
