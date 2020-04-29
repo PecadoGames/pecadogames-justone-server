@@ -95,12 +95,6 @@ public class GameServiceTest {
         testGame.setSpecialGame(false);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
-        MessagePutDTO messagePutDTO = new MessagePutDTO();
-        messagePutDTO.setPlayerToken("token2");
-        messagePutDTO.setPlayerId(2L);
-        messagePutDTO.setMessage("star");
-        long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
-
         gameService.sendClue(testGame,player2,"star");
         assertEquals("star",testGame.getEnteredClues().get(0));
         assertTrue(player2.isClueIsSent());
@@ -110,18 +104,50 @@ public class GameServiceTest {
     public void sendClue_normalGame_fail_unauthorizedUser(){
         testGame.setGameState(GameState.ENTERCLUESSTATE);
         testGame.setSpecialGame(false);
-        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        //testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
-        MessagePutDTO messagePutDTO = new MessagePutDTO();
-        messagePutDTO.setPlayerToken("hostToken");
-        messagePutDTO.setPlayerId(1L);
-        messagePutDTO.setMessage("star");
-        long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
-
-        Exception ex = assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame,testHost,"star");});
+        Exception ex = assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame, testHost,"star");});
         assertEquals("User not allowed to send clue",ex.getMessage());
         assertTrue(testGame.getEnteredClues().isEmpty());
         assertFalse(testHost.isClueIsSent());
+    }
+
+    @Test
+    public void sendClue_normalGame_playerNotInGame_unauthorized() {
+        Player player2 = new Player();
+
+        testGame.setGameState(GameState.ENTERCLUESSTATE);
+        testGame.setSpecialGame(false);
+
+        Exception ex = assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame, player2,"star");});
+        assertEquals("User not allowed to send clue",ex.getMessage());
+        assertTrue(testGame.getEnteredClues().isEmpty());
+    }
+
+
+
+    @Test
+    public void sendClue_normalGame_invalidState() {
+        testGame.setGameState(GameState.NLPSTATE);
+        testGame.setSpecialGame(false);
+        testGame.setCurrentGuesser(player2);
+
+        Exception ex = assertThrows(ForbiddenException.class, ()->{gameService.sendClue(testGame, testHost,"star");});
+        assertTrue(ex.getMessage().contains("not accepted in current state"));
+        assertTrue(testGame.getEnteredClues().isEmpty());
+        assertFalse(testHost.isClueIsSent());
+    }
+
+    @Test
+    public void sendClue_normalGame_clueAlreadySent() {
+        testGame.setGameState(GameState.NLPSTATE);
+        testGame.setSpecialGame(false);
+        testGame.setCurrentGuesser(player2);
+        testHost.setClueIsSent(true);
+
+        Exception ex = assertThrows(ForbiddenException.class, ()->{gameService.sendClue(testGame, testHost,"star");});
+        assertTrue(ex.getMessage().contains("not allowed to send clue"));
+        assertTrue(testGame.getEnteredClues().isEmpty());
     }
 
     @Test
