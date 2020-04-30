@@ -147,7 +147,7 @@ public class GameService {
 
     public void pickWord(String token, Game game) {
         if (!game.getCurrentGuesser().getToken().equals(token)) {
-            throw new UnauthorizedException("This user is not allowed to pick a word!");
+            throw new UnauthorizedException("This player is not allowed to pick a word!");
         }
         game.setCurrentWord(chooseWordAtRandom(game.getWords()));
         game.setGameState(GameState.ENTERCLUESSTATE);
@@ -180,7 +180,10 @@ public class GameService {
 
     public void submitGuess(Game game, MessagePutDTO messagePutDTO, long currentTimeSeconds) {
         if (!game.getCurrentGuesser().getToken().equals(messagePutDTO.getPlayerToken())) {
-            throw new ForbiddenException("User is not allowed to submit a guess!");
+            throw new UnauthorizedException("User is not allowed to submit a guess!");
+        }
+        if(!game.getGameState().equals(GameState.ENTERGUESSSTATE)) {
+            throw new ForbiddenException("Can't submit guess in current state!");
         }
         if (currentTimeSeconds - game.getStartTimeSeconds() > 60) {
             throw new ForbiddenException("Time ran out!");
