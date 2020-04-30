@@ -234,7 +234,7 @@ public class GameService {
      */
     public String chooseWordAtRandom(List<String> words) {
         Random random = new Random();
-        String currentWord = words.get(random.nextInt(13));
+        String currentWord = words.get(random.nextInt(words.size()));
         words.remove(currentWord);
         return currentWord;
     }
