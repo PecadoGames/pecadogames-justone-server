@@ -109,9 +109,6 @@ public class GameController {
     public void sendGuess(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         long currentTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
         Game game = gameService.getGame(lobbyId);
-        if(!game.getGameState().equals(GameState.ENTERGUESSSTATE)) {
-            throw new ForbiddenException("Can't submit guess in current state!");
-        }
         gameService.submitGuess(game, messagePutDTO,currentTimeSeconds);
     }
 

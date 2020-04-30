@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
@@ -15,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,12 +39,6 @@ public class GameServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        testGame = new Game();
-        testGame.setLobbyId(1L);
-        testGame.setRoundsPlayed(0);
-
-        Mockito.when(gameRepository.save(Mockito.any())).thenReturn(testGame);
-
         testHost = new Player();
         testHost.setId(1L);
         testHost.setToken("hostToken");
@@ -55,12 +52,16 @@ public class GameServiceTest {
         testLobby.setToken("hostToken");
         testLobby.addPlayerToLobby(testHost);
 
+        testGame = new Game();
+        testGame.setLobbyId(1L);
+        testGame.setRoundsPlayed(0);
         testGame.addPlayer(player2);
         testGame.addPlayer(testHost);
         testGame.setCurrentGuesser(testHost);
         testLobby.setPrivate(false);
 
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testGame));
+        Mockito.when(gameRepository.save(Mockito.any())).thenReturn(testGame);
     }
 
     @Test
@@ -123,8 +124,6 @@ public class GameServiceTest {
         assertEquals("User not allowed to send clue",ex.getMessage());
         assertTrue(testGame.getEnteredClues().isEmpty());
     }
-
-
 
     @Test
     public void sendClue_normalGame_invalidState() {
@@ -231,6 +230,88 @@ public class GameServiceTest {
         assertTrue(player2.isClueIsSent());
     }
 
+    @Test
+    public void pickWord_validInput_success() {
+        List<String> someWordAsList = new ArrayList<>();
+        someWordAsList.add("Erdbeermarmeladebrot");
+        testGame.setWords(someWordAsList);
+
+        gameService.pickWord(testHost.getToken(), testGame);
+
+        assertEquals("Erdbeermarmeladebrot", testGame.getCurrentWord());
+        assertEquals(GameState.ENTERCLUESSTATE, testGame.getGameState());
+    }
+
+    @Test
+    public void pickWord_unauthorizedUser() {
+        List<String> someWordAsList = new ArrayList<>();
+        someWordAsList.add("Erdbeermarmeladebrot");
+        testGame.setWords(someWordAsList);
+
+        assertThrows(UnauthorizedException.class,()->{ gameService.pickWord("someToken", testGame); });
+    }
+
+    @Test
+    public void submitGuess_validInput_guessCorrect_success() {
+        testGame.setGameState(GameState.ENTERGUESSSTATE);
+        testGame.setCurrentWord("Star Wars");
+        testGame.setStartTimeSeconds(60);
+
+        MessagePutDTO messagePutDTO = new MessagePutDTO();
+        messagePutDTO.setMessage("star wars");
+        messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
+
+        gameService.submitGuess(testGame, messagePutDTO, 10);
+
+        assertTrue(testGame.isGuessCorrect());
+        assertEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
+    }
+
+    @Test
+    public void submitGuess_validInput_guessIncorrect_success() {
+        testGame.setGameState(GameState.ENTERGUESSSTATE);
+        testGame.setCurrentWord("Star Wars");
+        testGame.setStartTimeSeconds(60);
+
+        MessagePutDTO messagePutDTO = new MessagePutDTO();
+        messagePutDTO.setMessage("star trek");
+        messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
+
+        gameService.submitGuess(testGame, messagePutDTO, 10);
+
+        assertFalse(testGame.isGuessCorrect());
+        assertEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
+    }
+
+    @Test
+    public void submitGuess_invalidState_throwsException() {
+        testGame.setGameState(GameState.ENTERCLUESSTATE);
+        testGame.setCurrentWord("Star Wars");
+        testGame.setStartTimeSeconds(60);
+
+        MessagePutDTO messagePutDTO = new MessagePutDTO();
+        messagePutDTO.setMessage("star wars");
+        messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
+
+        assertThrows(ForbiddenException.class,()->{ gameService.submitGuess(testGame, messagePutDTO, 10); });
+        assertFalse(testGame.isGuessCorrect());
+        assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
+    }
+
+    @Test
+    public void submitGuess_invalidToken_throwsException() {
+        testGame.setGameState(GameState.ENTERGUESSSTATE);
+        testGame.setCurrentWord("Star Wars");
+        testGame.setStartTimeSeconds(60);
+
+        MessagePutDTO messagePutDTO = new MessagePutDTO();
+        messagePutDTO.setMessage("star wars");
+        messagePutDTO.setPlayerToken("someToken");
+
+        assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO, 10); });
+        assertFalse(testGame.isGuessCorrect());
+        assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
+    }
 
 
 }
