@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
+import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
@@ -138,6 +139,8 @@ public class GameControllerTest {
         player2.setId(2L);
         player2.setToken("token2");
 
+        Clue clue = new Clue();
+        clue.setActualClue("Zopf");
 
         Game game = new Game();
         game.setLobbyId(1L);
@@ -145,7 +148,7 @@ public class GameControllerTest {
         game.addPlayer(player1);
         game.setCurrentGuesser(player1);
         game.setCurrentWord("Erdbeermarmeladebrot");
-        game.getEnteredClues().add("Zopf");
+        game.getEnteredClues().add(clue);
         game.setGameState(GameState.ENTERCLUESSTATE);
 
         MessagePutDTO messagePutDTO = new MessagePutDTO();
