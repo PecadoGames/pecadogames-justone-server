@@ -19,8 +19,6 @@ public class UserRepositoryIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private LobbyRepository lobbyRepository;
 
 
     @Test
