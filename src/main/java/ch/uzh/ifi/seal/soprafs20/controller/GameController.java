@@ -1,8 +1,8 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
+import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
-import ch.uzh.ifi.seal.soprafs20.entity.InternalTimer;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
@@ -63,7 +63,9 @@ public class GameController {
     public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO){
         Game currentGame = gameService.getGame(lobbyId);
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
-        String clue = messagePutDTO.getMessage();
+        Clue clue = new Clue();
+        clue.setActualClue(messagePutDTO.getMessage());
+        clue.setPlayerId(messagePutDTO.getPlayerId());
 
         if(gameService.sendClue(currentGame, player, clue)){
             currentGame.getTimer().setCancel(true);

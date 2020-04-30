@@ -3,10 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.NLP;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-import ch.uzh.ifi.seal.soprafs20.entity.Game;
-import ch.uzh.ifi.seal.soprafs20.entity.InternalTimer;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.Player;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
@@ -106,15 +103,15 @@ public class GameService extends Thread{
      * @param clue
      * @return game with updated clue list
      */
-    public boolean sendClue(Game game, Player player, String clue){
+    public boolean sendClue(Game game, Player player, Clue clue){
         if(!game.getGameState().equals(GameState.ENTERCLUESSTATE))
-            throw new ForbiddenException("Clues not accepted in current state");
+            throw new ForbiddenException("Clues are not accepted in current state!");
 
 //        if(!game.getTimer().isRunning())
 //            throw new ForbiddenException("Time ran out!");
 
         if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
-            throw new ForbiddenException("User not allowed to send clue");
+            throw new ForbiddenException("This player is not allowed to send clue!");
         }
 
 //        if(!game.getTimer().isRunning()){
@@ -135,7 +132,7 @@ public class GameService extends Thread{
         }
         if(allCluesSent(game, counter)) {
             game.setGameState(GameState.VOTEONCLUESSTATE);
-            game.getTimer().setCancel(true);
+            //game.getTimer().setCancel(true);
             checkClues(game);
             return true;
         }
@@ -160,17 +157,18 @@ public class GameService extends Thread{
      * @param player
      * @param clue
      */
-    private void sendClueSpecial(Game game, Player player, String clue) {
+    private void sendClueSpecial(Game game, Player player, Clue clue) {
+        Clue temporaryClue = new Clue();
+        temporaryClue.setPlayerId(player.getId());
+        temporaryClue.setActualClue(player.getToken());
         if (!game.getEnteredClues().isEmpty()) {
-            if (game.getEnteredClues().contains(player.getToken())) {
-                game.getEnteredClues().remove(player.getToken());
+            if(game.getEnteredClues().removeIf(clue1 -> clue1.getActualClue().equals(player.getToken()))) {
                 game.addClue(clue);
                 player.setClueIsSent(true);
                 return;
             }
         }
-        game.addClue(clue);
-        game.addClue(player.getToken());
+        game.addClue(temporaryClue);
     }
 
     public void submitGuess(Game game, MessagePutDTO messagePutDTO, long currentTimeSeconds) {
@@ -204,9 +202,9 @@ public class GameService extends Thread{
 
     public void checkClues(Game game) {
         NLP nlp = new NLP();
-        Iterator<String> iterator = game.getEnteredClues().iterator();
+        Iterator<Clue> iterator = game.getEnteredClues().iterator();
         while(iterator.hasNext()) {
-            if(!nlp.checkClue(iterator.next(), game.getCurrentWord())) {
+            if(!nlp.checkClue(iterator.next().getActualClue(), game.getCurrentWord())) {
                 iterator.remove();
             }
         }

@@ -1,6 +1,5 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -33,8 +32,8 @@ public class Game {
     @Column(nullable = false)
     private boolean specialGame;
 
-    @ElementCollection
-    private List<String> enteredClues = new ArrayList<>();
+    @Transient
+    private List<Clue> enteredClues = new ArrayList<>();
 
     @ElementCollection
     private List<String> words = new ArrayList<>();
@@ -57,7 +56,6 @@ public class Game {
     @Column
     private volatile boolean cancelled;
 
-
     private AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
     @OneToOne(cascade = {CascadeType.ALL})
@@ -74,7 +72,6 @@ public class Game {
     public int getRoundsPlayed() {
         return roundsPlayed;
     }
-
 
 
     public void setRoundsPlayed(int roundsPlayed) {
@@ -95,15 +92,15 @@ public class Game {
         this.currentWord = currentWord;
     }
 
-    public List<String> getEnteredClues() {
+    public List<Clue> getEnteredClues() {
         return enteredClues;
     }
 
-    public void setEnteredClues(List<String> enteredClues) {
+    public void setEnteredClues(List<Clue> enteredClues) {
         this.enteredClues = enteredClues;
     }
 
-    public void addClue(String clue){
+    public void addClue(Clue clue){
         this.enteredClues.add(clue);
     }
 
