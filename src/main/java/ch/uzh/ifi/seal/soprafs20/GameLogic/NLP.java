@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.GameLogic;
 
+
 import opennlp.tools.stemmer.PorterStemmer;
 
 public class NLP {

@@ -23,26 +23,33 @@ public class InternalTimerService extends Thread {
         this.internalTimerRepository = internalTimerRepository;
     }
 
-
-    public void createInternalTimer(Game game, int durationSeconds, long startTime, GameState nextState){
-        InternalTimer internalTimer = game.getTimer();
-        internalTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                internalTimer.setRunning(true);
-                internalTimer.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
-                internalTimerRepository.saveAndFlush(internalTimer);
-                if(internalTimer.getTime() >= durationSeconds) {
-                    game.setGameState(nextState);
-                    internalTimer.setRunning(false);
-                    internalTimer.cancel();
-                }
-            }
-        },0,1000);
+    public void stopThread(Game game){
+        game.getTimer().cancel();
     }
+
+
+    public void delete(Game game){
+        internalTimerRepository.delete(game.getTimer());
+    }
+
+    public void store(InternalTimer internalTimer){
+        internalTimerRepository.saveAndFlush(internalTimer);
+    }
+
 
     public long getTime(InternalTimer internalTimer){
         return internalTimer.getTime();
+    }
+
+    /**
+     * helper function, sets gameState in game object
+     * @param game
+     * @param gameState
+     * @return
+     */
+    public Game setState(Game game,GameState gameState){
+        game.setGameState(gameState);
+        return game;
     }
 
 }

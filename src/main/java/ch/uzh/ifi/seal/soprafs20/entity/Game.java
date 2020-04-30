@@ -1,9 +1,11 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Entity
 @Table(name="GAME")
@@ -52,6 +54,12 @@ public class Game {
     @Column
     private long time;
 
+    @Column
+    private volatile boolean cancelled;
+
+
+    private AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
     @OneToOne(cascade = {CascadeType.ALL})
     private InternalTimer timer;
 
@@ -66,6 +74,8 @@ public class Game {
     public int getRoundsPlayed() {
         return roundsPlayed;
     }
+
+
 
     public void setRoundsPlayed(int roundsPlayed) {
         this.roundsPlayed = roundsPlayed;
@@ -153,14 +163,6 @@ public class Game {
         this.specialGame = specialGame;
     }
 
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = (time);
-    }
-
     public InternalTimer getTimer() {
         return timer;
     }
@@ -168,4 +170,13 @@ public class Game {
     public void setTimer(InternalTimer timer) {
         this.timer = timer;
     }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
 }

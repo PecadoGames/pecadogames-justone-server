@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Entity
 @Table(name = "InternalTimer")
@@ -18,15 +19,14 @@ public class InternalTimer extends Timer  {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long lobbyId;
 
-    @Column
-    private String timeInSeconds;
-
-    @OneToOne(cascade = {CascadeType.ALL})
-    private Game game;
-
     private long time;
 
-    private boolean isRunning;
+    private volatile boolean isRunning;
+
+    private AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
+    @Column
+    private volatile boolean isCancel;
 
     public long getTime() {
         return time;
@@ -36,7 +36,6 @@ public class InternalTimer extends Timer  {
         this.time = time;
     }
 
-
     public Long getLobbyId() {
         return lobbyId;
     }
@@ -45,21 +44,7 @@ public class InternalTimer extends Timer  {
         this.lobbyId = lobbyId;
     }
 
-    public String getTimeInSeconds() {
-        return timeInSeconds;
-    }
 
-    public void setTimeInSeconds(String timeInSeconds) {
-        this.timeInSeconds = timeInSeconds;
-    }
-
-    public Game getGame() {
-        return game;
-    }
-
-    public void setGame(Game game) {
-        this.game = game;
-    }
 
     public boolean isRunning() {
         return isRunning;
@@ -68,4 +53,22 @@ public class InternalTimer extends Timer  {
     public void setRunning(boolean running) {
         isRunning = running;
     }
+
+    public boolean isCancel() {
+        return isCancel;
+    }
+
+    public void setCancel(boolean cancel) {
+        isCancel = cancel;
+    }
+
+    public AtomicBoolean getAtomicBoolean() {
+        return atomicBoolean;
+    }
+
+    public void setAtomicBoolean(AtomicBoolean atomicBoolean) {
+        this.atomicBoolean = atomicBoolean;
+    }
+
+
 }

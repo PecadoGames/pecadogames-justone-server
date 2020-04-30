@@ -21,10 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -35,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @Transactional
-public class GameService {
+public class GameService extends Thread{
     private final GameRepository gameRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
 
@@ -109,12 +106,14 @@ public class GameService {
      * @param clue
      * @return game with updated clue list
      */
-    public boolean sendClue(Game game, Player player, String clue) {
-//        if(isTimeOver(game)){
-//            game.setGameState(GameState.NLPSTATE);
-//            return game;
-//        }
-        if (!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)) {
+    public boolean sendClue(Game game, Player player, String clue){
+        if(!game.getGameState().equals(GameState.ENTERCLUESSTATE))
+            throw new ForbiddenException("Clues not accepted in current state");
+
+//        if(!game.getTimer().isRunning())
+//            throw new ForbiddenException("Time ran out!");
+
+        if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
             throw new ForbiddenException("User not allowed to send clue");
         }
 
@@ -132,13 +131,14 @@ public class GameService {
             sendClueSpecial(game, player, clue);//handle double clue input from player
         }
         int counter = 0;
-        for (Player playerInGame : game.getPlayers()) {
-            if (player.isClueIsSent()) {
+        for (Player playerInGame : game.getPlayers()){
+            if (playerInGame.isClueIsSent()){
                 counter++;
             }
         }
         if(allCluesSent(game, counter)) {
-            game.setGameState(GameState.NLPSTATE);
+            game.setGameState(GameState.VOTEONCLUESSTATE);
+            game.getTimer().setCancel(true);
             checkClues(game);
             return true;
         }
@@ -151,12 +151,10 @@ public class GameService {
         }
         game.setCurrentWord(chooseWordAtRandom(game.getWords()));
         game.setGameState(GameState.ENTERCLUESSTATE);
+        game.setRoundsPlayed(game.getRoundsPlayed() + 1);
         setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
-        if (game.getTimer() == null) {
-            InternalTimer internalTimer = new InternalTimer();
-            setTimer(game, internalTimer);
-        }
     }
+
 
     /**
      * method adds clue and token of player to clues. When a player enters their second clue, their token is replaced with it
@@ -242,22 +240,103 @@ public class GameService {
         return currentWord;
     }
 
-    public String getTime(String time) {
-        return time;
-    }
 
     /**
      * Intern timer for server, if timer ends transition to next state
      *
-     * @param game
+     * @param g
      * @param gameState - state to which the game transitions if timer is finished
      */
-    public void timer(Game game, GameState gameState) {
-        InternalTimer internalTimer = new InternalTimer();
-//        internalTimerService.createInternalTimer(internalTimer,60,game.getStartTimeSeconds());
+    public void timer(Game g, GameState gameState,long startTime) {
+        final int[] counter = {0};
+        final Game[] game = {g};
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                while (!getCancel(game[0])) {
+                    game[0].setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
+                    System.out.println(game[0].getTime() + " , first thread: " + game[0].getGameState());
+                    if (game[0].getTime() >= 10) {
+                        game[0].getTimer().cancel();
+                        game[0].getTimer().purge();
+                        game[0].getTimer().setRunning(false);
+                        gameRepository.saveAndFlush(game[0]);
+                        break;
+                    }
+                }
+                game[0].getTimer().cancel();
+                game[0].setGameState(getNextState(game[0]));
+                game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                update(game[0],game[0].getGameState(),game[0].getStartTimeSeconds());
+            }
+        };
+        game[0].getTimer().schedule(timerTask,0,1000);
+    }
+    public boolean getCancel(Game game){
+        Optional<Game> updated = gameRepository.findByLobbyId(game.getLobbyId());
+        return updated.map(value -> value.getTimer().isCancel()).orElse(false);
+
     }
 
-    public void setTimer(Game game, InternalTimer internalTimer) {
-        game.setTimer(internalTimer);
+    public GameState getNextState(Game game){
+        GameState nextGameState;
+        GameState currentGameState = game.getGameState();
+        switch (currentGameState){
+            case PICKWORDSTATE:
+                nextGameState = GameState.ENTERCLUESSTATE;
+                break;
+            case ENTERCLUESSTATE:
+                nextGameState = GameState.VOTEONCLUESSTATE;
+                break;
+            case VOTEONCLUESSTATE:
+                nextGameState = GameState.ENTERGUESSSTATE;
+                break;
+            case ENTERGUESSSTATE:
+                nextGameState = GameState.TRANSITIONSTATE;
+                break;
+            case TRANSITIONSTATE:
+                nextGameState = GameState.PICKWORDSTATE;
+                break;
+            default:
+                nextGameState = null;
+        }
+        return nextGameState;
+    }
+
+    public void update(Game game, GameState gameState,long startTime){
+        System.out.println("New timer");
+        gameRepository.saveAndFlush(game);
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
+                if(game.getTime()>= 60 && game.getRoundsPlayed() < 13)  {
+                    game.getTimer().cancel();
+                    game.getTimer().purge();
+                    game.setGameState(getNextState(game));
+                    game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    if(game.getGameState().equals(GameState.PICKWORDSTATE)){
+                        game.setRoundsPlayed(game.getRoundsPlayed() + 1);
+                    }
+                    gameRepository.saveAndFlush(game);
+                    System.out.println("Rounds played: " + game.getRoundsPlayed());
+                    update(game,game.getGameState(),game.getStartTimeSeconds());
+                } if(game.getTime() >= 60 && game.getRoundsPlayed() >= 3){
+                    game.getTimer().cancel();
+                    game.getTimer().purge();
+                }
+            }
+        };
+        game.getTimer().cancel();
+        game.setTimer(new InternalTimer());
+        gameRepository.saveAndFlush(game);
+        game.getTimer().schedule(timerTask,1000,1000);
+    }
+
+    public void setTimer(Game game) {
+        game.setTimer(new InternalTimer());
+        game.getTimer().setCancel(false);
     }
 }
+
+

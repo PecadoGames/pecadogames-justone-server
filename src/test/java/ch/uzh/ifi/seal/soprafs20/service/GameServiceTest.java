@@ -81,8 +81,8 @@ public class GameServiceTest {
         gamePostDTO.setHostId(testHost.getId());
         gamePostDTO.setHostToken(testHost.getToken());
 
-        Game testGame = new Game();
-        Game game = gameService.createGame(testLobby, gamePostDTO);
+        Game game = new Game();
+        game = gameService.createGame(testLobby, gamePostDTO);
         Mockito.verify(gameRepository,Mockito.times(1)).save(Mockito.any());
 
         assertEquals(testLobby.getLobbyId(), game.getLobbyId());

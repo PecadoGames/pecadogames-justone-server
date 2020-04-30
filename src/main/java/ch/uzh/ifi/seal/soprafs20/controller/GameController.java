@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.InternalTimer;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
@@ -63,10 +64,10 @@ public class GameController {
         Game currentGame = gameService.getGame(lobbyId);
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
         String clue = messagePutDTO.getMessage();
-        if(gameService.sendClue(currentGame, player, clue)){
-            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),currentGame);
-            gameService.timer(currentGame,GameState.VOTEONCLUESSTATE);
 
+        if(gameService.sendClue(currentGame, player, clue)){
+            currentGame.getTimer().setCancel(true);
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),currentGame);
         }
     }
 
@@ -79,13 +80,14 @@ public class GameController {
             throw new ForbiddenException("Can't choose word in current state");
         }
         gameService.pickWord(token, game);
-        internalTimerService.createInternalTimer(game,60,game.getStartTimeSeconds(),GameState.NLPSTATE);
+        gameService.setTimer(game);
+        gameService.timer(game,GameState.VOTEONCLUESSTATE,game.getStartTimeSeconds());
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game/timer")
     @ResponseStatus(HttpStatus.OK)
     public String getTimer(@PathVariable long lobbyId, @RequestParam String token) {
-        long currentTime = System.currentTimeMillis();
+        long currentTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
         boolean found = false;
         Game game = gameService.getGame(lobbyId);
         for(Player p : game.getPlayers()){
@@ -99,7 +101,8 @@ public class GameController {
         if(game.getStartTimeSeconds() == null){
             return "No timer started yet";
         } else {
-            return Long.toString(internalTimerService.getTime(game.getTimer()));
+            long diff = currentTime - game.getStartTimeSeconds();
+            return Long.toString(diff);
         }
     }
 
