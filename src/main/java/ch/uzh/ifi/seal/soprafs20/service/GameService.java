@@ -117,9 +117,6 @@ public class GameService extends Thread{
             throw new ForbiddenException("User not allowed to send clue");
         }
 
-        if(!game.getGameState().equals(GameState.ENTERCLUESSTATE)){
-            throw new ForbiddenException("Clues not accepted in current state");
-        }
 //        if(!game.getTimer().isRunning()){
 //            throw new ForbiddenException("Time ran out!");
 //        }
@@ -215,7 +212,7 @@ public class GameService extends Thread{
         }
     }
 
-    private boolean allCluesSent(Game game, int counter) {
+    public boolean allCluesSent(Game game, int counter) {
         if(game.isSpecialGame()) {
             return counter == (game.getPlayers().size() - 1) * 2;
         }
@@ -247,7 +244,7 @@ public class GameService extends Thread{
      * @param g
      * @param gameState - state to which the game transitions if timer is finished
      */
-    public void timer(Game g, GameState gameState,long startTime) {
+    public void timer(Game g, GameState gameState, long startTime) {
         final int[] counter = {0};
         final Game[] game = {g};
         TimerTask timerTask = new TimerTask() {

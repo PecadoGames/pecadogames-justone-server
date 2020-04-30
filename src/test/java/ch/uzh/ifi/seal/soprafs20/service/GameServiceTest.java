@@ -9,6 +9,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -313,5 +314,56 @@ public class GameServiceTest {
         assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
     }
 
+    @Test
+    public void startNewRound_validInput_success() {
+        RequestPutDTO requestPutDTO = new RequestPutDTO();
+        requestPutDTO.setToken(testHost.getToken());
 
+        gameService.startNewRound(testGame, requestPutDTO);
+
+        assertEquals(1, testGame.getRoundsPlayed());
+        assertEquals(player2, testGame.getCurrentGuesser());
+        assertEquals(GameState.PICKWORDSTATE, testGame.getGameState());
+    }
+
+    @Test
+    public void allCluesSent_normalGame_returnsTrue() {
+        //assume there are more than 3 players in the game
+        Player player3 = new Player();
+        Player player4 = new Player();
+        testGame.addPlayer(player3);
+        testGame.addPlayer(player4);
+        testGame.setSpecialGame(false);
+
+        assertTrue(gameService.allCluesSent(testGame, 3));
+    }
+
+    @Test
+    public void notAllCluesSent_normalGame_returnsFalse() {
+        Player player3 = new Player();
+        Player player4 = new Player();
+        testGame.addPlayer(player3);
+        testGame.addPlayer(player4);
+        testGame.setSpecialGame(false);
+
+        assertFalse(gameService.allCluesSent(testGame, 2));
+    }
+
+    @Test
+    public void allCluesSent_specialGame_returnsTrue() {
+        Player player3 = new Player();
+        testGame.addPlayer(player3);
+        testGame.setSpecialGame(true);
+
+        assertTrue(gameService.allCluesSent(testGame, 4));
+    }
+
+    @Test
+    public void notAllCluesSent_specialGame_returnsFalse() {
+        Player player3 = new Player();
+        testGame.addPlayer(player3);
+        testGame.setSpecialGame(true);
+
+        assertFalse(gameService.allCluesSent(testGame, 3));
+    }
 }
