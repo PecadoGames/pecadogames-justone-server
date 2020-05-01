@@ -114,6 +114,9 @@ public class GameService extends Thread{
             throw new ForbiddenException("This player is not allowed to send clue!");
         }
 
+        if(!game.getGameState().equals(GameState.ENTERCLUESSTATE)){
+            throw new ForbiddenException("Clues not accepted in current state");
+        }
 //        if(!game.getTimer().isRunning()){
 //            throw new ForbiddenException("Time ran out!");
 //        }
@@ -210,6 +213,12 @@ public class GameService extends Thread{
         }
     }
 
+    /**
+     *
+     * @param game
+     * @param counter
+     * @return true if all clues of each player are received, false if no
+     */
     public boolean allCluesSent(Game game, int counter) {
         if(game.isSpecialGame()) {
             return counter == (game.getPlayers().size() - 1) * 2;
@@ -226,7 +235,7 @@ public class GameService extends Thread{
      * Helper function that returns a random word from list and deletes it from list
      *
      * @param words
-     * @return
+     * @return random word from list
      */
     public String chooseWordAtRandom(List<String> words) {
         Random random = new Random();
@@ -237,9 +246,13 @@ public class GameService extends Thread{
 
 
     /**
-     * Intern timer for server, if timer ends transition to next state
+     * Central timer logic for each game. Sets timer for each state,
+     * If state is complete before the timer ends, the game transitions
+     * into the next state with a new timer.
+     * Timer also takes care of all the logic set up for the next state if no user input was entered
+     * TODO: Implement the game logic changes for each state if no input is received and the timer ends
      *
-     * @param g
+     * @param game - takes a game instance as input
      * @param gameState - state to which the game transitions if timer is finished
      */
     public void timer(Game game, GameState gameState,long startTime) {
