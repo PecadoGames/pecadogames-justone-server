@@ -114,10 +114,6 @@ public class GameService extends Thread{
         if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
             throw new ForbiddenException("This player is not allowed to send clue!");
         }
-
-        if(!game.getGameState().equals(GameState.ENTERCLUESSTATE)){
-            throw new ForbiddenException("Clues not accepted in current state");
-        }
 //        if(!game.getTimer().isRunning()){
 //            throw new ForbiddenException("Time ran out!");
 //        }
