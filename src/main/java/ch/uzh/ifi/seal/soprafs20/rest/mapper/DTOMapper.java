@@ -88,5 +88,6 @@ public interface DTOMapper {
     @Mapping(source = "gameState",target = "gameState")
     @Mapping(source = "overallScore",target = "overallScore")
     @Mapping(source = "currentWord", target = "currentWord")
+    @Mapping(source = "lobbyName",target = "lobbyName")
     GameGetDTO convertEntityToGameGetDTO(Game game);
 }

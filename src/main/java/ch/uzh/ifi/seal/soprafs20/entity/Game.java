@@ -17,6 +17,9 @@ public class Game {
     @Column
     private int roundsPlayed;
 
+    @Column
+    private String lobbyName;
+
     @OneToMany
     private List<Player> players = new ArrayList<>();
 
@@ -176,4 +179,11 @@ public class Game {
         this.time = time;
     }
 
+    public String getLobbyName() {
+        return lobbyName;
+    }
+
+    public void setLobbyName(String lobbyName) {
+        this.lobbyName = lobbyName;
+    }
 }

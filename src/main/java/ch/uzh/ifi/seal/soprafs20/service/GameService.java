@@ -71,6 +71,7 @@ public class GameService extends Thread{
         Game newGame = new Game();
         newGame.setLobbyId(lobby.getLobbyId());
         newGame.setGameState(GameState.PICKWORDSTATE);
+        newGame.setLobbyName(lobby.getLobbyName());
 
 
         for (Player player : lobby.getPlayersInLobby()) {

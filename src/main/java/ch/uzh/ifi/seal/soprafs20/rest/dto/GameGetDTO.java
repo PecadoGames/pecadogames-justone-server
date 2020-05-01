@@ -9,6 +9,7 @@ import java.util.Set;
 
 public class GameGetDTO {
 
+    private String lobbyName;
     private Set<PlayerGetDTO> players = new HashSet<>();
     private PlayerGetDTO currentGuesser;
     private long lobbyId;
@@ -69,5 +70,13 @@ public class GameGetDTO {
 
     public void setOverallScore(int overallScore) {
         this.overallScore = overallScore;
+    }
+
+    public String getLobbyName() {
+        return lobbyName;
+    }
+
+    public void setLobbyName(String lobbyName) {
+        this.lobbyName = lobbyName;
     }
 }
