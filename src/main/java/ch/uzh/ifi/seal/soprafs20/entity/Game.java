@@ -4,14 +4,13 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Entity
 @Table(name="GAME")
 public class Game {
 
     @Id
-//    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    //@GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long lobbyId;
 
     @Column
@@ -39,6 +38,9 @@ public class Game {
     private List<Clue> enteredClues = new ArrayList<>();
 
     @ElementCollection
+    private List<String> cluesAsString = new ArrayList<>();
+
+    @ElementCollection
     private List<String> words = new ArrayList<>();
 
     @Column
@@ -58,8 +60,6 @@ public class Game {
 
     @Column
     private volatile boolean cancelled;
-
-    private AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
     @OneToOne(cascade = {CascadeType.ALL})
     private InternalTimer timer;
@@ -105,6 +105,18 @@ public class Game {
 
     public void addClue(Clue clue){
         this.enteredClues.add(clue);
+    }
+
+    public List<String> getCluesAsString() {
+        return cluesAsString;
+    }
+
+    public void setCluesAsString(List<String> cluesAsString) {
+        this.cluesAsString = cluesAsString;
+    }
+
+    public void addClueAsString(String clueAsString) {
+        cluesAsString.add(clueAsString);
     }
 
     public List<String> getWords() {

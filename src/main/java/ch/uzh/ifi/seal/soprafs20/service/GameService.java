@@ -114,12 +114,12 @@ public class GameService extends Thread{
         if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
             throw new ForbiddenException("This player is not allowed to send clue!");
         }
-
 //        if(!game.getTimer().isRunning()){
 //            throw new ForbiddenException("Time ran out!");
 //        }
         if (!game.isSpecialGame()) {
             game.addClue(clue);
+            game.addClueAsString(clue.getActualClue());
             player.setClueIsSent(true);
         }
         else {
@@ -165,10 +165,13 @@ public class GameService extends Thread{
         if (!game.getEnteredClues().isEmpty()) {
             if(game.getEnteredClues().removeIf(clue1 -> clue1.getActualClue().equals(player.getToken()))) {
                 game.addClue(clue);
+                game.addClueAsString(clue.getActualClue());
                 player.setClueIsSent(true);
                 return;
             }
         }
+        game.addClue(clue);
+        game.addClueAsString(clue.getActualClue());
         game.addClue(temporaryClue);
     }
 
@@ -303,9 +306,6 @@ public class GameService extends Thread{
             gameRepository.saveAndFlush(game);
             game.getTimer().schedule(timerTask,0,1000);
         }
-
-
-    }
 
     /**
      * Helper function to get current cancel boolean of game stored in database

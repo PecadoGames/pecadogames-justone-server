@@ -80,8 +80,11 @@ public interface DTOMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "username", target = "username")
     @Mapping(source = "score", target = "score")
-    @Mapping(source = "clueIsSent",target = "clueIsSent")
+    @Mapping(source = "clueIsSent", target = "clueIsSent")
     PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
+
+    @Mapping(source = "actualClue", target = "actualClue")
+    ClueGetDTO convertEntityToClueGetDTO(Clue clue);
 
     @Mapping(source = "lobbyId",target = "lobbyId")
     @Mapping(source = "roundsPlayed",target = "roundsPlayed")
