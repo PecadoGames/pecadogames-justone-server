@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class GameService extends Thread{
     private final GameRepository gameRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
-    private static final int ROUNDS = 13;
+    private static final int ROUNDS = 4;
     private static final int ROUNDTIME = 10;
 
     @Autowired
@@ -288,12 +288,14 @@ public class GameService extends Thread{
                 }
                 if (game.getRoundsPlayed() <= ROUNDS && !getCancel(game)) {
                     game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    game.setTimer(new InternalTimer());
                     gameRepository.saveAndFlush(game);
                     timer(game, game.getGameState(), game.getStartTimeSeconds());
 
                 } else if(game.getRoundsPlayed() <= ROUNDS && getCancel(game)){
                     game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     game.setGameState(getNextState(game));
+                    game.setTimer(new InternalTimer());
                     gameRepository.saveAndFlush(game);
                     timer(game, game.getGameState(), game.getStartTimeSeconds());
                 }
