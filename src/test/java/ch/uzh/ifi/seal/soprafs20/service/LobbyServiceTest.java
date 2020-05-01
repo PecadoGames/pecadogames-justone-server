@@ -37,7 +37,7 @@ public class LobbyServiceTest {
         //given
         testLobby = new Lobby();
         testLobby.setLobbyName("BadBunny");
-        testLobby.setToken("1");
+        testLobby.setHostToken("1");
         testLobby.setMaxPlayersAndBots(5);
         testLobby.setVoiceChat(false);
         testLobby.setHostId(1L);
@@ -88,7 +88,7 @@ public class LobbyServiceTest {
         testLobby.setPrivate(false);
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setMaxNumberOfPlayersAndBots(3);
-        lobbyPutDTO.setToken("1");
+        lobbyPutDTO.setHostToken("1");
 
         Lobby lobby = lobbyService.updateLobby(testLobby,lobbyPutDTO);
 
@@ -100,7 +100,7 @@ public class LobbyServiceTest {
         testLobby.setPrivate(false);
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setMaxNumberOfPlayersAndBots(3);
-        lobbyPutDTO.setToken("2");
+        lobbyPutDTO.setHostToken("2");
 
         assertThrows(UnauthorizedException.class,()->{lobbyService.updateLobby(testLobby,lobbyPutDTO);});
     }
@@ -110,7 +110,7 @@ public class LobbyServiceTest {
         testLobby.setPrivate(false);
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setMaxNumberOfPlayersAndBots(9);
-        lobbyPutDTO.setToken("1");
+        lobbyPutDTO.setHostToken("1");
 
         lobbyService.updateLobby(testLobby,lobbyPutDTO);
 
@@ -124,7 +124,7 @@ public class LobbyServiceTest {
         testLobby.setPrivate(false);
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setMaxNumberOfPlayersAndBots(2);
-        lobbyPutDTO.setToken("1");
+        lobbyPutDTO.setHostToken("1");
 
         testLobby = lobbyService.updateLobby(testLobby,lobbyPutDTO);
 
@@ -146,7 +146,7 @@ public class LobbyServiceTest {
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setMaxNumberOfPlayersAndBots(3);
-        lobbyPutDTO.setToken("1");
+        lobbyPutDTO.setHostToken("1");
 
         testLobby = lobbyService.updateLobby(testLobby,lobbyPutDTO);
 
@@ -195,7 +195,7 @@ public class LobbyServiceTest {
 
         //kick list setup
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        lobbyPutDTO.setToken("1");
+        lobbyPutDTO.setHostToken("1");
         ArrayList<Long> kick = new ArrayList<>();
         kick.add(3L);
         lobbyPutDTO.setPlayersToKick(kick);
@@ -223,7 +223,7 @@ public class LobbyServiceTest {
 
         //kick list setup
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        lobbyPutDTO.setToken("1");
+        lobbyPutDTO.setHostToken("1");
         ArrayList<Long> kick = new ArrayList<>();
         kick.add(1L);
         lobbyPutDTO.setPlayersToKick(kick);
@@ -363,8 +363,8 @@ public class LobbyServiceTest {
         testLobby.addPlayerToLobby(host);
 
         lobbyService.removePlayerFromLobby(host,testLobby);
-        Mockito.doReturn(null).when(lobbyRepository).findById(1L);
-        assertNull(lobbyRepository.findById(1L));
+        Mockito.doReturn(null).when(lobbyRepository).findByLobbyId(1L);
+        assertNull(lobbyRepository.findByLobbyId(1L));
     }
 
     @Test
@@ -388,14 +388,14 @@ public class LobbyServiceTest {
 
 
         testLobby.setHostId(player2.getId());
-        testLobby.setToken(player2.getToken());
+        testLobby.setHostToken(player2.getToken());
         testLobby.setCurrentNumPlayersAndBots(2);
         Mockito.doReturn(testLobby).when(lobbyRepository).save(testLobby);
 
         lobbyService.removePlayerFromLobby(host,testLobby);
 
         assertEquals(player2.getId(), testLobby.getHostId());
-        assertEquals(player2.getToken(), testLobby.getToken());
+        assertEquals(player2.getToken(), testLobby.getHostToken());
         assertEquals(2, testLobby.getCurrentNumPlayersAndBots());
     }
 

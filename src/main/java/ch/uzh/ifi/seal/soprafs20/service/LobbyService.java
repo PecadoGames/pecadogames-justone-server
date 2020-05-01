@@ -76,7 +76,7 @@ public class LobbyService {
      * @return
      */
     public Lobby updateLobby(Lobby lobby, LobbyPutDTO receivedValues){
-        if(!lobby.getToken().equals(receivedValues.getToken())){
+        if(!lobby.getHostToken().equals(receivedValues.getHostToken())){
             throw new UnauthorizedException("You are not allowed to change the settings of this lobby!");
         }
 
@@ -144,7 +144,7 @@ public class LobbyService {
             else{
                 Player newHost = lobby.getPlayersInLobby().iterator().next();
                 lobby.setHostId(newHost.getId());
-                lobby.setToken(newHost.getToken());
+                lobby.setHostToken(newHost.getToken());
                 lobby.getPlayersInLobby().remove(playerToRemove);
                 lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
                 lobbyRepository.save(lobby);

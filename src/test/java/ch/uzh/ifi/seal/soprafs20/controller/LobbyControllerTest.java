@@ -126,7 +126,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setMaxPlayersAndBots(5);
         lobbyPostDTO.setVoiceChat(false);
         lobbyPostDTO.setHostId(1234);
-        lobbyPostDTO.setToken("1");
+        lobbyPostDTO.setHostToken("1");
 
 
         given(lobbyService.createLobby(Mockito.any(),Mockito.any(), Mockito.anyString())).willReturn(lobby);
@@ -158,7 +158,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setVoiceChat(false);
         lobbyPostDTO.setHostId(1234);
         lobbyPostDTO.setPrivate(true);
-        lobbyPostDTO.setToken("1");
+        lobbyPostDTO.setHostToken("1");
 
 
         given(lobbyService.createLobby(Mockito.any(),Mockito.any(),Mockito.any())).willReturn(lobby);
@@ -181,10 +181,10 @@ public class LobbyControllerTest {
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setHostId(1234);
-        lobby.setToken("2020");
+        lobby.setHostToken("2020");
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        lobbyPutDTO.setToken("2020");
+        lobbyPutDTO.setHostToken("2020");
 
 
         when(lobbyService.updateLobby(Mockito.any(), Mockito.any())).thenReturn(lobby);
@@ -223,7 +223,7 @@ public class LobbyControllerTest {
     public void updateExistingLobby_wrongUser() throws Exception {
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        lobbyPutDTO.setToken("0000");
+        lobbyPutDTO.setHostToken("0000");
 
         given(lobbyService.updateLobby(Mockito.any(),Mockito.any())).willThrow(new UnauthorizedException("You are not allowed to change the settings of this lobby!"));
 
@@ -357,7 +357,7 @@ public class LobbyControllerTest {
         Lobby lobby = new Lobby();
         lobby.setCurrentNumPlayersAndBots(1);
         lobby.setLobbyName("Flacko");
-        lobby.setToken("hostToken");
+        lobby.setHostToken("hostToken");
         InvitePutDTO invitePutDTO = new InvitePutDTO();
         invitePutDTO.setToken("hostToken");
         invitePutDTO.setUserId(1L);

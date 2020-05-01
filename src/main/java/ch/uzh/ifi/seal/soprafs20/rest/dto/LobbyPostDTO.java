@@ -9,7 +9,7 @@ public class LobbyPostDTO {
 
     private Long hostId;
 
-    private String token; //user token!
+    private String hostToken; //user token!
 
     private boolean isPrivate;
 
@@ -47,12 +47,12 @@ public class LobbyPostDTO {
         this.hostId = hostId;
     }
 
-    public String getToken() {
-        return token;
+    public String getHostToken() {
+        return hostToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setHostToken(String hostToken) {
+        this.hostToken = hostToken;
     }
 
     public boolean isPrivate() {

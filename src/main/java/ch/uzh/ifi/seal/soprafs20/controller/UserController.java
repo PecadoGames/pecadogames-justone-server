@@ -112,7 +112,7 @@ public class UserController {
     @GetMapping(path = "users/{id}/friends", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<RequestGetDTO> getFriends(@PathVariable long id,@RequestParam String token) {
+    public List<RequestGetDTO> getFriends(@PathVariable long id, @RequestParam String token) {
         User user = userService.getUser(id);
         if(!user.getToken().equals(token)){
             throw new UnauthorizedException("You are not authorized to get this users friends");

@@ -33,7 +33,7 @@ public class Lobby implements Serializable {
 
     @Column(nullable = false)
     @JsonIgnore
-    private String userToken;
+    private String hostToken;
 
     @Column
     private Long lobbyScore;
@@ -94,12 +94,12 @@ public class Lobby implements Serializable {
         this.hostId = userId;
     }
 
-    public String getToken() {
-        return userToken;
+    public String getHostToken() {
+        return hostToken;
     }
 
-    public void setToken(String token) {
-        this.userToken = token;
+    public void setHostToken(String token) {
+        this.hostToken = token;
     }
 
     /*public Integer getNumberOfBots() {

@@ -6,7 +6,7 @@ public class LobbyPutDTO {
 
     private Integer maxNumberOfPlayersAndBots;
     private ArrayList<Long> playersToKick;
-    private String token;
+    private String hostToken;
 
     public Integer getMaxNumberOfPlayersAndBots() {
         return maxNumberOfPlayersAndBots;
@@ -24,12 +24,12 @@ public class LobbyPutDTO {
         this.playersToKick = playersToKick;
     }
 
-    public String getToken() {
-        return token;
+    public String getHostToken() {
+        return hostToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setHostToken(String hostToken) {
+        this.hostToken = hostToken;
     }
 
 

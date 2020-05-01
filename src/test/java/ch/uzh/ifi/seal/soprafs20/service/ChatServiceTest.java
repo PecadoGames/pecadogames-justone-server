@@ -51,12 +51,12 @@ public class ChatServiceTest {
         testPlayer.setUsername("testUsername");
 
         Lobby lobby = new Lobby();
-        lobby.setToken("testToken");
+        lobby.setHostToken("testToken");
         lobby.addPlayerToLobby(testPlayer);
 
         Mockito.when(chatRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testChat));
 
-        chatService.addChatMessage(lobby, lobby.getToken(), message);
+        chatService.addChatMessage(lobby, lobby.getHostToken(), message);
         assertTrue(testChat.getMessages().contains(message));
     }
 
@@ -70,11 +70,11 @@ public class ChatServiceTest {
         testPlayer.setUsername("testUsername");
 
         Lobby lobby = new Lobby();
-        lobby.setToken("wrongToken");
+        lobby.setHostToken("wrongToken");
         lobby.addPlayerToLobby(testPlayer);
 
         Mockito.when(chatRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testChat));
 
-        assertThrows(UnauthorizedException.class, () -> chatService.addChatMessage(lobby, lobby.getToken(), message));
+        assertThrows(UnauthorizedException.class, () -> chatService.addChatMessage(lobby, lobby.getHostToken(), message));
     }
 }

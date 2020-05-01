@@ -56,7 +56,7 @@ public class LobbyController {
         //convert host from user to player
         Player hostAsPlayer = playerService.convertUserToPlayer(host);
         // create lobby
-        createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer, lobbyPostDTO.getToken());
+        createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer, lobbyPostDTO.getHostToken());
 
         //create chat for lobby
         chatService.createChat(createdLobby.getLobbyId());

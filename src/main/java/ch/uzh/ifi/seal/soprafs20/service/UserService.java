@@ -157,7 +157,7 @@ public class UserService {
     }
 
     public User addLobbyInvite(User receiver, Lobby lobby, User sender) {
-        if (!sender.getToken().equals(lobby.getToken())) {
+        if (!sender.getToken().equals(lobby.getHostToken())) {
             throw new UnauthorizedException("User is not authorized to send lobby invites");
         }
         if (sender.getId().equals(receiver.getId())) {

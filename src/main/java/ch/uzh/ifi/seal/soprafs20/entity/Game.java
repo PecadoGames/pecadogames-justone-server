@@ -76,7 +76,6 @@ public class Game {
         return roundsPlayed;
     }
 
-
     public void setRoundsPlayed(int roundsPlayed) {
         this.roundsPlayed = roundsPlayed;
     }

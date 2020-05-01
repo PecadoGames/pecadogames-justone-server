@@ -60,7 +60,7 @@ public class GameService extends Thread{
      * @return
      */
     public Game createGame(Lobby lobby, GamePostDTO gamePostDTO) {
-        if (!lobby.getToken().equals(gamePostDTO.getHostToken())) {
+        if (!lobby.getHostToken().equals(gamePostDTO.getHostToken())) {
             throw new UnauthorizedException("You are not allowed to start the game.");
         }
         if (lobby.isGameStarted()) {

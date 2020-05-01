@@ -494,7 +494,7 @@ public class UserServiceTest {
         Lobby lobby = new Lobby();
         lobby.setCurrentNumPlayersAndBots(1);
         lobby.setMaxPlayersAndBots(5);
-        lobby.setToken("testToken");
+        lobby.setHostToken("testToken");
 
         userToInvite = userService.addLobbyInvite(userToInvite,lobby,testUser);
 
@@ -508,7 +508,7 @@ public class UserServiceTest {
         Lobby lobby = new Lobby();
         lobby.setCurrentNumPlayersAndBots(1);
         lobby.setMaxPlayersAndBots(5);
-        lobby.setToken("anotherToken");
+        lobby.setHostToken("anotherToken");
 
         assertThrows(UnauthorizedException.class,()->
         {userService.addLobbyInvite(userToInvite,lobby,testUser);});
@@ -521,7 +521,7 @@ public class UserServiceTest {
         Lobby lobby = new Lobby();
         lobby.setCurrentNumPlayersAndBots(1);
         lobby.setMaxPlayersAndBots(5);
-        lobby.setToken("testToken");
+        lobby.setHostToken("testToken");
 
         assertThrows(ConflictException.class,()->
         {userService.addLobbyInvite(testUser,lobby,testUser);});

@@ -48,7 +48,7 @@ public class GameServiceTest {
 
         testLobby = new Lobby();
         testLobby.setLobbyId(1L);
-        testLobby.setToken("hostToken");
+        testLobby.setHostToken("hostToken");
         testLobby.addPlayerToLobby(testHost);
 
         testGame = new Game();
