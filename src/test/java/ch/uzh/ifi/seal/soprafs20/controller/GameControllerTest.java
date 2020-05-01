@@ -39,8 +39,7 @@ public class GameControllerTest {
     private PlayerService playerService;
     @MockBean
     private GameService gameService;
-    @MockBean
-    private InternalTimerService internalTimerService;
+
 
     @Test
     public void givenGame_whenGetGame_returnJson() throws Exception {
