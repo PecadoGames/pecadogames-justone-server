@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 public class GameService extends Thread{
     private final GameRepository gameRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
+    private static final int ROUNDS = 13;
+    private static final int ROUNDTIME = 10;
 
     @Autowired
     public GameService(GameRepository gameRepository) {
@@ -263,48 +265,55 @@ public class GameService extends Thread{
             public void run() {
                 while (!getCancel(game)) {
                     game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
-//                    System.out.println(game.getTime());
-                    if (game.getTime() >= 10 && game.getRoundsPlayed() < 13) {
+                    if (game.getTime() >= ROUNDTIME && game.getRoundsPlayed() <= ROUNDS) {
+
                         game.getTimer().cancel();
                         game.getTimer().purge();
                         game.setGameState(getNextState(game));
-                        game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
                         if (game.getGameState().equals(GameState.PICKWORDSTATE)) {
                             game.setRoundsPlayed(game.getRoundsPlayed() + 1);
                         }
-                        System.out.println("Rounds played: " + game.getRoundsPlayed());
+
 
                         gameRepository.saveAndFlush(game);
                         break;
                     }
-                    if (game.getRoundsPlayed() >= 13) {
-//                        System.out.println("Done bro");
+                    if (game.getRoundsPlayed() > ROUNDS) {
                         game.getTimer().cancel();
                         game.getTimer().purge();
                         game.getTimer().setCancel(true);
                         break;
                     }
                 }
-                if (game.getRoundsPlayed() < 13) {
+                if (game.getRoundsPlayed() <= ROUNDS && !getCancel(game)) {
                     game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    gameRepository.saveAndFlush(game);
+                    timer(game, game.getGameState(), game.getStartTimeSeconds());
+
+                } else if(game.getRoundsPlayed() <= ROUNDS && getCancel(game)){
+                    game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    game.setGameState(getNextState(game));
                     gameRepository.saveAndFlush(game);
                     timer(game, game.getGameState(), game.getStartTimeSeconds());
                 }
                 else {
+                    game.setGameState(GameState.GAMEOVERSTATE);
                     game.getTimer().setCancel(true);
+                    game.getTimer().setRunning(false);
                     game.getTimer().cancel();
                     game.getTimer().purge();
-//                    game.setTimer(new InternalTimer());
+                    game.setTimer(new InternalTimer());
                     gameRepository.saveAndFlush(game);
                 }
             }
         };
-        if (game.getRoundsPlayed() < 13) {
-            System.out.println(game.getGameState());
+        if (game.getRoundsPlayed() <= ROUNDS) {
             game.getTimer().cancel();
             game.setTimer(new InternalTimer());
             gameRepository.saveAndFlush(game);
+            System.out.println("Gamestate: " + game.getGameState());
+            System.out.println("Rounds played: " + game.getRoundsPlayed() );
             game.getTimer().schedule(timerTask, 0, 1000);
         }
     }
@@ -353,6 +362,7 @@ public class GameService extends Thread{
     public void setTimer(Game game) {
         game.setTimer(new InternalTimer());
         game.getTimer().setCancel(false);
+        game.getTimer().setRunning(true);
     }
 }
 

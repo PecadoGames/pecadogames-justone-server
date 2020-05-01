@@ -102,7 +102,11 @@ public class GameController {
             throw new UnauthorizedException("Not allowed to retrieve timer for this game!");
         if(game.getStartTimeSeconds() == null){
             return "No timer started yet";
-        } else {
+        }
+        if(game.getGameState().equals(GameState.GAMEOVERSTATE)){
+            return "Timer is over";
+        }
+        else {
             long diff = currentTime - game.getStartTimeSeconds();
             return Long.toString(diff);
         }
