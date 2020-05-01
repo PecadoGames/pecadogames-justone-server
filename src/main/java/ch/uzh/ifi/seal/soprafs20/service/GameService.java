@@ -270,7 +270,7 @@ public class GameService extends Thread{
                         game.setGameState(getNextState(game));
                         game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
-                        if(game.getGameState().equals(GameState.PICKWORDSTATE)){
+                        if (game.getGameState().equals(GameState.PICKWORDSTATE)) {
                             game.setRoundsPlayed(game.getRoundsPlayed() + 1);
                         }
                         System.out.println("Rounds played: " + game.getRoundsPlayed());
@@ -278,7 +278,7 @@ public class GameService extends Thread{
                         gameRepository.saveAndFlush(game);
                         break;
                     }
-                    if(game.getRoundsPlayed() >= 13){
+                    if (game.getRoundsPlayed() >= 13) {
 //                        System.out.println("Done bro");
                         game.getTimer().cancel();
                         game.getTimer().purge();
@@ -286,11 +286,12 @@ public class GameService extends Thread{
                         break;
                     }
                 }
-                if(game.getRoundsPlayed() < 13) {
+                if (game.getRoundsPlayed() < 13) {
                     game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     gameRepository.saveAndFlush(game);
                     timer(game, game.getGameState(), game.getStartTimeSeconds());
-                } else {
+                }
+                else {
                     game.getTimer().setCancel(true);
                     game.getTimer().cancel();
                     game.getTimer().purge();
@@ -299,13 +300,14 @@ public class GameService extends Thread{
                 }
             }
         };
-        if(game.getRoundsPlayed() < 13){
+        if (game.getRoundsPlayed() < 13) {
             System.out.println(game.getGameState());
             game.getTimer().cancel();
             game.setTimer(new InternalTimer());
             gameRepository.saveAndFlush(game);
-            game.getTimer().schedule(timerTask,0,1000);
+            game.getTimer().schedule(timerTask, 0, 1000);
         }
+    }
 
     /**
      * Helper function to get current cancel boolean of game stored in database
