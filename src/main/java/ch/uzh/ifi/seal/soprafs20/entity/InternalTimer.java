@@ -21,9 +21,9 @@ public class InternalTimer extends Timer  {
 
     private long time;
 
+    @Column
     private volatile boolean isRunning;
 
-    private AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
     @Column
     private volatile boolean isCancel;
@@ -61,14 +61,5 @@ public class InternalTimer extends Timer  {
     public void setCancel(boolean cancel) {
         isCancel = cancel;
     }
-
-    public AtomicBoolean getAtomicBoolean() {
-        return atomicBoolean;
-    }
-
-    public void setAtomicBoolean(AtomicBoolean atomicBoolean) {
-        this.atomicBoolean = atomicBoolean;
-    }
-
 
 }
