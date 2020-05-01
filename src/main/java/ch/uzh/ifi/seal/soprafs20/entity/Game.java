@@ -26,7 +26,7 @@ public class Game {
     private Player currentGuesser;
 
     @Column
-    private String currentWord;
+    private volatile String currentWord;
 
     @Column
     private int overallScore;
@@ -88,9 +88,9 @@ public class Game {
         this.players.add(player);
     }
 
-    public String getCurrentWord() { return currentWord; }
+    public synchronized String getCurrentWord() { return currentWord; }
 
-    public void setCurrentWord(String currentWord) {
+    public synchronized void setCurrentWord(String currentWord) {
         this.currentWord = currentWord;
     }
 
