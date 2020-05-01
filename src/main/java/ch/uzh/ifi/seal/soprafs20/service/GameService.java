@@ -132,7 +132,7 @@ public class GameService extends Thread{
         }
         if(allCluesSent(game, counter)) {
             game.setGameState(GameState.VOTEONCLUESSTATE);
-            //game.getTimer().setCancel(true);
+            game.getTimer().setCancel(true);
             checkClues(game);
             return true;
         }
@@ -242,37 +242,64 @@ public class GameService extends Thread{
      * @param g
      * @param gameState - state to which the game transitions if timer is finished
      */
-    public void timer(Game g, GameState gameState, long startTime) {
-        final int[] counter = {0};
-        final Game[] game = {g};
+    public void timer(Game game, GameState gameState,long startTime) {
+        gameRepository.saveAndFlush(game);
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                while (!getCancel(game[0])) {
-                    game[0].setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
-                    System.out.println(game[0].getTime() + " , first thread: " + game[0].getGameState());
-                    if (game[0].getTime() >= 10) {
-                        game[0].getTimer().cancel();
-                        game[0].getTimer().purge();
-                        game[0].getTimer().setRunning(false);
-                        gameRepository.saveAndFlush(game[0]);
+                while (!getCancel(game)) {
+                    game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
+                    if (game.getTime() >= 60 && game.getRoundsPlayed() < 14) {
+                        game.getTimer().cancel();
+                        game.getTimer().purge();
+                        game.setGameState(getNextState(game));
+                        game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+
+                        if(game.getGameState().equals(GameState.PICKWORDSTATE)){
+                            game.setRoundsPlayed(game.getRoundsPlayed() + 1);
+                        }
+                        System.out.println("Rounds played: " + game.getRoundsPlayed());
+
+                        gameRepository.saveAndFlush(game);
+                        break;
+                    }
+                    if(game.getTime() >= 60 && game.getRoundsPlayed() > 14){
+                        game.getTimer().cancel();
+                        game.getTimer().purge();
+                        game.getTimer().setCancel(true);
                         break;
                     }
                 }
-                game[0].getTimer().cancel();
-                game[0].setGameState(getNextState(game[0]));
-                game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-                update(game[0],game[0].getGameState(),game[0].getStartTimeSeconds());
+                if(game.getRoundsPlayed() < 3) {
+                    game.setGameState(getNextState(game));
+                    game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    timer(game, game.getGameState(), game.getStartTimeSeconds());
+                }
             }
         };
-        game[0].getTimer().schedule(timerTask,0,1000);
+        System.out.println(game.getGameState());
+        game.getTimer().cancel();
+        game.setTimer(new InternalTimer());
+        gameRepository.saveAndFlush(game);
+        game.getTimer().schedule(timerTask,0,1000);
     }
+
+    /**
+     * Helper function to get current cancel boolean of game stored in database
+     * @param game
+     * @return
+     */
     public boolean getCancel(Game game){
         Optional<Game> updated = gameRepository.findByLobbyId(game.getLobbyId());
         return updated.map(value -> value.getTimer().isCancel()).orElse(false);
 
     }
 
+    /**
+     *
+     * @param game
+     * @return the next state that the game will enter
+     */
     public GameState getNextState(Game game){
         GameState nextGameState;
         GameState currentGameState = game.getGameState();
@@ -296,36 +323,6 @@ public class GameService extends Thread{
                 nextGameState = null;
         }
         return nextGameState;
-    }
-
-    public void update(Game game, GameState gameState,long startTime){
-        System.out.println("New timer");
-        gameRepository.saveAndFlush(game);
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
-                if(game.getTime()>= 60 && game.getRoundsPlayed() < 13)  {
-                    game.getTimer().cancel();
-                    game.getTimer().purge();
-                    game.setGameState(getNextState(game));
-                    game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-                    if(game.getGameState().equals(GameState.PICKWORDSTATE)){
-                        game.setRoundsPlayed(game.getRoundsPlayed() + 1);
-                    }
-                    gameRepository.saveAndFlush(game);
-                    System.out.println("Rounds played: " + game.getRoundsPlayed());
-                    update(game,game.getGameState(),game.getStartTimeSeconds());
-                } if(game.getTime() >= 60 && game.getRoundsPlayed() >= 3){
-                    game.getTimer().cancel();
-                    game.getTimer().purge();
-                }
-            }
-        };
-        game.getTimer().cancel();
-        game.setTimer(new InternalTimer());
-        gameRepository.saveAndFlush(game);
-        game.getTimer().schedule(timerTask,1000,1000);
     }
 
     public void setTimer(Game game) {
