@@ -40,7 +40,7 @@ public class GameRepositoryIntegrationTest {
         game.setOverallScore(0);
         game.addPlayer(player);
 
-        entityManager.merge(game);
+        entityManager.persist(game);
         entityManager.flush();
 
         Optional<Game> foundGame1 = gameRepository.findByLobbyId(game.getLobbyId());
@@ -61,7 +61,7 @@ public class GameRepositoryIntegrationTest {
         game.setRoundsPlayed(0);
         game.setOverallScore(0);
 
-        entityManager.merge(game);
+        entityManager.persist(game);
         entityManager.flush();
 
         Optional<Game> foundGame2 = gameRepository.findByLobbyId(100L);
@@ -79,7 +79,7 @@ public class GameRepositoryIntegrationTest {
         newGame.setRoundsPlayed(0);
         newGame.setWords(reader.getRandomWords(13));
 
-        entityManager.merge(newGame);
+        entityManager.persist(newGame);
         entityManager.flush();
 
         Optional<Game> foundGame3 = gameRepository.findByLobbyId(newGame.getLobbyId());
