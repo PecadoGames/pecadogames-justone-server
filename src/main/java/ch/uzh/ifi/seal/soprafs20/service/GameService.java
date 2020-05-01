@@ -115,9 +115,6 @@ public class GameService extends Thread{
             throw new ForbiddenException("This player is not allowed to send clue!");
         }
 
-        if(!game.getGameState().equals(GameState.ENTERCLUESSTATE)){
-            throw new ForbiddenException("Clues not accepted in current state");
-        }
 //        if(!game.getTimer().isRunning()){
 //            throw new ForbiddenException("Time ran out!");
 //        }
@@ -263,7 +260,8 @@ public class GameService extends Thread{
             public void run() {
                 while (!getCancel(game)) {
                     game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
-                    if (game.getTime() >= 60 && game.getRoundsPlayed() < 14) {
+//                    System.out.println(game.getTime());
+                    if (game.getTime() >= 10 && game.getRoundsPlayed() < 13) {
                         game.getTimer().cancel();
                         game.getTimer().purge();
                         game.setGameState(getNextState(game));
@@ -277,25 +275,36 @@ public class GameService extends Thread{
                         gameRepository.saveAndFlush(game);
                         break;
                     }
-                    if(game.getTime() >= 60 && game.getRoundsPlayed() > 14){
+                    if(game.getRoundsPlayed() >= 13){
+//                        System.out.println("Done bro");
                         game.getTimer().cancel();
                         game.getTimer().purge();
                         game.getTimer().setCancel(true);
                         break;
                     }
                 }
-                if(game.getRoundsPlayed() < 3) {
-                    game.setGameState(getNextState(game));
+                if(game.getRoundsPlayed() < 13) {
                     game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    gameRepository.saveAndFlush(game);
                     timer(game, game.getGameState(), game.getStartTimeSeconds());
+                } else {
+                    game.getTimer().setCancel(true);
+                    game.getTimer().cancel();
+                    game.getTimer().purge();
+//                    game.setTimer(new InternalTimer());
+                    gameRepository.saveAndFlush(game);
                 }
             }
         };
-        System.out.println(game.getGameState());
-        game.getTimer().cancel();
-        game.setTimer(new InternalTimer());
-        gameRepository.saveAndFlush(game);
-        game.getTimer().schedule(timerTask,0,1000);
+        if(game.getRoundsPlayed() < 13){
+            System.out.println(game.getGameState());
+            game.getTimer().cancel();
+            game.setTimer(new InternalTimer());
+            gameRepository.saveAndFlush(game);
+            game.getTimer().schedule(timerTask,0,1000);
+        }
+
+
     }
 
     /**

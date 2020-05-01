@@ -83,7 +83,7 @@ public class GameController {
         }
         gameService.pickWord(token, game);
         gameService.setTimer(game);
-        gameService.timer(game,GameState.VOTEONCLUESSTATE,game.getStartTimeSeconds());
+        gameService.timer(game,game.getGameState(),game.getStartTimeSeconds());
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game/timer")

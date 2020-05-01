@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Game {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+//    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long lobbyId;
 
     @Column
