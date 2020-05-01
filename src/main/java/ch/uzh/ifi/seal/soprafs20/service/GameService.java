@@ -88,8 +88,9 @@ public class GameService extends Thread{
         Player currentGuesser = newGame.getPlayers().get(rand.nextInt(newGame.getPlayers().size()));
         newGame.setCurrentGuesser(currentGuesser);
 
-        //set round count to 0
-        newGame.setRoundsPlayed(0);
+        //set round count to 1
+        newGame.setRoundsPlayed(1);
+        setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), newGame);
 
         //select 13 random words from words.txt
         WordReader reader = new WordReader();
