@@ -33,7 +33,7 @@ public class GameService extends Thread{
     private final GameRepository gameRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 4;
-    private static final int ROUNDTIME = 10;
+    private static final int ROUNDTIME = 30;
 
     @Autowired
     public GameService(GameRepository gameRepository) {
@@ -241,6 +241,20 @@ public class GameService extends Thread{
         //ToDo: Update scores of player and overall score
     }
 
+    public void startNewRound(Game game) {
+        game.setRoundsPlayed(game.getRoundsPlayed() + 1);
+
+        int index = game.getPlayers().indexOf(game.getCurrentGuesser());
+        Player currentGuesser = game.getPlayers().get((index + 1) % game.getPlayers().size());
+        game.setCurrentGuesser(currentGuesser);
+
+        for(Player p : game.getPlayers()){
+            p.setClueIsSent(false);
+        }
+        gameRepository.saveAndFlush(game);
+        //ToDo: Update scores of player and overall score
+    }
+
     public void checkClues(Game game) {
         NLP nlp = new NLP();
         Iterator<Clue> iterator = game.getEnteredClues().iterator();
@@ -381,6 +395,11 @@ public class GameService extends Thread{
         Optional<Game> updated = gameRepository.findByLobbyId(game.getLobbyId());
         return updated.map(value -> value.getTimer().isCancel()).orElse(false);
 
+    }
+
+    public String getCurrentWord(Game game){
+        Optional<Game> currentGame = gameRepository.findByLobbyId(game.getLobbyId());
+        return currentGame.map(Game::getCurrentWord).orElse(null);
     }
 
     /**
