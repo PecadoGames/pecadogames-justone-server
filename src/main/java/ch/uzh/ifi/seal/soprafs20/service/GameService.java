@@ -177,19 +177,19 @@ public class GameService extends Thread{
         game.addClue(temporaryClue);
     }
 
-    public void submitGuess(Game game, MessagePutDTO messagePutDTO, long currentTimeSeconds) {
+
+    public void submitGuess(Game game, MessagePutDTO messagePutDTO) {
         if (!game.getCurrentGuesser().getToken().equals(messagePutDTO.getPlayerToken())) {
             throw new UnauthorizedException("User is not allowed to submit a guess!");
         }
         if(!game.getGameState().equals(GameState.ENTERGUESSSTATE)) {
             throw new ForbiddenException("Can't submit guess in current state!");
         }
-        if (currentTimeSeconds - game.getStartTimeSeconds() > 60) {
-            throw new ForbiddenException("Time ran out!");
-        }
+
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
-        game.setGameState(GameState.TRANSITIONSTATE);
+
     }
+
 
     public void startNewRound(Game game, RequestPutDTO requestPutDTO) {
         if (!game.getCurrentGuesser().getToken().equals(requestPutDTO.getToken())) {

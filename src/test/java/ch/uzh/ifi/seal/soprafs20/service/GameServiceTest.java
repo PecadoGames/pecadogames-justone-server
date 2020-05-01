@@ -300,7 +300,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star wars");
         messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
 
-        gameService.submitGuess(testGame, messagePutDTO, 10);
+        gameService.submitGuess(testGame, messagePutDTO);
 
         assertTrue(testGame.isGuessCorrect());
         assertEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
@@ -316,7 +316,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star trek");
         messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
 
-        gameService.submitGuess(testGame, messagePutDTO, 10);
+        gameService.submitGuess(testGame, messagePutDTO);
 
         assertFalse(testGame.isGuessCorrect());
         assertEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
@@ -332,7 +332,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star wars");
         messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
 
-        assertThrows(ForbiddenException.class,()->{ gameService.submitGuess(testGame, messagePutDTO, 10); });
+        assertThrows(ForbiddenException.class,()->{ gameService.submitGuess(testGame, messagePutDTO); });
         assertFalse(testGame.isGuessCorrect());
         assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
     }
@@ -347,7 +347,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star wars");
         messagePutDTO.setPlayerToken("someToken");
 
-        assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO, 10); });
+        assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO); });
         assertFalse(testGame.isGuessCorrect());
         assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
     }
