@@ -142,14 +142,50 @@ public class GameService extends Thread{
         return false;
     }
 
-    public void pickWord(String token, Game game) {
+
+    /**
+     * Overloaded sendClue method for the case that the timer runs out and not every player sent a clue
+     * @param game
+     * @return
+     */
+    public boolean sendClue(Game game){
+        //if a user did not send a clue, fill his clue with empty string
+        if (!game.isSpecialGame()) {
+            for(Player p : game.getPlayers()){
+                p.setClueIsSent(true);
+                game.addClueAsString("");
+            }
+        }
+        else {
+            for(int i = game.getCluesAsString().size(); i < 4; i++){
+                game.addClueAsString("");
+            }
+            for(Player p : game.getPlayers()){
+                if(!game.getCurrentGuesser().equals(p))
+                    p.setClueIsSent(true);
+            }
+        }
+        return true;
+    }
+
+    public boolean pickWord(String token, Game game) {
         if (!game.getCurrentGuesser().getToken().equals(token)) {
             throw new UnauthorizedException("This player is not allowed to pick a word!");
         }
         game.setCurrentWord(chooseWordAtRandom(game.getWords()));
         game.setGameState(GameState.ENTERCLUESSTATE);
-        game.setRoundsPlayed(game.getRoundsPlayed() + 1);
-        setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
+        gameRepository.saveAndFlush(game);
+        return true;
+    }
+
+    /**
+     * Overloaded pickword method for the case that the timer runs out and the guesser did not send a guess
+     * @param game
+     * @return
+     */
+    public boolean pickWord(Game game) {
+        game.setCurrentWord(chooseWordAtRandom(game.getWords()));
+        return true;
     }
 
 

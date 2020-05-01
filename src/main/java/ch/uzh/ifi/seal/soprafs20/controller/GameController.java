@@ -81,9 +81,10 @@ public class GameController {
         if(!game.getGameState().equals(GameState.PICKWORDSTATE)){
             throw new ForbiddenException("Can't choose word in current state");
         }
-        gameService.pickWord(token, game);
-        gameService.setTimer(game);
-        gameService.timer(game,game.getGameState(),game.getStartTimeSeconds());
+        if(gameService.pickWord(token, game)){
+            game.getTimer().setCancel(true);
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+        }
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game/timer")
