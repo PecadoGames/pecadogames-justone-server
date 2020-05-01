@@ -94,6 +94,9 @@ public class LobbyController {
 //            throw new ConflictException("Invalid amount of players to start the game");
 //        }
         Game createdGame = gameService.createGame(lobby, gamePostDTO);
+        gameService.setTimer(createdGame);
+        System.out.println("Game is starting!");
+        gameService.timer(createdGame,createdGame.getGameState(),createdGame.getStartTimeSeconds());
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
                 .build().toUri();
         ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
