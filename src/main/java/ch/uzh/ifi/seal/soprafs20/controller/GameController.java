@@ -27,12 +27,11 @@ import java.util.concurrent.TimeUnit;
 public class GameController {
     private final PlayerService playerService;
     private final GameService gameService;
-    private final InternalTimerService internalTimerService;
+
 
     GameController(PlayerService playerService, GameService gameService, InternalTimerService internalTimerService){
         this.playerService = playerService;
         this.gameService = gameService;
-        this.internalTimerService = internalTimerService;
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game", produces = "application/json")
@@ -66,7 +65,7 @@ public class GameController {
         Clue clue = new Clue();
         clue.setActualClue(messagePutDTO.getMessage());
         clue.setPlayerId(messagePutDTO.getPlayerId());
-
+        System.out.println(clue.getActualClue());
         if(gameService.sendClue(currentGame, player, clue)){
             currentGame.getTimer().setCancel(true);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),currentGame);
@@ -116,10 +115,15 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/guess")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void sendGuess(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
-        long currentTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+    public String sendGuess(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         Game game = gameService.getGame(lobbyId);
-        gameService.submitGuess(game, messagePutDTO,currentTimeSeconds);
+        gameService.submitGuess(game, messagePutDTO);
+        if(game.isGuessCorrect()){
+            game.getTimer().setCancel(true);
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+            return asJsonString(true);
+        }
+        return asJsonString(false);
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/game/transition")

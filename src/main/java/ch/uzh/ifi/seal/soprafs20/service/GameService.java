@@ -294,23 +294,33 @@ public class GameService extends Thread{
      * @param gameState - state to which the game transitions if timer is finished
      */
     public void timer(Game game, GameState gameState,long startTime) {
-        gameRepository.saveAndFlush(game);
+
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 while (!getCancel(game)) {
                     game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
                     if (game.getTime() >= ROUNDTIME && game.getRoundsPlayed() <= ROUNDS) {
-
                         game.getTimer().cancel();
                         game.getTimer().purge();
-                        game.setGameState(getNextState(game));
-
-                        if (game.getGameState().equals(GameState.PICKWORDSTATE)) {
-                            game.setRoundsPlayed(game.getRoundsPlayed() + 1);
+//                        System.out.println("Gamestate: " + game.getGameState() + " Guesser:" + game.getCurrentGuesser().getUsername());
+//                        System.out.println("Rounds played: " + game.getRoundsPlayed());
+                        if(game.getGameState().equals(GameState.PICKWORDSTATE) && game.getRoundsPlayed() == 1){
+                            pickWord(game);
                         }
-
-
+                        if(game.getGameState().equals(GameState.TRANSITIONSTATE)){
+                            startNewRound(game);
+                        }
+                        if(game.getGameState().equals(GameState.PICKWORDSTATE)){
+                            pickWord(game);
+                        }
+                        if(game.getGameState().equals(GameState.ENTERCLUESSTATE)){
+                            sendClue(game);
+                        }
+                        if(game.getGameState().equals(GameState.ENTERGUESSSTATE)){
+                            game.setGuessCorrect(false);
+                        }
+                        game.setGameState(getNextState(game));
                         gameRepository.saveAndFlush(game);
                         break;
                     }
@@ -321,19 +331,27 @@ public class GameService extends Thread{
                         break;
                     }
                 }
+                //timer ran out, transition to next state
                 if (game.getRoundsPlayed() <= ROUNDS && !getCancel(game)) {
                     game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     game.setTimer(new InternalTimer());
                     gameRepository.saveAndFlush(game);
                     timer(game, game.getGameState(), game.getStartTimeSeconds());
 
-                } else if(game.getRoundsPlayed() <= ROUNDS && getCancel(game)){
+                }
+                //user input before timer ran out, update timer and transition to next state
+                else if(game.getRoundsPlayed() <= ROUNDS && getCancel(game)){
+                    game.getTimer().cancel();
+                    game.getTimer().purge();
                     game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     game.setGameState(getNextState(game));
                     game.setTimer(new InternalTimer());
+                    game.getTimer().setCancel(false);//
+                    game.setCurrentWord(getCurrentWord(game));
                     gameRepository.saveAndFlush(game);
                     timer(game, game.getGameState(), game.getStartTimeSeconds());
                 }
+                //game reached final state in final round = Game is over
                 else {
                     game.setGameState(GameState.GAMEOVERSTATE);
                     game.getTimer().setCancel(true);
@@ -348,9 +366,8 @@ public class GameService extends Thread{
         if (game.getRoundsPlayed() <= ROUNDS) {
             game.getTimer().cancel();
             game.setTimer(new InternalTimer());
-            gameRepository.saveAndFlush(game);
-            System.out.println("Gamestate: " + game.getGameState());
-            System.out.println("Rounds played: " + game.getRoundsPlayed() );
+            game.getTimer().setCancel(false);
+            game.setCurrentWord(getCurrentWord(game));
             game.getTimer().schedule(timerTask, 0, 1000);
         }
     }
@@ -399,7 +416,6 @@ public class GameService extends Thread{
     public void setTimer(Game game) {
         game.setTimer(new InternalTimer());
         game.getTimer().setCancel(false);
-        game.getTimer().setRunning(true);
     }
 }
 

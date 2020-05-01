@@ -86,6 +86,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         log.error(String.format("Request: %s raised %s", request.getRequestURL(), ex));
         return new ResponseEntity(ex.getMessage(), HttpStatus.CONFLICT);
     }
+
     @ExceptionHandler(HttpClientErrorException.Forbidden.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity handleForbiddenException(Exception ex, HttpServletRequest request){
@@ -93,13 +94,13 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         return new ResponseEntity(ex.getMessage(),HttpStatus.FORBIDDEN);
     }
 
-    //Keep this one disable for all testing purposes -> it shows more detail with this one disabled
-    @ExceptionHandler(HttpServerErrorException.InternalServerError.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity handleException(Exception ex) {
-        log.error(String.format("Exception raised:%s", ex));
-        return new ResponseEntity(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    //Keep this one disable for all testing purposes -> it shows more detail with this one disabled
+//    @ExceptionHandler(HttpServerErrorException.InternalServerError.class)
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public ResponseEntity handleException(Exception ex) {
+//        log.error(String.format("Exception raised:%s", ex));
+//        return new ResponseEntity(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
 
 
