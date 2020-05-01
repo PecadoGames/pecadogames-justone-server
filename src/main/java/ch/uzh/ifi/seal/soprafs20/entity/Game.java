@@ -38,6 +38,9 @@ public class Game {
     private List<Clue> enteredClues = new ArrayList<>();
 
     @ElementCollection
+    private List<String> cluesAsString = new ArrayList<>();
+
+    @ElementCollection
     private List<String> words = new ArrayList<>();
 
     @Column
@@ -102,6 +105,18 @@ public class Game {
 
     public void addClue(Clue clue){
         this.enteredClues.add(clue);
+    }
+
+    public List<String> getCluesAsString() {
+        return cluesAsString;
+    }
+
+    public void setCluesAsString(List<String> cluesAsString) {
+        this.cluesAsString = cluesAsString;
+    }
+
+    public void addClueAsString(String clueAsString) {
+        cluesAsString.add(clueAsString);
     }
 
     public List<String> getWords() {

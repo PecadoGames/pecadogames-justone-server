@@ -119,6 +119,7 @@ public class GameService extends Thread{
 //        }
         if (!game.isSpecialGame()) {
             game.addClue(clue);
+            game.addClueAsString(clue.getActualClue());
             player.setClueIsSent(true);
         }
         else {
@@ -164,10 +165,13 @@ public class GameService extends Thread{
         if (!game.getEnteredClues().isEmpty()) {
             if(game.getEnteredClues().removeIf(clue1 -> clue1.getActualClue().equals(player.getToken()))) {
                 game.addClue(clue);
+                game.addClueAsString(clue.getActualClue());
                 player.setClueIsSent(true);
                 return;
             }
         }
+        game.addClue(clue);
+        game.addClueAsString(clue.getActualClue());
         game.addClue(temporaryClue);
     }
 
