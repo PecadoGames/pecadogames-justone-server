@@ -21,6 +21,7 @@ public class GameGetDTO {
     private GameState gameState;
     private List<ClueGetDTO> enteredClues = new ArrayList<>();
     private int overallScore;
+    private boolean specialGame;
 
 
     public Set<PlayerGetDTO> getPlayers() {
@@ -93,5 +94,13 @@ public class GameGetDTO {
             ClueGetDTO clueGetDTO = DTOMapper.INSTANCE.convertEntityToClueGetDTO(clue);
             this.enteredClues.add(clueGetDTO);
         }
+    }
+
+    public boolean isSpecialGame() {
+        return specialGame;
+    }
+
+    public void setSpecialGame(boolean specialGame) {
+        this.specialGame = specialGame;
     }
 }

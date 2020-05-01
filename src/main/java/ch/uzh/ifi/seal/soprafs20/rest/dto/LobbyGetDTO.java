@@ -17,6 +17,8 @@ public class LobbyGetDTO {
 
     private Integer maxPlayersAndBots;
 
+    private boolean gameIsStarted;
+
 
     public String getLobbyName() {
         return lobbyName;
@@ -66,4 +68,8 @@ public class LobbyGetDTO {
     public void setMaxPlayersAndBots(Integer maxPlayersAndBots) {
         this.maxPlayersAndBots = maxPlayersAndBots;
     }
+
+    public boolean isGameIsStarted() { return gameIsStarted; }
+
+    public void setGameIsStarted(boolean gameIsStarted) { this.gameIsStarted = gameIsStarted; }
 }

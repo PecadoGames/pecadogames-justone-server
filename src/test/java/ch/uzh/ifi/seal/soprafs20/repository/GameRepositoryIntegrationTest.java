@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -25,12 +26,19 @@ public class GameRepositoryIntegrationTest {
     @Test
     public void findById_success() {
         //given
+        Player player = new Player();
+        player.setId(1L);
+        player.setUsername("bad bunny");
+
+        entityManager.persist(player);
+        entityManager.flush();
 
         Game game = new Game();
         game.setLobbyId(1L);
         game.setSpecialGame(true);
         game.setRoundsPlayed(0);
         game.setOverallScore(0);
+        game.addPlayer(player);
 
         entityManager.merge(game);
         entityManager.flush();
@@ -42,6 +50,7 @@ public class GameRepositoryIntegrationTest {
         assertEquals(actualGame.getLobbyId(), game.getLobbyId());
         assertEquals(actualGame.getRoundsPlayed(), game.getRoundsPlayed());
         assertEquals(actualGame.getOverallScore(), game.getOverallScore());
+        assertTrue(actualGame.getPlayers().contains(player));
     }
 
     @Test
