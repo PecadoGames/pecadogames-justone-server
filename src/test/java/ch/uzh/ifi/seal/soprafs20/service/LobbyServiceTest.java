@@ -58,7 +58,7 @@ public class LobbyServiceTest {
     @Test
     public void createLobby_validInput_publicLobby(){
         testLobby.setPrivate(false);
-        Lobby lobby = lobbyService.createLobby(testLobby, host, host.getToken());
+        Lobby lobby = lobbyService.createLobby(testLobby, host);
 
         Mockito.verify(lobbyRepository,Mockito.times(1)).save(Mockito.any());
 
@@ -72,7 +72,7 @@ public class LobbyServiceTest {
     @Test
     public void createLobby_validInput_privateLobby(){
         testLobby.setPrivate(true);
-        Lobby lobby = lobbyService.createLobby(testLobby, host, host.getToken());
+        Lobby lobby = lobbyService.createLobby(testLobby, host);
 
         Mockito.verify(lobbyRepository,Mockito.times(1)).save(Mockito.any());
 
@@ -156,7 +156,7 @@ public class LobbyServiceTest {
     @Test
     public void getLobby(){
         testLobby.setPrivate(false);
-        Lobby lobby = lobbyService.createLobby(testLobby, host, host.getToken());
+        Lobby lobby = lobbyService.createLobby(testLobby, host);
         Lobby foundLobby = lobbyService.getLobby(lobby.getLobbyId());
 
         Mockito.verify(lobbyRepository, Mockito.times(1)).findById(Mockito.any());
@@ -171,7 +171,7 @@ public class LobbyServiceTest {
 
 
         testLobby.setPrivate(false);
-        lobbyService.createLobby(testLobby, host, host.getToken());
+        lobbyService.createLobby(testLobby, host);
 
         Mockito.when(lobbyRepository.findById(Mockito.any())).thenReturn(null);
         assertThrows(NullPointerException.class,() -> lobbyService.getLobby(1L));

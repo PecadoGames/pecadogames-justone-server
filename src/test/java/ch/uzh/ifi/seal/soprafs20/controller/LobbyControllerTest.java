@@ -134,7 +134,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setHostToken(host.getToken());
 
 
-        given(lobbyService.createLobby(Mockito.any(),Mockito.any(), Mockito.anyString())).willReturn(lobby);
+        given(lobbyService.createLobby(Mockito.any(),Mockito.any())).willReturn(lobby);
         given(userService.getUser(Mockito.anyLong())).willReturn(host);
 
         MockHttpServletRequestBuilder postRequest = post("/lobbies")
@@ -170,7 +170,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setPrivate(true);
         lobbyPostDTO.setHostToken(host.getToken());
 
-        given(lobbyService.createLobby(Mockito.any(),Mockito.any(),Mockito.any())).willReturn(lobby);
+        given(lobbyService.createLobby(Mockito.any(),Mockito.any())).willReturn(lobby);
         given(userService.getUser(Mockito.anyLong())).willReturn(host);
 
         MockHttpServletRequestBuilder postRequest = post("/lobbies")
