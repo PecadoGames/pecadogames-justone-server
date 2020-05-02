@@ -5,6 +5,8 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -25,106 +27,123 @@ import java.util.Set;
 @Table(name = "USER")
 public class User implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
     @NotEmpty
-	@Column(nullable = false, unique = true) 
-	private String username;
+    @Column(nullable = false, unique = true)
+    private String username;
 
-	@Column(nullable = true, unique = true)
-	private String token;
+    @Column(nullable = true, unique = true)
+    private String token;
 
-	@Column(nullable = false)
-	private UserStatus status;
+    @Column(nullable = false)
+    private UserStatus status;
 
-	@Column(nullable = false)
+    @Column(nullable = false)
     private String password;
 
-	@Column(nullable = false)
+    @Column(nullable = false)
     private Date creationDate;
 
-    @JsonFormat(pattern="dd.MM.yyyy")
+    @JsonFormat(pattern = "dd.MM.yyyy")
     private Date birthday;
 
     @Column
     private AvatarColor avatarColor;
 
-	@Column
+    @Column
     private int score;
 
-   @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private Set<User> friendRequests = new HashSet<>();
 
-   @ManyToMany
-   private Set<User> friendList = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private Set<User> friendList = new HashSet<>();
 
-   @ManyToMany
-   private Set<Lobby> lobbyInvites = new HashSet<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private Set<Lobby> lobbyInvites = new HashSet<>();
 
     public Long getId() {
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-	public String getToken() {
-		return token;
-	}
+    public String getToken() {
+        return token;
+    }
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-	public UserStatus getStatus() {
-		return status;
-	}
+    public UserStatus getStatus() {
+        return status;
+    }
 
-	public void setStatus(UserStatus status) {
-		this.status = status;
-	}
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
 
-	public void setAvatarColor(AvatarColor color) { this.avatarColor = color; }
+    public void setAvatarColor(AvatarColor color) {
+        this.avatarColor = color;
+    }
 
-	public AvatarColor getAvatarColor() { return this.avatarColor; }
+    public AvatarColor getAvatarColor() {
+        return this.avatarColor;
+    }
 
-	public void setPassword(String password) { this.password = password; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getPassword() { return password; }
+    public String getPassword() {
+        return password;
+    }
 
-	public void setCreationDate() {
+    public void setCreationDate() {
         this.creationDate = new Date();
     }
 
-	public Date getCreationDate(){return creationDate;}
+    public Date getCreationDate() {
+        return creationDate;
+    }
 
-    @JsonFormat(pattern="dd.MM.yyyy")
+    @JsonFormat(pattern = "dd.MM.yyyy")
     @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
     public void setBirthday(Date birthday) throws JsonParseException {
         this.birthday = birthday;
     }
 
     public Date getBirthday() {
-	    return birthday;
+        return birthday;
     }
 
-    public int getScore(){return score;}
+    public int getScore() {
+        return score;
+    }
 
-    public void setScore(int score){this.score = score;}
+    public void setScore(int score) {
+        this.score = score;
+    }
 
     public Set<User> getFriendRequests() {
         return friendRequests;

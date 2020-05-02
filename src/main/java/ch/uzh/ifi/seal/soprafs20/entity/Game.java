@@ -1,5 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,7 +12,6 @@ import java.util.List;
 public class Game {
 
     @Id
-    //@GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long lobbyId;
 
     @Column
@@ -20,6 +21,7 @@ public class Game {
     private String lobbyName;
 
     @OneToMany(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Player> players = new ArrayList<>();
 
     @OneToOne
@@ -38,9 +40,11 @@ public class Game {
     private List<Clue> enteredClues = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<String> cluesAsString = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<String> words = new ArrayList<>();
 
     @Column
