@@ -10,6 +10,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.VotePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import ch.uzh.ifi.seal.soprafs20.service.InternalTimerService;
@@ -68,6 +69,7 @@ public class GameController {
         System.out.println(clue.getActualClue());
         if(gameService.sendClue(currentGame, player, clue)){
             currentGame.getTimer().setCancel(true);
+            currentGame.setGameState(GameState.VOTEONCLUESSTATE);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),currentGame);
         }
     }
@@ -82,6 +84,7 @@ public class GameController {
         }
         if(gameService.pickWord(token, game)){
             game.getTimer().setCancel(true);
+            game.setGameState(GameState.ENTERCLUESSTATE);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
         }
     }
@@ -115,15 +118,14 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/guess")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public String sendGuess(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
+    public void sendGuess(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         Game game = gameService.getGame(lobbyId);
         gameService.submitGuess(game, messagePutDTO);
-        if(game.isGuessCorrect()){
-            game.getTimer().setCancel(true);
-            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
-            return asJsonString(true);
-        }
-        return asJsonString(false);
+        game.getTimer().setCancel(true);
+        game.setGameState(GameState.TRANSITIONSTATE);
+//        gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+
+
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/game/transition")
