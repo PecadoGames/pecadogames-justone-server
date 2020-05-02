@@ -39,7 +39,7 @@ public class PlayerService {
 
     public Player convertUserToPlayer(User user) {
         if(playerRepository.findById(user.getId()).isPresent()) {
-            throw new ConflictException("This player has already been converted!");
+            throw new ConflictException("This player has already been converted! This probably means that this player already is in a lobby.");
         }
         Player player = new Player();
         player.setId(user.getId());
