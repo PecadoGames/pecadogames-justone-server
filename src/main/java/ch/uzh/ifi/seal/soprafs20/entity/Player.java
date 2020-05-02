@@ -30,6 +30,9 @@ public class Player {
     @Column
     private int score;
 
+    @Column
+    private boolean voted;
+
 
 
     public Long getId() {
@@ -80,5 +83,11 @@ public class Player {
         this.score = score;
     }
 
+    public boolean isVoted() {
+        return voted;
+    }
 
+    public void setVoted(boolean voted) {
+        this.voted = voted;
+    }
 }
