@@ -1,5 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
+import java.util.Objects;
+
 public class Clue {
 
     private Long playerId;
@@ -27,4 +29,17 @@ public class Clue {
     public Long getTimeNeeded() { return timeNeeded; }
 
     public void setTimeNeeded(Long timeNeeded) { this.timeNeeded = timeNeeded; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Clue)) { return false; }
+        Clue other = (Clue) o;
+        return playerId != null && playerId.equals(other.getPlayerId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPlayerId());
+    }
 }

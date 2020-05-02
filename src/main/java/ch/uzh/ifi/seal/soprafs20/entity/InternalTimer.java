@@ -1,15 +1,8 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
-import org.hibernate.annotations.LazyToOne;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import javax.persistence.*;
-import java.util.Set;
+import java.util.Objects;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Entity
 @Table(name = "InternalTimer")
@@ -60,6 +53,19 @@ public class InternalTimer extends Timer  {
 
     public void setCancel(boolean cancel) {
         isCancel = cancel;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof InternalTimer)) { return false; }
+        InternalTimer other = (InternalTimer) o;
+        return lobbyId != null && lobbyId.equals(other.getLobbyId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getLobbyId());
     }
 
 }

@@ -257,6 +257,7 @@ public class GameService extends Thread{
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
         }
+        game.getEnteredClues().clear();
         gameRepository.saveAndFlush(game);
         //ToDo: Update scores of player and overall score
     }

@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import java.util.Objects;
 
 @Entity
 @Table(name = "PLAYER")
@@ -89,5 +90,18 @@ public class Player {
 
     public void setVoted(boolean voted) {
         this.voted = voted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Player)) { return false; }
+        Player other = (Player) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }

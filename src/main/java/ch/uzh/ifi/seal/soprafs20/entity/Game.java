@@ -6,6 +6,7 @@ import org.hibernate.annotations.FetchMode;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name="GAME")
@@ -215,5 +216,18 @@ public class Game {
 
     public void addBadWord(String badWords) {
         this.badWords.add(badWords);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Game)) { return false; }
+        Game other = (Game) o;
+        return lobbyId != null && lobbyId.equals(other.getLobbyId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getLobbyId());
     }
 }

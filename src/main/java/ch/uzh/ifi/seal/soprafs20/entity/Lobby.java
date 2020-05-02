@@ -8,6 +8,7 @@ import org.hibernate.annotations.FetchMode;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -165,5 +166,18 @@ public class Lobby implements Serializable {
 
     public void setGameIsStarted(boolean gameIsStarted) {
         this.gameIsStarted = gameIsStarted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Lobby)) { return false; }
+        Lobby other = (Lobby) o;
+        return lobbyId != null && lobbyId.equals(other.getLobbyId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getLobbyId());
     }
 }

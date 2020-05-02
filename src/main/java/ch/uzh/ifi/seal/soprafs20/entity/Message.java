@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Table(name = "MESSAGE")
@@ -68,5 +69,18 @@ public class Message implements Serializable {
     @JsonFormat(pattern="hh:mm:ss")
     public void setCreationDate() {
         this.creationDate = new Date();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Message)) { return false; }
+        Message other = (Message) o;
+        return authorId != null && authorId.equals(other.getAuthorId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getAuthorId());
     }
 }
