@@ -22,6 +22,7 @@ public class GameGetDTO {
     private List<ClueGetDTO> enteredClues = new ArrayList<>();
     private int overallScore;
     private boolean specialGame;
+    private boolean isGuessCorrect;
 
 
     public Set<PlayerGetDTO> getPlayers() {
@@ -102,5 +103,13 @@ public class GameGetDTO {
 
     public void setSpecialGame(boolean specialGame) {
         this.specialGame = specialGame;
+    }
+
+    public boolean isGuessCorrect() {
+        return isGuessCorrect;
+    }
+
+    public void setGuessCorrect(boolean guessCorrect) {
+        isGuessCorrect = guessCorrect;
     }
 }
