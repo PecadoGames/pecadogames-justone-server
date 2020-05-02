@@ -111,8 +111,6 @@ public class GameService extends Thread{
         if(!game.getGameState().equals(GameState.ENTERCLUESSTATE))
             throw new ForbiddenException("Clues are not accepted in current state!");
 
-
-
         if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
             throw new ForbiddenException("This player is not allowed to send clue!");
         }
@@ -120,6 +118,7 @@ public class GameService extends Thread{
         if (!game.isSpecialGame()) {
             game.addClue(clue);
             game.addClueAsString(clue.getActualClue());
+            setTimeNeeded(game, clue);
             player.setClueIsSent(true);
             gameRepository.saveAndFlush(game);
         }
@@ -209,6 +208,7 @@ public class GameService extends Thread{
         }
         game.addClue(clue);
         game.addClueAsString(clue.getActualClue());
+        setTimeNeeded(game, clue);
         game.addClue(temporaryClue);
     }
 
@@ -435,6 +435,11 @@ public class GameService extends Thread{
     public void setTimer(Game game) {
         game.setTimer(new InternalTimer());
         game.getTimer().setCancel(false);
+    }
+
+    public void setTimeNeeded(Game game, Clue clue) {
+        long timeNeeded = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds();
+        clue.setTimeNeeded(ROUNDTIME - timeNeeded);
     }
 }
 
