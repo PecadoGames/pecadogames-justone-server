@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.PlayerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,12 @@ public class PlayerService {
         log.debug("Converted user with id {} to player", user.getId());
 
         return player;
+    }
+
+    public void checkPlayerToken(String playerToken, String sentToken) {
+        if(!playerToken.equals(sentToken)) {
+            throw new UnauthorizedException("You are not allowed to create or join a lobby in the name of this user!");
+        }
     }
 
     public void deletePlayer(Player player) {

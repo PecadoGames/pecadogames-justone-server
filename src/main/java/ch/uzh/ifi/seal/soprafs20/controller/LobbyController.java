@@ -54,6 +54,7 @@ public class LobbyController {
         Lobby userLobby = DTOMapper.INSTANCE.convertLobbyPostDTOtoEntity(lobbyPostDTO);
         User host = userService.getUser(lobbyPostDTO.getHostId());
         //convert host from user to player
+        playerService.checkPlayerToken(host.getToken(), lobbyPostDTO.getHostToken());
         Player hostAsPlayer = playerService.convertUserToPlayer(host);
         // create lobby
         createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer, lobbyPostDTO.getHostToken());
@@ -137,6 +138,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         if(userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO)) {
             User user = userService.getUser(lobbyAcceptancePutDTO.getAccepterId());
+            playerService.checkPlayerToken(user.getToken(), lobbyAcceptancePutDTO.getAccepterToken());
             Player player = playerService.convertUserToPlayer(user);
             lobbyService.addPlayerToLobby(lobbyAcceptancePutDTO.getAccepterToken(), player, lobby);
         }
@@ -182,6 +184,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         User user = userService.getUser(joinLeavePutDTO.getPlayerId());
         //convert user into player
+        playerService.checkPlayerToken(user.getToken(), joinLeavePutDTO.getPlayerToken());
         Player player = playerService.convertUserToPlayer(user);
         lobbyService.addPlayerToLobby(joinLeavePutDTO.getPlayerToken(), player, lobby);
     }
