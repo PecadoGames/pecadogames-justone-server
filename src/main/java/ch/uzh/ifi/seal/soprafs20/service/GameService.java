@@ -114,7 +114,6 @@ public class GameService extends Thread{
         if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
             throw new ForbiddenException("This player is not allowed to send clue!");
         }
-
         if (!game.isSpecialGame()) {
             game.addClue(clue);
             game.addClueAsString(clue.getActualClue());
@@ -367,14 +366,14 @@ public class GameService extends Thread{
                     System.out.println("Timer updated because of player, Word is: " + updatedGame.getCurrentWord() + ", new State: " + updatedGame.getGameState());
                     updatedGame.getTimer().cancel();
                     updatedGame.getTimer().purge();
+                    updatedGame.getTimer().setCancel(false);
                     game.getTimer().cancel();
                     game.getTimer().purge();
 
-//                    updatedGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    updatedGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     updatedGame.setGameState(getNextState(game));
                     updatedGame.setTimer(new InternalTimer());
                     updatedGame.getTimer().setCancel(false);//
-//                    game.setCurrentWord(getCurrentWord(game));
                     gameRepository.saveAndFlush(updatedGame);
                     timer(updatedGame, updatedGame.getGameState(), updatedGame.getStartTimeSeconds());
                 }
@@ -392,6 +391,7 @@ public class GameService extends Thread{
         };
         if (game.getRoundsPlayed() <= ROUNDS) {
             game.getTimer().cancel();
+            game.getTimer().purge();
             game.setTimer(new InternalTimer());
             game.getTimer().setCancel(false);
             game.getTimer().schedule(timerTask, 0, 1000);
