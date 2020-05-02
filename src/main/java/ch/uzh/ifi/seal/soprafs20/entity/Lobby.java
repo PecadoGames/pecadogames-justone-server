@@ -53,7 +53,7 @@ public class Lobby implements Serializable {
     @Column(nullable = false)
     private Integer maxPlayersAndBots;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private Set<Player> playersInLobby = new HashSet<>();
 
     public Long getLobbyId() {

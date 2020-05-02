@@ -19,7 +19,7 @@ public class Game {
     @Column
     private String lobbyName;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Player> players = new ArrayList<>();
 
     @OneToOne
@@ -37,10 +37,10 @@ public class Game {
     @Transient
     private List<Clue> enteredClues = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> cluesAsString = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> words = new ArrayList<>();
 
     @Column
@@ -61,7 +61,7 @@ public class Game {
     @Column
     private volatile boolean cancelled;
 
-    @OneToOne(cascade = {CascadeType.ALL})
+    @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     private InternalTimer timer;
 
     public Long getLobbyId() {
