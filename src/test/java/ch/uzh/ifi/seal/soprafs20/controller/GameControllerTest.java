@@ -39,6 +39,8 @@ public class GameControllerTest {
     private PlayerService playerService;
     @MockBean
     private GameService gameService;
+    @MockBean
+    private InternalTimerService internalTimerService;
 
 
     @Test

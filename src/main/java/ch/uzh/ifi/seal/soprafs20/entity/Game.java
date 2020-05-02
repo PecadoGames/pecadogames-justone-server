@@ -57,7 +57,7 @@ public class Game {
     private Long startTimeSeconds;
 
     @Column
-    private Clue currentGuess;
+    private String currentGuess;
 
     @Column
     private long time;
@@ -166,9 +166,9 @@ public class Game {
         this.startTimeSeconds = startTime;
     }
 
-    public Clue getCurrentGuess() { return currentGuess; }
+    public String getCurrentGuess() { return currentGuess; }
 
-    public void setCurrentGuess(Clue currentGuess) { this.currentGuess = currentGuess; }
+    public void setCurrentGuess(String currentGuess) { this.currentGuess = currentGuess; }
 
     public boolean isSpecialGame() {
         return specialGame;
