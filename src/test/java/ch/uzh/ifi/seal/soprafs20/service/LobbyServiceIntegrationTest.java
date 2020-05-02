@@ -44,7 +44,6 @@ public class LobbyServiceIntegrationTest {
         playerRepository.flush();
 
         Lobby lobby = new Lobby();
-        lobby.setLobbyId(1L);
         lobby.setHostId(1L);
         lobby.setHostToken("hostToken");
         lobby.setLobbyName("BadBunny");
@@ -73,7 +72,6 @@ public class LobbyServiceIntegrationTest {
         playerRepository.flush();
 
         Lobby lobby = new Lobby();
-        lobby.setLobbyId(1L);
         lobby.setHostId(1L);
         lobby.setHostToken("hostToken");
         lobby.setLobbyName("BadBunny");
@@ -102,7 +100,6 @@ public class LobbyServiceIntegrationTest {
         playerRepository.flush();
 
         Lobby lobby = new Lobby();
-        lobby.setLobbyId(1L);
         lobby.setHostId(1L);
         lobby.setHostToken("hostToken");
         lobby.setLobbyName("Bad Bunny");
@@ -125,7 +122,6 @@ public class LobbyServiceIntegrationTest {
         playerRepository.flush();
 
         Lobby lobby = new Lobby();
-        lobby.setLobbyId(1L);
         lobby.setHostId(host.getId());
         lobby.setHostToken(host.getToken());
         lobby.setLobbyName("BadBunny");

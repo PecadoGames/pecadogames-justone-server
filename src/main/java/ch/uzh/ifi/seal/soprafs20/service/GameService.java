@@ -238,6 +238,10 @@ public class GameService extends Thread{
         Player currentGuesser = game.getPlayers().get((index + 1) % game.getPlayers().size());
         game.setCurrentGuesser(currentGuesser);
 
+        for(Player p : game.getPlayers()){
+            p.setClueIsSent(false);
+        }
+
         game.setGameState(GameState.PICKWORDSTATE);
 
         //ToDo: Update scores of player and overall score
