@@ -371,7 +371,7 @@ public class GameServiceTest {
         testGame.addPlayer(player4);
         testGame.setSpecialGame(false);
 
-        assertTrue(gameService.allCluesSent(testGame, 3));
+        assertTrue(gameService.allSent(testGame, 3));
     }
 
     @Test
@@ -382,7 +382,7 @@ public class GameServiceTest {
         testGame.addPlayer(player4);
         testGame.setSpecialGame(false);
 
-        assertFalse(gameService.allCluesSent(testGame, 2));
+        assertFalse(gameService.allSent(testGame, 2));
     }
 
     @Test
@@ -391,7 +391,7 @@ public class GameServiceTest {
         testGame.addPlayer(player3);
         testGame.setSpecialGame(true);
 
-        assertTrue(gameService.allCluesSent(testGame, 4));
+        assertTrue(gameService.allSent(testGame, 4));
     }
 
     @Test
@@ -400,6 +400,6 @@ public class GameServiceTest {
         testGame.addPlayer(player3);
         testGame.setSpecialGame(true);
 
-        assertFalse(gameService.allCluesSent(testGame, 3));
+        assertFalse(gameService.allSent(testGame, 3));
     }
 }

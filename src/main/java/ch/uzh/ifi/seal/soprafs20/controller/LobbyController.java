@@ -97,7 +97,7 @@ public class LobbyController {
         Game createdGame = gameService.createGame(lobby, gamePostDTO);
         gameService.setTimer(createdGame);
         System.out.println("Game is starting!");
-        gameService.updateGameTimer(createdGame,createdGame.getGameState(),createdGame.getStartTimeSeconds());
+        gameService.timer(createdGame,createdGame.getGameState(),createdGame.getStartTimeSeconds());
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
                 .build().toUri();
         ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
