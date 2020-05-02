@@ -4,6 +4,7 @@ public class PlayerGetDTO {
     private String username;
 //    private UserStatus status;
     private boolean clueIsSent;
+    private boolean isVoted;
     private Long id;
     private int score;
 
@@ -44,5 +45,13 @@ public class PlayerGetDTO {
     }
     public void setId(Long playerId) {
         this.id = playerId;
+    }
+
+    public boolean isVoted() {
+        return isVoted;
+    }
+
+    public void setVoted(boolean voted) {
+        isVoted = voted;
     }
 }
