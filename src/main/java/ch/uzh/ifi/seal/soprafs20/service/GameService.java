@@ -379,7 +379,7 @@ public class GameService extends Thread{
                 }
                 //game reached final state in final round = Game is over
                 else {
-                    game.setGameState(GameState.GAMEOVERSTATE);
+                    game.setGameState(GameState.ENDGAMESTATE);
                     game.getTimer().setCancel(true);
                     game.getTimer().setRunning(false);
                     game.getTimer().cancel();

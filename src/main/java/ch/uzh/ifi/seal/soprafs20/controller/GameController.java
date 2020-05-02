@@ -10,7 +10,6 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.VotePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import ch.uzh.ifi.seal.soprafs20.service.InternalTimerService;
@@ -106,7 +105,7 @@ public class GameController {
         if(game.getStartTimeSeconds() == null){
             return "No timer started yet";
         }
-        if(game.getGameState().equals(GameState.GAMEOVERSTATE)){
+        if(game.getGameState().equals(GameState.ENDGAMESTATE)){
             return "Timer is over";
         }
         else {
