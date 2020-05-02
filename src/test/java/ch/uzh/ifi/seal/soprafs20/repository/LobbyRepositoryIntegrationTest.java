@@ -31,7 +31,6 @@ public class LobbyRepositoryIntegrationTest {
         entityManager.flush();
 
         Lobby lobby = new Lobby();
-        lobby.setLobbyId(1L);
         lobby.setLobbyName("Ballerz");
         lobby.setHostToken("hostToken");
         lobby.setHostId(1L);
@@ -61,7 +60,6 @@ public class LobbyRepositoryIntegrationTest {
     @Test
     public void findByLobbyId_unsuccessful() {
         Lobby lobby = new Lobby();
-        lobby.setLobbyId(1L);
         lobby.setLobbyName("Ballerz");
         lobby.setHostToken("hostToken");
         lobby.setHostId(1L);
@@ -88,7 +86,6 @@ public class LobbyRepositoryIntegrationTest {
         entityManager.flush();
 
         Lobby lobby = new Lobby();
-        lobby.setLobbyId(1L);
         lobby.setLobbyName("Ballerz");
         lobby.setHostToken("hostToken");
         lobby.setHostId(1L);
@@ -101,7 +98,7 @@ public class LobbyRepositoryIntegrationTest {
         entityManager.persist(lobby);
         entityManager.flush();
 
-        Optional<Lobby> foundLobby = lobbyRepository.findByLobbyId(player.getId());
+        Optional<Lobby> foundLobby = lobbyRepository.findByHostId(player.getId());
         assertTrue(foundLobby.isPresent());
         Lobby actualLobby = foundLobby.get();
 
@@ -126,7 +123,6 @@ public class LobbyRepositoryIntegrationTest {
         entityManager.flush();
 
         Lobby lobby = new Lobby();
-        lobby.setLobbyId(1L);
         lobby.setLobbyName("Ballerz");
         lobby.setHostToken("hostToken");
         lobby.setHostId(1L);

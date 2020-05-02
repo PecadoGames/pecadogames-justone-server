@@ -57,6 +57,7 @@ public class LobbyServiceIntegrationTest {
         assertNotNull(createdLobby.getPrivateKey());
         assertEquals(createdLobby.getHostId(), 1L);
         assertEquals(createdLobby.getHostToken(), "hostToken");
+        assertTrue(createdLobby.getPlayersInLobby().contains(host));
         assertEquals(createdLobby.getMaxPlayersAndBots(), lobby.getMaxPlayersAndBots());
         assertFalse(createdLobby.isVoiceChat());
     }

@@ -47,8 +47,10 @@ public class GameServiceIntegrationTest {
         host.setToken("hostToken");
         host.setUsername("host");
 
-        playerRepository.save(host);
+        host = playerRepository.save(host);
         playerRepository.flush();
+
+        host = playerRepository.findById(host.getId()).get();
 
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
@@ -61,7 +63,7 @@ public class GameServiceIntegrationTest {
         lobby.addPlayerToLobby(host);
         lobby.setCurrentNumPlayersAndBots(1);
 
-        lobbyRepository.save(lobby);
+        lobby = lobbyRepository.save(lobby);
         lobbyRepository.flush();
 
         GamePostDTO gamePostDTO = new GamePostDTO();
@@ -74,6 +76,7 @@ public class GameServiceIntegrationTest {
         assertEquals(lobby.getLobbyId(), createdGame.getLobbyId());
         assertEquals(GameState.PICKWORDSTATE, createdGame.getGameState());
         assertEquals(lobby.getLobbyName(), createdGame.getLobbyName());
+        assertTrue(createdGame.getPlayers().contains(host));
         assertFalse(createdGame.isSpecialGame());
         assertEquals(1, createdGame.getRoundsPlayed());
         assertEquals(13, createdGame.getWords().size());
