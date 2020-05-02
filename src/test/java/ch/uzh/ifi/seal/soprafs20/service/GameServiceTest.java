@@ -303,7 +303,6 @@ public class GameServiceTest {
         gameService.submitGuess(testGame, messagePutDTO);
 
         assertTrue(testGame.isGuessCorrect());
-        assertEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
     }
 
     @Test
@@ -319,7 +318,6 @@ public class GameServiceTest {
         gameService.submitGuess(testGame, messagePutDTO);
 
         assertFalse(testGame.isGuessCorrect());
-        assertEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
     }
 
     @Test

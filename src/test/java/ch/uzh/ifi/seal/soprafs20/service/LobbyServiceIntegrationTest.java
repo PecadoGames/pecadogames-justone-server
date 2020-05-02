@@ -110,6 +110,7 @@ public class LobbyServiceIntegrationTest {
         lobby.setVoiceChat(false);
 
         assertThrows(NotAcceptableException.class, () -> lobbyService.createLobby(lobby, host));
+        assertTrue(lobbyRepository.findByHostId(lobby.getHostId()).isEmpty());
     }
 
     @Test
