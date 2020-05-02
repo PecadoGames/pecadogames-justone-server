@@ -48,16 +48,13 @@ public class LobbyService {
         }
     }
 
-    public Lobby createLobby(Lobby newLobby, Player host, String hostToken){
+    public Lobby createLobby(Lobby newLobby, Player host){
         checkLobbyName(newLobby.getLobbyName());
         checkIfLobbyExists(newLobby);
         if(newLobby.isPrivate()){
             newLobby.setPrivateKey((UUID.randomUUID().toString()));
         }
         newLobby.addPlayerToLobby(host);
-        newLobby.setCurrentNumPlayersAndBots(newLobby.getPlayersInLobby().size());
-        newLobby.addPlayerToLobby(host);
-        newLobby.setCurrentNumPlayersAndBots(newLobby.getPlayersInLobby().size());
         if(newLobby.getMaxPlayersAndBots() > 7 || newLobby.getMaxPlayersAndBots() < 3){
             newLobby.setMaxPlayersAndBots(7);
         }
