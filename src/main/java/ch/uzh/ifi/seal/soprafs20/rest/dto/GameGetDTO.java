@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 
@@ -19,7 +18,7 @@ public class GameGetDTO {
     private int roundsPlayed;
     private String currentWord;
     private GameState gameState;
-    private List<ClueGetDTO> enteredClues = new ArrayList<>();
+    private List<String> cluesAsString = new ArrayList<>();
     private int overallScore;
     private boolean specialGame;
     private boolean isGuessCorrect;
@@ -86,15 +85,12 @@ public class GameGetDTO {
         this.lobbyName = lobbyName;
     }
 
-    public List<ClueGetDTO> getEnteredClues() {
-        return enteredClues;
+    public List<String> getCluesAsString() {
+        return cluesAsString;
     }
 
-    public void setEnteredClues(List<Clue> enteredClues) {
-        for (Clue clue : enteredClues) {
-            ClueGetDTO clueGetDTO = DTOMapper.INSTANCE.convertEntityToClueGetDTO(clue);
-            this.enteredClues.add(clueGetDTO);
-        }
+    public void setCluesAsString(List<String> cluesAsString) {
+        this.cluesAsString = cluesAsString;
     }
 
     public boolean isSpecialGame() {
