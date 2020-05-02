@@ -118,7 +118,6 @@ public class GameService extends Thread{
         if (!game.isSpecialGame()) {
             game.addClue(clue);
             game.addClueAsString(clue.getActualClue());
-            setTimeNeeded(game, clue);
             player.setClueIsSent(true);
             gameRepository.saveAndFlush(game);
         }
@@ -131,7 +130,7 @@ public class GameService extends Thread{
                 counter++;
             }
         }
-        if(allCluesSent(game, counter)) {
+        if(allSent(game, counter)) {
             game.setGameState(GameState.VOTEONCLUESSTATE);
             game.getTimer().setCancel(true);
             checkClues(game);
@@ -271,7 +270,7 @@ public class GameService extends Thread{
      * @param counter
      * @return true if all clues of each player are received, false if no
      */
-    public boolean allCluesSent(Game game, int counter) {
+    public boolean allSent(Game game, int counter) {
         if(game.isSpecialGame()) {
             return counter == (game.getPlayers().size() - 1) * 2;
         }
