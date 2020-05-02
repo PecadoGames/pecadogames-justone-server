@@ -47,11 +47,14 @@ public class Game {
     @Fetch(value = FetchMode.SUBSELECT)
     private List<String> words = new ArrayList<>();
 
+    @ElementCollection
+    private List<String> badWords = new ArrayList<>();
+
     @Column
     private GameState gameState;
 
     @Column
-    private boolean isGuessCorrect;
+    private volatile boolean isGuessCorrect;
 
     @Column
     private Long startTimeSeconds;
@@ -150,11 +153,11 @@ public class Game {
         this.overallScore = overallScore;
     }
 
-    public boolean isGuessCorrect() {
+    public synchronized boolean isGuessCorrect() {
         return isGuessCorrect;
     }
 
-    public void setGuessCorrect(boolean guessCorrect) {
+    public synchronized void setGuessCorrect(boolean guessCorrect) {
         isGuessCorrect = guessCorrect;
     }
 
@@ -200,5 +203,17 @@ public class Game {
 
     public void setLobbyName(String lobbyName) {
         this.lobbyName = lobbyName;
+    }
+
+    public List<String> getBadWords() {
+        return badWords;
+    }
+
+    public void setBadWords(List<String> badWords) {
+        this.badWords = badWords;
+    }
+
+    public void addBadWord(String badWords) {
+        this.badWords.add(badWords);
     }
 }
