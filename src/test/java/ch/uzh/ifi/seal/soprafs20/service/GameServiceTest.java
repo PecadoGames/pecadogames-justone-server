@@ -391,6 +391,9 @@ public class GameServiceTest {
         Clue clue2 = new Clue();
         clue2.setActualClue("Apple");
         clue2.setPlayerId(2L);
+        Clue clue3 = new Clue();
+        clue3.setPlayerId(3L);
+        clue3.setActualClue("Banana");
         testGame.addClue(clue1);
         testGame.addClue(clue2);
 
