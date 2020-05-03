@@ -35,8 +35,8 @@ public class GameService{
     private final LobbyRepository lobbyRepository;
     private final UserRepository userRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
-    private static final int ROUNDS = 4;
-    private static final int ROUNDTIME = 40;
+    private static final int ROUNDS = 3;
+    private static final int ROUNDTIME = 25;
 
     @Autowired
     public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository,UserRepository userRepository) {
@@ -366,10 +366,10 @@ public class GameService{
                             vote(game);
                         }
                         if(getUpdatedGame(game).getGameState().equals(GameState.ENTERGUESSSTATE)){
-                            updateScores(game);
                             game.setGuessCorrect(false);
                         }
                         if(getUpdatedGame(game).getGameState().equals(GameState.TRANSITIONSTATE)){
+                            updateScores(game);
                             startNewRound(game);
                         }
                         if(getUpdatedGame(game).getGameState().equals(GameState.ENDGAMESTATE)){
@@ -561,7 +561,9 @@ public class GameService{
             int occurrences = Collections.frequency(game.getInvalidClues(), string);
             if(occurrences >=  threshold && threshold > 1) {
                 iterator.remove();
-                game.addInvalidClue(iterator.toString());
+                if(!game.getInvalidClues().contains(string)) {
+                    game.addInvalidClue(string);
+                }
             }
         }
         //Remove duplicates from list of invalid clues to return to client

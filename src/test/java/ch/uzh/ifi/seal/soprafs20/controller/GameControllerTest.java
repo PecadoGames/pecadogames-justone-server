@@ -158,6 +158,7 @@ public class GameControllerTest {
         messagePutDTO.setPlayerId(2L);
         messagePutDTO.setPlayerToken("token2");
 
+        given(playerService.getPlayer(Mockito.any())).willReturn(player1);
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
@@ -190,6 +191,8 @@ public class GameControllerTest {
         messagePutDTO.setPlayerToken("token2");
 
         //given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        given(playerService.getPlayer(Mockito.any())).willReturn(player1);
+
         given(gameService.sendClue(Mockito.any(), Mockito.any(), Mockito.any())).willThrow(new UnauthorizedException("ex"));
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
