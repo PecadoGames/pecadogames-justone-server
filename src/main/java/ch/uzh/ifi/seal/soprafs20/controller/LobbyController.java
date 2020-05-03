@@ -54,7 +54,7 @@ public class LobbyController {
         Lobby userLobby = DTOMapper.INSTANCE.convertLobbyPostDTOtoEntity(lobbyPostDTO);
         User host = userService.getUser(lobbyPostDTO.getHostId());
         //convert host from user to player
-        playerService.checkPlayerToken(host.getToken(), lobbyPostDTO.getHostToken());
+//        playerService.hromecheckPlayerToken(host.getToken(), lobbyPostDTO.getHostToken());
         Player hostAsPlayer = playerService.convertUserToPlayer(host);
         // create lobby
         createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer);

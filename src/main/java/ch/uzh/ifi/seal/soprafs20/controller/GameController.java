@@ -10,6 +10,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.VotePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import ch.uzh.ifi.seal.soprafs20.service.InternalTimerService;
@@ -122,20 +123,42 @@ public class GameController {
         gameService.submitGuess(game, messagePutDTO);
         game.getTimer().setCancel(true);
         game.setGameState(GameState.TRANSITIONSTATE);
-//        gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+        gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
 
 
     }
+//
+//    @PutMapping(path = "lobbies/{lobbyId}/game/transition")
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    @ResponseBody
+//    public void startNewRound(@PathVariable long lobbyId, @RequestBody RequestPutDTO requestPutDTO) {
+//        Game game = gameService.getGame(lobbyId);
+//        if(!game.getGameState().equals(GameState.TRANSITIONSTATE)) {
+//            throw new ForbiddenException("Can't start new round in current state!");
+//        }
+//        gameService.startNewRound(game, requestPutDTO);
+//    }
 
-    @PutMapping(path = "lobbies/{lobbyId}/game/transition")
+    @PutMapping(path = "lobbies/{lobbyId}/game/vote")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void startNewRound(@PathVariable long lobbyId, @RequestBody RequestPutDTO requestPutDTO) {
+    public void vote(@PathVariable long lobbyId, @RequestBody VotePutDTO votePutDTO) {
         Game game = gameService.getGame(lobbyId);
-        if(!game.getGameState().equals(GameState.TRANSITIONSTATE)) {
+        if(!game.getGameState().equals(GameState.VOTEONCLUESSTATE)) {
             throw new ForbiddenException("Can't start new round in current state!");
         }
-        gameService.startNewRound(game, requestPutDTO);
+        for (Player p : game.getPlayers()){
+            if(p.getToken().equals(votePutDTO.getPlayerToken())){
+                Player player = playerService.getPlayer(votePutDTO.getPlayerId());
+                List<String> badWords = votePutDTO.getBadWords();
+                if(gameService.vote(game, player,badWords)){
+                    game.getTimer().setCancel(true);
+                    game.setGameState(GameState.TRANSITIONSTATE);
+                    gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+                }
+            }
+        }
+
     }
 
     private String asJsonString(final Object object) {
