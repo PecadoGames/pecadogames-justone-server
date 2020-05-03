@@ -32,7 +32,7 @@ public class GameService extends Thread{
     private final GameRepository gameRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 4;
-    private static final int ROUNDTIME = 30;
+    private static final int ROUNDTIME = 20;
 
     @Autowired
     public GameService(GameRepository gameRepository) {
@@ -380,6 +380,7 @@ public class GameService extends Thread{
                     game.getTimer().setRunning(false);
                     game.getTimer().cancel();
                     game.getTimer().purge();
+                    game.setRoundsPlayed(ROUNDS);
                     game.setTimer(new InternalTimer());
                     gameRepository.saveAndFlush(game);
                 }

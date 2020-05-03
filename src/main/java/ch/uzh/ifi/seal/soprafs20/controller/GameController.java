@@ -50,7 +50,7 @@ public class GameController {
             throw new UnauthorizedException("You are not allowed to access this game instance!");
         }
         //if guesser requests game, eliminate current word from dto
-        if(game.getCurrentGuesser().getToken().equals(token)) {
+        if(game.getCurrentGuesser().getToken().equals(token) && !game.getGameState().equals(GameState.TRANSITIONSTATE)) {
             gameGetDTO.setCurrentWord(null);
         }
         return gameGetDTO;
