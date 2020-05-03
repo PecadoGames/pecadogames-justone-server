@@ -353,6 +353,7 @@ public class GameService{
                 while (!getUpdatedGame(game).getTimer().isCancel()) {
                     game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
                     if (game.getTime() >= ROUNDTIME && getUpdatedGame(game).getRoundsPlayed() <= ROUNDS) {
+                        log.info("Timer limit reached! entered if statement");
                         game.getTimer().cancel();
                         game.getTimer().purge();
 
@@ -404,6 +405,7 @@ public class GameService{
                     updatedGame.setTimer(new InternalTimer());
                     gameRepository.saveAndFlush(updatedGame);
                     timer(updatedGame, updatedGame.getGameState(), updatedGame.getStartTimeSeconds());
+
 
                 }
                 //user input before timer ran out, update timer and transition to next state
