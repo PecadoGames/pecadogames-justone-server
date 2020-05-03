@@ -352,6 +352,9 @@ public class GameService{
             public void run() {
                 while (!getUpdatedGame(game).getTimer().isCancel()) {
                     game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
+                    log.info("Time" + game.getTime());
+                    log.info("Rounds played: " + getUpdatedGame(game));
+                    log.info("Entered while loop");
                     if (game.getTime() >= ROUNDTIME && getUpdatedGame(game).getRoundsPlayed() <= ROUNDS) {
                         log.info("Timer limit reached! entered if statement");
                         game.getTimer().cancel();
