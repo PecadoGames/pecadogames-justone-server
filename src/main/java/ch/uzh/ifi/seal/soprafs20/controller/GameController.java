@@ -64,9 +64,9 @@ public class GameController {
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
         Clue clue = new Clue();
         clue.setActualClue(messagePutDTO.getMessage());
-        clue.setPlayerId(messagePutDTO.getPlayerId());
-        System.out.println(clue.getActualClue());
-        if (gameService.sendClue(currentGame, player, clue)) {
+        clue.setPlayerId(player.getId());
+        System.out.println(clue.getActualClue() +", id: " +clue.getPlayerId());
+        if (gameService.sendClue(currentGame, player, clue.getActualClue())) {
             currentGame.getTimer().setCancel(true);
             currentGame.setGameState(GameState.VOTEONCLUESSTATE);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), currentGame);
@@ -122,6 +122,7 @@ public class GameController {
         gameService.submitGuess(game, messagePutDTO,TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds());
         game.getTimer().setCancel(true);
         game.setGameState(GameState.TRANSITIONSTATE);
+        gameService.updateScores(game);
         gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
     }
 
