@@ -512,11 +512,16 @@ public class GameService{
         Iterator<Clue> iterator = game.getEnteredClues().iterator();
         while(iterator.hasNext()) {
             Clue clue = iterator.next();
-            int occurrences = Collections.frequency(game.getInvalidWords(), clue.getActualClue());
+            int occurrences = Collections.frequency(game.getInvalidClues(), clue.getActualClue());
             if(occurrences >=  threshold) {
                 iterator.remove();
             }
         }
+        //Remove duplicates from list of invalid clues to return to client
+        Set<String> set = new LinkedHashSet<>(game.getInvalidClues());
+        game.getInvalidClues().clear();
+        game.getInvalidClues().addAll(set);
+        gameRepository.saveAndFlush(game);
     }
 }
 

@@ -51,6 +51,7 @@ public class GameController {
         //if guesser requests game, eliminate current word from dto
         if(game.getCurrentGuesser().getToken().equals(token) && !game.getGameState().equals(GameState.TRANSITIONSTATE)) {
             gameGetDTO.setCurrentWord(null);
+            gameGetDTO.setInvalidClues(null);
         }
         return gameGetDTO;
     }
@@ -145,7 +146,7 @@ public class GameController {
         }
         Player player = playerService.getPlayerByToken(votePutDTO.getPlayerToken());
         if(game.getPlayers().contains(player) && !game.getCurrentGuesser().equals(player)) {
-            List<String> invalidWords = votePutDTO.getInvalidWords();
+            List<String> invalidWords = votePutDTO.getInvalidClues();
             if(gameService.vote(game, player, invalidWords)){
                 game.getTimer().setCancel(true);
                 game.setGameState(GameState.TRANSITIONSTATE);

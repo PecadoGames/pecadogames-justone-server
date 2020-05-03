@@ -16,6 +16,7 @@ public class GameGetDTO {
     private String currentWord;
     private GameState gameState;
     private List<String> cluesAsString = new ArrayList<>();
+    private List<String> invalidClues = new ArrayList<>();
     private int overallScore;
     private boolean specialGame;
     private boolean isGuessCorrect;
@@ -90,6 +91,12 @@ public class GameGetDTO {
     public void setCluesAsString(List<String> cluesAsString) {
         this.cluesAsString = cluesAsString;
     }
+
+    public List<String> getInvalidClues() { return invalidClues; }
+
+    public void setInvalidClues(List<String> invalidClues) { this.invalidClues = invalidClues; }
+
+    public void addInvalidClue(String clue) { invalidClues.add(clue); }
 
     public boolean isSpecialGame() {
         return specialGame;
