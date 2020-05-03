@@ -50,7 +50,8 @@ public class Game {
     @Fetch(value = FetchMode.SUBSELECT)
     private List<String> words = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<String> invalidClues = new ArrayList<>();
 
     @Column
