@@ -207,8 +207,6 @@ public class GameServiceTest {
         testGame.getEnteredClues().add(enteredClue2);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
-        long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
-
         Clue clue = new Clue();
         clue.setActualClue("star");
         clue.setPlayerId(player2.getId());
@@ -232,12 +230,6 @@ public class GameServiceTest {
         testGame.getEnteredClues().add(enteredClue2);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
         player2.setClueIsSent(true);
-
-        MessagePutDTO messagePutDTO = new MessagePutDTO();
-        messagePutDTO.setPlayerToken("token2");
-        messagePutDTO.setPlayerId(2L);
-        messagePutDTO.setMessage("badbunny");
-        long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
         Clue clue = new Clue();
         clue.setActualClue("wars");
