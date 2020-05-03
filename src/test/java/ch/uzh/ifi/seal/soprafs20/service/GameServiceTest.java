@@ -216,6 +216,7 @@ public class GameServiceTest {
     @Test
     public void sendClue_specialGame_secondClue_success(){
         Clue enteredClue1 = new Clue();
+        enteredClue1.setPlayerId(2L);
         enteredClue1.setActualClue("wars");
         Clue enteredClue2 = new Clue();
         enteredClue2.setPlayerId(2L);

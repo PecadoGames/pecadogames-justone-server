@@ -47,10 +47,8 @@ public class GameServiceIntegrationTest {
         host.setToken("hostToken");
         host.setUsername("host");
 
-        host = playerRepository.save(host);
+        playerRepository.save(host);
         playerRepository.flush();
-
-        host = playerRepository.findById(host.getId()).get();
 
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
@@ -63,7 +61,7 @@ public class GameServiceIntegrationTest {
         lobby.addPlayerToLobby(host);
         lobby.setCurrentNumPlayersAndBots(1);
 
-        lobby = lobbyRepository.save(lobby);
+        lobbyRepository.save(lobby);
         lobbyRepository.flush();
 
         GamePostDTO gamePostDTO = new GamePostDTO();
