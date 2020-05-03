@@ -51,7 +51,7 @@ public class InternalTimer extends Timer  {
         return isCancel;
     }
 
-    public void setCancel(boolean cancel) {
+    public  void setCancel(boolean cancel) {
         isCancel = cancel;
     }
 

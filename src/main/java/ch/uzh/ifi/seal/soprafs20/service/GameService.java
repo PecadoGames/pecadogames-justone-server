@@ -143,7 +143,6 @@ public class GameService{
             game.setGameState(GameState.VOTEONCLUESSTATE);
             game.getTimer().setCancel(true);
             checkClues(game);
-            System.out.println(game.enteredCluesToString(game.getEnteredClues()));
             gameRepository.saveAndFlush(game);
             return true;
         }
