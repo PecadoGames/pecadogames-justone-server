@@ -115,7 +115,7 @@ public class GameService extends Thread{
         }
         if (!game.isSpecialGame()) {
             game.addClue(clue);
-            game.addClueAsString(clue.getActualClue());
+            //game.addClueAsString(clue.getActualClue());
             player.setClueIsSent(true);
             gameRepository.saveAndFlush(game);
         }
@@ -190,13 +190,13 @@ public class GameService extends Thread{
         if (!game.getEnteredClues().isEmpty()) {
             if(game.getEnteredClues().removeIf(clue1 -> clue1.getActualClue().equals(player.getToken()))) {
                 game.addClue(clue);
-                game.addClueAsString(clue.getActualClue());
+                //game.addClueAsString(clue.getActualClue());
                 player.setClueIsSent(true);
                 return;
             }
         }
         game.addClue(clue);
-        game.addClueAsString(clue.getActualClue());
+        //game.addClueAsString(clue.getActualClue());
         setTimeNeeded(game, clue);
         game.addClue(temporaryClue);
     }
@@ -257,12 +257,8 @@ public class GameService extends Thread{
 
     public void checkClues(Game game) {
         NLP nlp = new NLP();
-        Iterator<Clue> iterator = game.getEnteredClues().iterator();
-        while(iterator.hasNext()) {
-            if(!nlp.checkClue(iterator.next().getActualClue(), game.getCurrentWord())) {
-                iterator.remove();
-            }
-        }
+        game.getEnteredClues().removeIf(clue -> !nlp.checkClue(clue.getActualClue(), game.getCurrentWord()));
+        updateCluesAsString(game);
         gameRepository.saveAndFlush(game);
     }
 
@@ -448,6 +444,13 @@ public class GameService extends Thread{
     public void setTimeNeeded(Game game, Clue clue) {
         long timeNeeded = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds();
         clue.setTimeNeeded(ROUNDTIME - timeNeeded);
+    }
+
+    public void updateCluesAsString(Game game) {
+        for(Clue clue : game.getEnteredClues()) {
+            game.addClueAsString(clue.getActualClue());
+        }
+        gameRepository.saveAndFlush(game);
     }
 
 

@@ -147,7 +147,7 @@ public class GameController {
         for (Player p : game.getPlayers()){
             if(p.getToken().equals(votePutDTO.getPlayerToken())){
                 Player player = playerService.getPlayer(votePutDTO.getPlayerId());
-                List<String> badWords = votePutDTO.getBadWords();
+                List<String> badWords = votePutDTO.getInvalidWords();
                 if(gameService.vote(game, player,badWords)){
                     game.getTimer().setCancel(true);
                     game.setGameState(GameState.TRANSITIONSTATE);
