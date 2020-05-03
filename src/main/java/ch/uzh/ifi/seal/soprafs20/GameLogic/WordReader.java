@@ -21,7 +21,7 @@ public class WordReader {
         File words_file = null;
         BufferedReader bufferedReader = null;
         try {
-            resource = getClass().getClassLoader().getResource("words.txt");
+            resource = getClass().getClassLoader().getResource("Data/words.txt");
             assert resource != null;
             File file = Paths.get(resource.toURI()).toFile();
             String absolutePath = file.getAbsolutePath();

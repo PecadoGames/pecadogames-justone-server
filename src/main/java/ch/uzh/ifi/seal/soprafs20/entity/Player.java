@@ -32,7 +32,10 @@ public class Player {
     private int score;
 
     @Column
-    private boolean voted;
+    private volatile boolean voted;
+
+    @Column
+    private String clue;
 
 
 
@@ -103,5 +106,13 @@ public class Player {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
+    }
+
+    public String getClue() {
+        return clue;
+    }
+
+    public void setClue(String clue) {
+        this.clue = clue;
     }
 }

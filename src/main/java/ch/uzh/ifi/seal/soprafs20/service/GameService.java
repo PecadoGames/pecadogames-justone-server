@@ -116,7 +116,7 @@ public class GameService{
      * @param clue
      * @return game with updated clue list
      */
-    public boolean sendClue(Game game, Player player, Clue clue){
+    public boolean sendClue(Game game, Player player, String clue){
         if(!game.getGameState().equals(GameState.ENTERCLUESSTATE))
             throw new UnauthorizedException("Clues are not accepted in current state!");
 
@@ -124,13 +124,13 @@ public class GameService{
             throw new UnauthorizedException("This player is not allowed to send clue!");
         }
         if (!game.isSpecialGame()) {
-            game.addClue(clue);
-            //game.addClueAsString(clue.getActualClue());
+            player.setClue(clue);
             player.setClueIsSent(true);
+            game.addClueAsString(clue);
             gameRepository.saveAndFlush(game);
         }
         else {
-            sendClueSpecial(game, player, clue);//handle double clue input from player
+//            sendClueSpecial(game, player, clue);//handle double clue input from player
         }
         int counter = 0;
         for (Player playerInGame : game.getPlayers()){
@@ -138,6 +138,7 @@ public class GameService{
                 counter++;
             }
         }
+        System.out.println("Counter = " + counter);
         if(allSent(game, counter)) {
             game.setGameState(GameState.VOTEONCLUESSTATE);
             game.getTimer().setCancel(true);
@@ -279,8 +280,10 @@ public class GameService{
 
     public void checkClues(Game game) {
         NLP nlp = new NLP();
-        game.getEnteredClues().removeIf(clue -> !nlp.checkClue(clue.getActualClue(), game.getCurrentWord()));
-        updateCluesAsString(game);
+        System.out.println("Game clues as string: "+ game.getCluesAsString());
+        game.getCluesAsString().removeIf(clue -> !nlp.checkClue(clue, game.getCurrentWord()));
+//        updateCluesAsString(game);
+//        System.out.println(game.getEnteredClues().toString());
         gameRepository.saveAndFlush(game);
     }
 
@@ -317,17 +320,20 @@ public class GameService{
         return currentWord;
     }
 
-    private void updateScores(Game game){
-        for(Player p: game.getPlayers()){
-            if(!game.getCurrentGuesser().equals(p)){
-                for(Clue clue: game.getEnteredClues()){
-                    if(clue.getPlayerId().equals(p.getId())){
-                        p.setScore(p.getScore() + (int) (clue.getTimeNeeded() * ((game.getPlayers().size()) - game.getEnteredClues().size())));
-                    }
-                }
+    public void updateScores(Game game){
+        game = getUpdatedGame(game);
+        Iterator<Player> iterator = game.getPlayers().iterator();
+        while(iterator.hasNext()){
+            Player player = iterator.next();
+            if(game.getCluesAsString().contains(player.getClue())){
+                int newScore = 40 * (((game.getPlayers().size()) - game.getCluesAsString().size()));
+                player.setScore(player.getScore() + newScore);
+                game.setOverallScore(game.getOverallScore() + player.getScore());
             }
         }
+
     }
+
 
 
     /**
@@ -360,10 +366,10 @@ public class GameService{
                             vote(game);
                         }
                         if(getUpdatedGame(game).getGameState().equals(GameState.ENTERGUESSSTATE)){
+                            updateScores(game);
                             game.setGuessCorrect(false);
                         }
                         if(getUpdatedGame(game).getGameState().equals(GameState.TRANSITIONSTATE)){
-                            updateScores(game);
                             startNewRound(game);
                         }
                         if(getUpdatedGame(game).getGameState().equals(GameState.ENDGAMESTATE)){
@@ -393,6 +399,7 @@ public class GameService{
                     updatedGame.getTimer().purge();
                     game.getTimer().cancel();
                     game.getTimer().purge();
+                    game.setTimer(null);
                     updatedGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     updatedGame.setTimer(new InternalTimer());
                     gameRepository.saveAndFlush(updatedGame);
@@ -402,12 +409,12 @@ public class GameService{
                 //user input before timer ran out, update timer and transition to next state
                 else if(game.getRoundsPlayed() <= ROUNDS && getCancel(game)){
                     Game updatedGame = getUpdatedGame(game);
-
                     System.out.println("Timer updated because of player, Word is: " + updatedGame.getCurrentWord() + ", new State: " + updatedGame.getGameState());
                     updatedGame.getTimer().cancel();
                     updatedGame.getTimer().purge();
                     game.getTimer().cancel();
                     game.getTimer().purge();
+                    game.setTimer(null);
                     updatedGame.getTimer().setCancel(false);
                     updatedGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     updatedGame.setTimer(new InternalTimer());
@@ -508,7 +515,6 @@ public class GameService{
     }
 
     public void updateCluesAsString(Game game) {
-        game.getCluesAsString().clear();
         for(Clue clue : game.getEnteredClues()) {
             game.addClueAsString(clue.getActualClue());
         }
@@ -532,7 +538,6 @@ public class GameService{
 
         if(counter == game.getPlayers().size() - 1) {
             checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
-            updateCluesAsString(game);
             gameRepository.saveAndFlush(game);
         }
         return allSent(game, counter);
@@ -546,17 +551,17 @@ public class GameService{
             }
         }
         checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
-        updateCluesAsString(game);
         gameRepository.saveAndFlush(game);
     }
 
     public void checkVotes(Game game, int threshold) {
-        Iterator<Clue> iterator = game.getEnteredClues().iterator();
+        Iterator<String> iterator = game.getCluesAsString().iterator();
         while(iterator.hasNext()) {
-            Clue clue = iterator.next();
-            int occurrences = Collections.frequency(game.getInvalidClues(), clue.getActualClue());
-            if(occurrences >=  threshold) {
+            String string = iterator.next();
+            int occurrences = Collections.frequency(game.getInvalidClues(), string);
+            if(occurrences >=  threshold && threshold > 1) {
                 iterator.remove();
+                game.addInvalidClue(iterator.toString());
             }
         }
         //Remove duplicates from list of invalid clues to return to client
@@ -564,7 +569,6 @@ public class GameService{
         game.getInvalidClues().clear();
         game.getInvalidClues().addAll(set);
 
-        updateCluesAsString(game);
         gameRepository.saveAndFlush(game);
     }
 }

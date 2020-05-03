@@ -216,7 +216,6 @@ public class LobbyControllerTest {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
-
         lobby.setHostId(1234);
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
