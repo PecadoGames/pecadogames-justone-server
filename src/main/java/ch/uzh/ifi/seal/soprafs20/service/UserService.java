@@ -53,6 +53,17 @@ public class UserService {
         }
     }
 
+    public User getUserByToken(String token){
+        User user;
+        Optional<User> optionalUser = userRepository.findByToken(token);
+        if(optionalUser.isPresent()){
+            user = optionalUser.get();
+            return user;
+        } else {
+            throw new NotFoundException("Couldn't find user.");
+        }
+    }
+
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
