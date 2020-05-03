@@ -233,7 +233,7 @@ public class GameService extends Thread{
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
         }
-
+        game.setGuessCorrect(false);
         game.setGameState(GameState.PICKWORDSTATE);
 
         //ToDo: Update scores of player and overall score
