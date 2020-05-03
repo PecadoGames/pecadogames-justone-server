@@ -4,15 +4,12 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GameGetDTO {
 
     private String lobbyName;
-    private Set<PlayerGetDTO> players = new HashSet<>();
+    private List<PlayerGetDTO> players = new ArrayList<>();
     private PlayerGetDTO currentGuesser;
     private long lobbyId;
     private int roundsPlayed;
@@ -24,15 +21,16 @@ public class GameGetDTO {
     private boolean isGuessCorrect;
 
 
-    public Set<PlayerGetDTO> getPlayers() {
+    public List<PlayerGetDTO> getPlayers() {
         return players;
     }
 
-    public void setPlayers(Set<Player> players) {
-        for(Player p : players){
+    public void setPlayers(Set<Player> listOfPlayers) {
+        for(Player p : listOfPlayers){
             PlayerGetDTO player = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(p);
             this.players.add(player);
         }
+        Collections.sort(this.players, Comparator.comparingLong(PlayerGetDTO::getID));
     }
 
     public PlayerGetDTO getCurrentGuesser() { return currentGuesser; }
