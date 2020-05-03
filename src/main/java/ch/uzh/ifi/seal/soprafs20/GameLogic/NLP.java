@@ -14,18 +14,10 @@ public class NLP {
             return false;
         }
 
-        if(clue.contains(word) || word.contains(clue)) {
+        if(clueToLower.contains(wordToLower) || wordToLower.contains(clueToLower)) {
             return false;
         }
-
-        if (clueToLower.equals(wordToLower)) {
-            return false;
-        }
-        if (stemWord(clueToLower).equals(stemWord(wordToLower))) {
-            return false;
-        }
-
-        return true;
+        return !stemWord(clueToLower).equals(stemWord(wordToLower));
     }
 
     public String stemWord(String word) {
