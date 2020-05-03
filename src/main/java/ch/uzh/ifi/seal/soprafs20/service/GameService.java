@@ -8,6 +8,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
@@ -28,15 +29,17 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @Transactional
-public class GameService extends Thread{
+public class GameService{
     private final GameRepository gameRepository;
+    private final LobbyRepository lobbyRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 4;
     private static final int ROUNDTIME = 20;
 
     @Autowired
-    public GameService(GameRepository gameRepository) {
+    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository) {
         this.gameRepository = gameRepository;
+        this.lobbyRepository = lobbyRepository;
     }
 
     public Game getGame(Long id) {
