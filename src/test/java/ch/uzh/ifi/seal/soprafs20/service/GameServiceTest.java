@@ -381,4 +381,21 @@ public class GameServiceTest {
 
         assertFalse(gameService.allSent(testGame, 3));
     }
+
+    @Test
+    public void gameService_identicalClue_removed() {
+        testGame.setCurrentWord("Banana");
+        Clue clue1 = new Clue();
+        clue1.setActualClue("Banana");
+        clue1.setPlayerId(1L);
+        Clue clue2 = new Clue();
+        clue2.setActualClue("Apple");
+        clue2.setPlayerId(2L);
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+
+        gameService.checkClues(testGame);
+        testGame = gameRepository.findById(1L).get();
+        assertFalse(testGame.getCluesAsString().contains("Banana"));
+    }
 }
