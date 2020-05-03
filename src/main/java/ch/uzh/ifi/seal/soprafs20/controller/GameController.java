@@ -119,22 +119,11 @@ public class GameController {
     @ResponseBody
     public void sendGuess(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         Game game = gameService.getGame(lobbyId);
-        gameService.submitGuess(game, messagePutDTO);
+        gameService.submitGuess(game, messagePutDTO,TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds());
         game.getTimer().setCancel(true);
         game.setGameState(GameState.TRANSITIONSTATE);
         gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
     }
-//
-//    @PutMapping(path = "lobbies/{lobbyId}/game/transition")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    @ResponseBody
-//    public void startNewRound(@PathVariable long lobbyId, @RequestBody RequestPutDTO requestPutDTO) {
-//        Game game = gameService.getGame(lobbyId);
-//        if(!game.getGameState().equals(GameState.TRANSITIONSTATE)) {
-//            throw new ForbiddenException("Can't start new round in current state!");
-//        }
-//        gameService.startNewRound(game, requestPutDTO);
-//    }
 
     @PutMapping(path = "lobbies/{lobbyId}/game/vote")
     @ResponseStatus(HttpStatus.NO_CONTENT)
