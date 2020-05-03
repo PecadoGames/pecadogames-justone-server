@@ -140,7 +140,7 @@ public class GameController {
         List<String> invalidWords = votePutDTO.getInvalidClues();
         if (gameService.vote(game, player, invalidWords)) {
             game.getTimer().setCancel(true);
-            game.setGameState(GameState.TRANSITIONSTATE);
+            game.setGameState(GameState.ENTERGUESSSTATE);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
         }
     }
