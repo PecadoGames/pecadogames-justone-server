@@ -9,6 +9,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
@@ -32,14 +33,16 @@ import java.util.concurrent.TimeUnit;
 public class GameService{
     private final GameRepository gameRepository;
     private final LobbyRepository lobbyRepository;
+    private final UserRepository userRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 4;
-    private static final int ROUNDTIME = 20;
+    private static final int ROUNDTIME = 40;
 
     @Autowired
-    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository) {
+    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository,UserRepository userRepository) {
         this.gameRepository = gameRepository;
         this.lobbyRepository = lobbyRepository;
+        this.userRepository = userRepository;
     }
 
     public Game getGame(Long id) {
@@ -209,16 +212,17 @@ public class GameService{
     }
 
 
-    public void submitGuess(Game game, MessagePutDTO messagePutDTO) {
+    public void submitGuess(Game game, MessagePutDTO messagePutDTO, long time) {
         if (!game.getCurrentGuesser().getToken().equals(messagePutDTO.getPlayerToken())) {
             throw new UnauthorizedException("User is not allowed to submit a guess!");
         }
         if(!game.getGameState().equals(GameState.ENTERGUESSSTATE)) {
             throw new UnauthorizedException("Can't submit guess in current state!");
         }
-
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
         if(game.isGuessCorrect()){
+            int pastScore = game.getCurrentGuesser().getScore();
+            game.getCurrentGuesser().setScore(pastScore + (int)(2*(ROUNDTIME - time)));
             System.out.println("Guess was correct");
         } else {
             System.out.println("Guess was not correct");
@@ -249,6 +253,15 @@ public class GameService{
 
     public void startNewRound(Game game) {
         game.setRoundsPlayed(game.getRoundsPlayed() + 1);
+
+        for(Player p: game.getPlayers()){
+            Optional<User> optionalUser = userRepository.findById(p.getId());
+            if(optionalUser.isPresent()){
+                User user = optionalUser.get();
+                user.setScore(user.getScore() + p.getScore());
+            }
+
+        }
 
         int index = game.getPlayers().indexOf(game.getCurrentGuesser());
         Player currentGuesser = game.getPlayers().get((index + 1) % game.getPlayers().size());
@@ -304,6 +317,18 @@ public class GameService{
         return currentWord;
     }
 
+    private void updateScores(Game game){
+        for(Player p: game.getPlayers()){
+            if(!game.getCurrentGuesser().equals(p)){
+                for(Clue clue: game.getEnteredClues()){
+                    if(clue.getPlayerId().equals(p.getId())){
+                        p.setScore(p.getScore() + (int) (clue.getTimeNeeded() * ((game.getPlayers().size()) - game.getEnteredClues().size())));
+                    }
+                }
+            }
+        }
+    }
+
 
     /**
      * Central timer logic for each game. Sets timer for each state,
@@ -325,17 +350,21 @@ public class GameService{
                         game.getTimer().cancel();
                         game.getTimer().purge();
 
-                        if(getUpdatedGame(game).getGameState().equals(GameState.TRANSITIONSTATE)){
-                            startNewRound(game);
-                        }
                         if(getUpdatedGame(game).getGameState().equals(GameState.PICKWORDSTATE)){
                             pickWord(game);
                         }
                         if(getUpdatedGame(game).getGameState().equals(GameState.ENTERCLUESSTATE)){
                             sendClue(game);
                         }
+                        if(getUpdatedGame(game).getGameState().equals(GameState.VOTEONCLUESSTATE)){
+                            vote(game);
+                        }
                         if(getUpdatedGame(game).getGameState().equals(GameState.ENTERGUESSSTATE)){
                             game.setGuessCorrect(false);
+                        }
+                        if(getUpdatedGame(game).getGameState().equals(GameState.TRANSITIONSTATE)){
+                            updateScores(game);
+                            startNewRound(game);
                         }
                         if(getUpdatedGame(game).getGameState().equals(GameState.ENDGAMESTATE)){
                             game.setPlayers(null);
@@ -507,6 +536,18 @@ public class GameService{
             gameRepository.saveAndFlush(game);
         }
         return allSent(game, counter);
+    }
+
+
+    public void vote(Game game) {
+        for (Player p: game.getPlayers()){
+            if(!game.getCurrentGuesser().equals(p) && !p.isVoted()){
+                p.setVoted(true);
+            }
+        }
+        checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
+        updateCluesAsString(game);
+        gameRepository.saveAndFlush(game);
     }
 
     public void checkVotes(Game game, int threshold) {
