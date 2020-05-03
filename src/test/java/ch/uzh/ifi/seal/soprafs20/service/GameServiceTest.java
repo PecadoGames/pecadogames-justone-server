@@ -394,11 +394,19 @@ public class GameServiceTest {
         Clue clue3 = new Clue();
         clue3.setPlayerId(3L);
         clue3.setActualClue("Banana");
+        Clue clue4 = new Clue();
+        clue4.setPlayerId(4L);
+        clue4.setActualClue("Apple");
         testGame.addClue(clue1);
         testGame.addClue(clue2);
+        testGame.addClue(clue3);
+        testGame.addClue(clue4);
 
         gameService.checkClues(testGame);
-        testGame = gameRepository.findById(1L).get();
         assertFalse(testGame.getCluesAsString().contains("Banana"));
+        assertFalse(testGame.getEnteredClues().contains(clue3));
+        assertFalse(testGame.getEnteredClues().contains(clue1));
+        assertTrue(testGame.getEnteredClues().contains(clue2));
+        assertTrue(testGame.getEnteredClues().contains(clue4));
     }
 }
