@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
+import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
@@ -74,7 +75,8 @@ public class LobbyController {
     @GetMapping(path = "/lobbies", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<LobbyGetDTO> getAllLobbies() {
+    public List<LobbyGetDTO> getAllLobbies(@RequestParam("token") String token) {
+        userService.getUserByToken(token);
         // fetch all lobbies in the internal representation
         List<Lobby> lobbies = lobbyService.getLobbies();
         List<LobbyGetDTO> lobbyGetDTOs = new ArrayList<>();
@@ -98,6 +100,7 @@ public class LobbyController {
         gameService.setTimer(createdGame);
         System.out.println("Game is starting!");
         gameService.timer(createdGame,createdGame.getGameState(),createdGame.getStartTimeSeconds());
+
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
                 .build().toUri();
         ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
