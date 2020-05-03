@@ -149,16 +149,6 @@ public class GameService extends Thread{
         if (!game.isSpecialGame()) {
             for(Player p : game.getPlayers()){
                 p.setClueIsSent(true);
-                game.addClueAsString("");
-            }
-        }
-        else {
-            for(int i = game.getCluesAsString().size(); i < 4; i++){
-                game.addClueAsString("");
-            }
-            for(Player p : game.getPlayers()){
-                if(!game.getCurrentGuesser().equals(p))
-                    p.setClueIsSent(true);
             }
         }
         return true;
@@ -181,6 +171,7 @@ public class GameService extends Thread{
      */
     public boolean pickWord(Game game) {
         game.setCurrentWord(chooseWordAtRandom(game.getWords()));
+        System.out.println("Picked a word!");
         return true;
     }
 
@@ -225,6 +216,7 @@ public class GameService extends Thread{
         } else {
             System.out.println("Guess was not correct");
         }
+        gameRepository.saveAndFlush(game);
     }
 
 
@@ -257,7 +249,8 @@ public class GameService extends Thread{
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
         }
-        game.getEnteredClues().clear();
+
+        game.setCluesAsString(null);
         gameRepository.saveAndFlush(game);
         //ToDo: Update scores of player and overall score
     }
@@ -282,11 +275,13 @@ public class GameService extends Thread{
         if(game.isSpecialGame()) {
             return counter == (game.getPlayers().size() - 1) * 2;
         }
+        System.out.println("only one guesser");
         return counter == game.getPlayers().size() - 1;
     }
 
     public void setStartTime(long time, Game game) {
         game.setStartTimeSeconds(time);
+        gameRepository.saveAndFlush(game);
     }
 
 
@@ -315,19 +310,15 @@ public class GameService extends Thread{
      * @param gameState - state to which the game transitions if timer is finished
      */
     public void timer(Game game, GameState gameState,long startTime) {
-
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 while (!getUpdatedGame(game).getTimer().isCancel()) {
                     game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
-                    if (game.getTime() >= ROUNDTIME && game.getRoundsPlayed() <= ROUNDS) {
+                    if (game.getTime() >= ROUNDTIME && getUpdatedGame(game).getRoundsPlayed() <= ROUNDS) {
                         game.getTimer().cancel();
                         game.getTimer().purge();
 
-                        if(getUpdatedGame(game).getGameState().equals(GameState.PICKWORDSTATE) && game.getRoundsPlayed() == 1){
-                            pickWord(game);
-                        }
                         if(getUpdatedGame(game).getGameState().equals(GameState.TRANSITIONSTATE)){
                             startNewRound(game);
                         }
@@ -361,7 +352,7 @@ public class GameService extends Thread{
                     game.getTimer().purge();
                     updatedGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     updatedGame.setTimer(new InternalTimer());
-                    gameRepository.saveAndFlush(game);
+                    gameRepository.saveAndFlush(updatedGame);
                     timer(updatedGame, updatedGame.getGameState(), updatedGame.getStartTimeSeconds());
 
                 }
@@ -371,12 +362,11 @@ public class GameService extends Thread{
                     System.out.println("Timer updated because of player, Word is: " + updatedGame.getCurrentWord() + ", new State: " + updatedGame.getGameState());
                     updatedGame.getTimer().cancel();
                     updatedGame.getTimer().purge();
-                    updatedGame.getTimer().setCancel(false);
                     game.getTimer().cancel();
                     game.getTimer().purge();
-
+                    updatedGame.getTimer().setCancel(false);
                     updatedGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-                    updatedGame.setGameState(getNextState(game));
+//                    updatedGame.setGameState(getNextState(game));
                     updatedGame.setTimer(new InternalTimer());
                     updatedGame.getTimer().setCancel(false);//
                     gameRepository.saveAndFlush(updatedGame);
