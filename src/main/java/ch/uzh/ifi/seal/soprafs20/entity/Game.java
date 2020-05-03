@@ -51,7 +51,7 @@ public class Game {
     private List<String> words = new ArrayList<>();
 
     @ElementCollection
-    private List<String> badWords = new ArrayList<>();
+    private List<String> invalidWords = new ArrayList<>();
 
     @Column
     private GameState gameState;
@@ -212,16 +212,20 @@ public class Game {
         this.lobbyName = lobbyName;
     }
 
-    public List<String> getBadWords() {
-        return badWords;
+    public List<String> getInvalidWords() {
+        return invalidWords;
     }
 
-    public void setBadWords(List<String> badWords) {
-        this.badWords = badWords;
+    public void setInvalidWords(List<String> badWords) {
+        this.invalidWords = badWords;
     }
 
-    public void addBadWord(String badWords) {
-        this.badWords.add(badWords);
+    public void addInvalidWord(String invalidWord) {
+        this.invalidWords.add(invalidWord);
+    }
+
+    public void addInvalidWords(List<String> invalidWords) {
+        this.invalidWords.addAll(invalidWords);
     }
 
     @Override

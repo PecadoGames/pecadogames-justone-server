@@ -5,7 +5,6 @@ import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
@@ -142,20 +141,19 @@ public class GameController {
     public void vote(@PathVariable long lobbyId, @RequestBody VotePutDTO votePutDTO) {
         Game game = gameService.getGame(lobbyId);
         if(!game.getGameState().equals(GameState.VOTEONCLUESSTATE)) {
-            throw new ForbiddenException("Can't start new round in current state!");
+            throw new UnauthorizedException("Can't vote on clues in current state!");
         }
-        for (Player p : game.getPlayers()){
-            if(p.getToken().equals(votePutDTO.getPlayerToken())){
-                Player player = playerService.getPlayer(votePutDTO.getPlayerId());
-                List<String> badWords = votePutDTO.getInvalidWords();
-                if(gameService.vote(game, player,badWords)){
-                    game.getTimer().setCancel(true);
-                    game.setGameState(GameState.TRANSITIONSTATE);
-                    gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
-                }
+        Player player = playerService.getPlayerByToken(votePutDTO.getPlayerToken());
+        if(game.getPlayers().contains(player) && !game.getCurrentGuesser().equals(player)) {
+            List<String> invalidWords = votePutDTO.getInvalidWords();
+            if(gameService.vote(game, player, invalidWords)){
+                game.getTimer().setCancel(true);
+                game.setGameState(GameState.TRANSITIONSTATE);
+                gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+                return;
             }
         }
-
+        throw new UnauthorizedException("This player is not allowed too vote on clues!");
     }
 
     private String asJsonString(final Object object) {

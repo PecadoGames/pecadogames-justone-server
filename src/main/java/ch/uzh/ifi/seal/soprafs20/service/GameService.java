@@ -239,6 +239,7 @@ public class GameService{
 
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
+            p.setVoted(false);
         }
         game.setGuessCorrect(false);
         game.setGameState(GameState.PICKWORDSTATE);
@@ -255,6 +256,7 @@ public class GameService{
 
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
+            p.setVoted(false);
         }
 
         game.setCluesAsString(null);
@@ -477,6 +479,7 @@ public class GameService{
     }
 
     public void updateCluesAsString(Game game) {
+        game.getCluesAsString().clear();
         for(Clue clue : game.getEnteredClues()) {
             game.addClueAsString(clue.getActualClue());
         }
@@ -484,23 +487,12 @@ public class GameService{
     }
 
 
-    public boolean vote(Game game, Player player, List<String> badWords) {
-        for(String bw: badWords){
-            game.addBadWord(bw);
-            player.setVoted(true);
+    public boolean vote(Game game, Player player, List<String> invalidWords) {
+        if(!player.isVoted()) {
+            game.addInvalidWords(invalidWords);
         }
-
-        int remove = 0;
-        for(String bw: game.getBadWords()){
-            for(String w: game.getBadWords()){
-                if(bw.equals(w)){
-                    remove++;
-                }
-            }
-            remove = remove - 1;//counted itself
-            if(remove >= ((game.getPlayers().size() - 1 )/2)){
-                game.getCluesAsString().remove(bw);
-            }
+        else {
+            throw new UnauthorizedException("This player already sent his votes!");
         }
         int counter = 0;
         for (Player p : game.getPlayers()){
@@ -508,8 +500,23 @@ public class GameService{
                 counter++;
         }
 
-        gameRepository.saveAndFlush(game);
+        if(counter == game.getPlayers().size() - 1) {
+            checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
+            updateCluesAsString(game);
+            gameRepository.saveAndFlush(game);
+        }
         return allSent(game, counter);
+    }
+
+    public void checkVotes(Game game, int threshold) {
+        Iterator<Clue> iterator = game.getEnteredClues().iterator();
+        while(iterator.hasNext()) {
+            Clue clue = iterator.next();
+            int occurrences = Collections.frequency(game.getInvalidWords(), clue.getActualClue());
+            if(occurrences >=  threshold) {
+                iterator.remove();
+            }
+        }
     }
 }
 

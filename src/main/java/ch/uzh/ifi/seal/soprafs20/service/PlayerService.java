@@ -33,7 +33,19 @@ public class PlayerService {
             return player;
         }
         else {
-            throw new NotFoundException("Couldn't find player. Did you convert the user into a player?");
+            throw new NotFoundException("Couldn't find player.");
+        }
+    }
+
+    public Player getPlayerByToken(String token) {
+        Player player;
+        Optional<Player> optional = playerRepository.findByToken(token);
+        if(optional.isPresent()) {
+            player = optional.get();
+            return player;
+        }
+        else {
+            throw new NotFoundException("Couldn't find player.");
         }
     }
 
