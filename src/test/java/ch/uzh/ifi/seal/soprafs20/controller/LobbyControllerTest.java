@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 
+import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
@@ -470,6 +471,9 @@ public class LobbyControllerTest {
 
         GamePostDTO gamePostDTO = new GamePostDTO();
         Game game = new Game();
+        game.setGameState(GameState.PICKWORDSTATE);
+        game.setStartTimeSeconds(60L);
+
 
         given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
         given(gameService.createGame(Mockito.any(), Mockito.any())).willReturn(game);

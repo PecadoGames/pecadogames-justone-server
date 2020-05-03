@@ -2,7 +2,6 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
@@ -167,27 +166,6 @@ public class GameServiceTest {
 
         Exception ex = assertThrows(UnauthorizedException.class, ()->{gameService.sendClue(testGame, testHost, clue);});
         assertTrue(testGame.getEnteredClues().isEmpty());
-    }
-
-    @Test
-    public void sendClue_normalGame_fail_timeRanOut(){
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
-        testGame.setSpecialGame(false);
-        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-
-        MessagePutDTO messagePutDTO = new MessagePutDTO();
-        messagePutDTO.setPlayerToken("token2");
-        messagePutDTO.setPlayerId(2L);
-        messagePutDTO.setMessage("star");
-        long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) + 1000;
-
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(player2.getId());
-
-        assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame, player2, clue);});
-        assertEquals("",testGame.getEnteredClues().get(0).getActualClue());
-        assertTrue(player2.isClueIsSent());
     }
 
     @Test
