@@ -14,6 +14,10 @@ public class NLP {
             return false;
         }
 
+        if(clue.contains(word) || word.contains(clue)) {
+            return false;
+        }
+
         if (clueToLower.equals(wordToLower)) {
             return false;
         }
