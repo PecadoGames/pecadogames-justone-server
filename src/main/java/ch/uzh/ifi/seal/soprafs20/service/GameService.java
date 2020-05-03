@@ -521,6 +521,8 @@ public class GameService{
         Set<String> set = new LinkedHashSet<>(game.getInvalidClues());
         game.getInvalidClues().clear();
         game.getInvalidClues().addAll(set);
+
+        updateCluesAsString(game);
         gameRepository.saveAndFlush(game);
     }
 }
