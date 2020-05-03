@@ -94,6 +94,10 @@ public class Game {
         return players;
     }
 
+    public void setPlayers(List<Player> p){
+        this.players = p;
+    }
+
     public void addPlayer(Player player) {
         this.players.add(player);
     }
