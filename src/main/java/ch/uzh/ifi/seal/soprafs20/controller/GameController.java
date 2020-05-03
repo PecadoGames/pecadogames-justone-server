@@ -28,7 +28,7 @@ public class GameController {
     private final GameService gameService;
 
 
-    GameController(PlayerService playerService, GameService gameService, InternalTimerService internalTimerService){
+    GameController(PlayerService playerService, GameService gameService, InternalTimerService internalTimerService) {
         this.playerService = playerService;
         this.gameService = gameService;
     }
@@ -42,14 +42,14 @@ public class GameController {
         GameGetDTO gameGetDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
 
         List<String> tokens = new ArrayList<>();
-        for(Player player : game.getPlayers()) {
+        for (Player player : game.getPlayers()) {
             tokens.add(player.getToken());
         }
-        if(!tokens.contains(token)) {
+        if (!tokens.contains(token)) {
             throw new UnauthorizedException("You are not allowed to access this game instance!");
         }
         //if guesser requests game, eliminate current word from dto
-        if(game.getCurrentGuesser().getToken().equals(token) && !game.getGameState().equals(GameState.TRANSITIONSTATE)) {
+        if (game.getCurrentGuesser().getToken().equals(token) && !game.getGameState().equals(GameState.TRANSITIONSTATE)) {
             gameGetDTO.setCurrentWord(null);
             gameGetDTO.setInvalidClues(null);
         }
@@ -59,32 +59,32 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/clue", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO){
+    public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         Game currentGame = gameService.getGame(lobbyId);
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
         Clue clue = new Clue();
         clue.setActualClue(messagePutDTO.getMessage());
         clue.setPlayerId(messagePutDTO.getPlayerId());
         System.out.println(clue.getActualClue());
-        if(gameService.sendClue(currentGame, player, clue)){
+        if (gameService.sendClue(currentGame, player, clue)) {
             currentGame.getTimer().setCancel(true);
             currentGame.setGameState(GameState.VOTEONCLUESSTATE);
-            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),currentGame);
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), currentGame);
         }
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game/word")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void pickWord(@PathVariable long lobbyId,@RequestParam("token") String token){
+    public void pickWord(@PathVariable long lobbyId, @RequestParam("token") String token) {
         Game game = gameService.getGame(lobbyId);
-        if(!game.getGameState().equals(GameState.PICKWORDSTATE)){
+        if (!game.getGameState().equals(GameState.PICKWORDSTATE)) {
             throw new UnauthorizedException("Can't choose word in current state");
         }
-        if(gameService.pickWord(token, game)){
+        if (gameService.pickWord(token, game)) {
             game.getTimer().setCancel(true);
             game.setGameState(GameState.ENTERCLUESSTATE);
-            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
         }
     }
 
@@ -94,18 +94,18 @@ public class GameController {
         long currentTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
         boolean found = false;
         Game game = gameService.getGame(lobbyId);
-        for(Player p : game.getPlayers()){
-            if(p.getToken().equals(token)) {
+        for (Player p : game.getPlayers()) {
+            if (p.getToken().equals(token)) {
                 found = true;
                 break;
             }
         }
-        if(!found)
+        if (!found)
             throw new UnauthorizedException("Not allowed to retrieve timer for this game!");
-        if(game.getStartTimeSeconds() == null){
+        if (game.getStartTimeSeconds() == null) {
             return "No timer started yet";
         }
-        if(game.getGameState().equals(GameState.ENDGAMESTATE)){
+        if (game.getGameState().equals(GameState.ENDGAMESTATE)) {
             return "Timer is over";
         }
         else {
@@ -122,7 +122,7 @@ public class GameController {
         gameService.submitGuess(game, messagePutDTO);
         game.getTimer().setCancel(true);
         game.setGameState(GameState.TRANSITIONSTATE);
-        gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+        gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
     }
 //
 //    @PutMapping(path = "lobbies/{lobbyId}/game/transition")
@@ -141,20 +141,19 @@ public class GameController {
     @ResponseBody
     public void vote(@PathVariable long lobbyId, @RequestBody VotePutDTO votePutDTO) {
         Game game = gameService.getGame(lobbyId);
-        if(!game.getGameState().equals(GameState.VOTEONCLUESSTATE)) {
+        if (!game.getGameState().equals(GameState.VOTEONCLUESSTATE)) {
             throw new UnauthorizedException("Can't vote on clues in current state!");
         }
         Player player = playerService.getPlayerByToken(votePutDTO.getPlayerToken());
-        if(game.getPlayers().contains(player) && !game.getCurrentGuesser().equals(player)) {
-            List<String> invalidWords = votePutDTO.getInvalidClues();
-            if(gameService.vote(game, player, invalidWords)){
-                game.getTimer().setCancel(true);
-                game.setGameState(GameState.TRANSITIONSTATE);
-                gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
-                return;
-            }
+        if (!game.getPlayers().contains(player) || game.getCurrentGuesser().equals(player)) {
+            throw new UnauthorizedException("This player is not allowed to vote on clues!");
         }
-        throw new UnauthorizedException("This player is not allowed too vote on clues!");
+        List<String> invalidWords = votePutDTO.getInvalidClues();
+        if (gameService.vote(game, player, invalidWords)) {
+            game.getTimer().setCancel(true);
+            game.setGameState(GameState.TRANSITIONSTATE);
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
+        }
     }
 
     private String asJsonString(final Object object) {
