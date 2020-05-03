@@ -64,8 +64,8 @@ public class GameRepositoryIntegrationTest {
         entityManager.persist(game);
         entityManager.flush();
 
-        Optional<Game> foundGame2 = gameRepository.findByLobbyId(100L);
-        assertFalse(foundGame2.isPresent());
+        Optional<Game> foundGame = gameRepository.findByLobbyId(100L);
+        assertFalse(foundGame.isPresent());
     }
 
     @Test

@@ -92,6 +92,7 @@ public class GameControllerTest {
         game.addPlayer(player2);
         game.setCurrentGuesser(player1);
         game.setCurrentWord("Erdbeermarmeladebrot");
+        game.setGameState(GameState.PICKWORDSTATE);
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
 

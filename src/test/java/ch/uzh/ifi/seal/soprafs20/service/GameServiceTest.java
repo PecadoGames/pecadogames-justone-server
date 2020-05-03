@@ -207,8 +207,6 @@ public class GameServiceTest {
         testGame.getEnteredClues().add(enteredClue2);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
-        long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
-
         Clue clue = new Clue();
         clue.setActualClue("star");
         clue.setPlayerId(player2.getId());
@@ -233,12 +231,6 @@ public class GameServiceTest {
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
         player2.setClueIsSent(true);
 
-        MessagePutDTO messagePutDTO = new MessagePutDTO();
-        messagePutDTO.setPlayerToken("token2");
-        messagePutDTO.setPlayerId(2L);
-        messagePutDTO.setMessage("badbunny");
-        long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
-
         Clue clue = new Clue();
         clue.setActualClue("wars");
         clue.setPlayerId(player2.getId());
@@ -256,7 +248,7 @@ public class GameServiceTest {
 
         gameService.pickWord(testHost.getToken(), testGame);
 
-        assertEquals("Erdbeermarmeladebrot", testGame.getCurrentWord());
+        assertEquals("erdbeermarmeladebrot", testGame.getCurrentWord());
         assertEquals(GameState.ENTERCLUESSTATE, testGame.getGameState());
     }
 
@@ -279,7 +271,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star wars");
         messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
 
-        gameService.submitGuess(testGame, messagePutDTO);
+        gameService.submitGuess(testGame, messagePutDTO, 30);
 
         assertTrue(testGame.isGuessCorrect());
     }
@@ -294,7 +286,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star trek");
         messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
 
-        gameService.submitGuess(testGame, messagePutDTO);
+        gameService.submitGuess(testGame, messagePutDTO, 30);
 
         assertFalse(testGame.isGuessCorrect());
     }
@@ -309,7 +301,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star wars");
         messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
 
-        assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO); });
+        assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO, 30); });
         assertFalse(testGame.isGuessCorrect());
         assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
     }
@@ -324,7 +316,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star wars");
         messagePutDTO.setPlayerToken("someToken");
 
-        assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO); });
+        assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO, 30); });
         assertFalse(testGame.isGuessCorrect());
         assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
     }
@@ -381,4 +373,93 @@ public class GameServiceTest {
 
         assertFalse(gameService.allSent(testGame, 3));
     }
+
+    @Test
+    public void checkClues_identicalClue_removed() {
+        testGame.setCurrentWord("Banana");
+        Clue clue1 = new Clue();
+        clue1.setActualClue("Banana");
+        clue1.setPlayerId(1L);
+        Clue clue2 = new Clue();
+        clue2.setActualClue("Apple");
+        clue2.setPlayerId(2L);
+        Clue clue3 = new Clue();
+        clue3.setPlayerId(3L);
+        clue3.setActualClue("Banana");
+        Clue clue4 = new Clue();
+        clue4.setPlayerId(4L);
+        clue4.setActualClue("Apple");
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+        testGame.addClue(clue3);
+        testGame.addClue(clue4);
+
+        gameService.checkClues(testGame);
+        assertFalse(testGame.getCluesAsString().contains("Banana"));
+        assertFalse(testGame.getEnteredClues().contains(clue3));
+        assertFalse(testGame.getEnteredClues().contains(clue1));
+        assertTrue(testGame.getEnteredClues().contains(clue2));
+        assertTrue(testGame.getEnteredClues().contains(clue4));
+    }
+
+    @Test
+    public void checkVote_eliminateOneClue() {
+        Clue clue1 = new Clue();
+        clue1.setPlayerId(1L);
+        clue1.setActualClue("Apple");
+        Clue clue2 = new Clue();
+        clue2.setPlayerId(2L);
+        clue2.setActualClue("Banana");
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+        testGame.addInvalidClue("Banana");
+        testGame.addInvalidClue("Banana");
+
+        gameService.checkVotes(testGame, 2);
+
+        assertTrue(testGame.getEnteredClues().contains(clue1));
+        assertFalse(testGame.getEnteredClues().contains(clue2));
+        assertEquals(1, testGame.getInvalidClues().size());
+    }
+
+    @Test
+    public void checkVote_eliminateNoClue() {
+        Clue clue1 = new Clue();
+        clue1.setPlayerId(1L);
+        clue1.setActualClue("Apple");
+        Clue clue2 = new Clue();
+        clue2.setPlayerId(2L);
+        clue2.setActualClue("Banana");
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+
+        gameService.checkVotes(testGame, 2);
+
+        assertTrue(testGame.getEnteredClues().contains(clue1));
+        assertTrue(testGame.getEnteredClues().contains(clue2));
+        assertTrue(testGame.getInvalidClues().isEmpty());
+    }
+
+    @Test
+    public void checkVote_allCluesEliminated() {
+        Clue clue1 = new Clue();
+        clue1.setPlayerId(1L);
+        clue1.setActualClue("Banana");
+        Clue clue2 = new Clue();
+        clue2.setPlayerId(2L);
+        clue2.setActualClue("Banana");
+
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+        testGame.addInvalidClue("Banana");
+        testGame.addInvalidClue("Banana");
+
+        gameService.checkVotes(testGame, 2);
+
+        assertFalse(testGame.getEnteredClues().contains(clue1));
+        assertFalse(testGame.getEnteredClues().contains(clue2));
+        assertEquals(1, testGame.getInvalidClues().size());
+        assertTrue(testGame.getInvalidClues().contains("banana"));
+    }
+
 }

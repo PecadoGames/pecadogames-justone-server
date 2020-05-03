@@ -7,7 +7,7 @@ public class VotePutDTO {
 
     private Long playerId;
     private String playerToken;
-    private ArrayList<String> badWords = new ArrayList<>();
+    private ArrayList<String> invalidClues = new ArrayList<>();
 
     public Long getPlayerId() {
         return playerId;
@@ -25,11 +25,11 @@ public class VotePutDTO {
         this.playerToken = playerToken;
     }
 
-    public ArrayList<String> getBadWords() {
-        return badWords;
+    public ArrayList<String> getInvalidClues() {
+        return invalidClues;
     }
 
-    public void setBadWords(ArrayList<String> badWords) {
-        this.badWords = badWords;
+    public void setInvalidClues(ArrayList<String> invalidClues) {
+        this.invalidClues = invalidClues;
     }
 }

@@ -70,7 +70,9 @@ public class LobbyControllerTest {
 
         given(lobbyService.getLobbies()).willReturn(allLobbies);
 
-        MockHttpServletRequestBuilder getRequest = get("/lobbies").contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder getRequest = get("/lobbies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "anyToken");
 
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))

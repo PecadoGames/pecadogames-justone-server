@@ -50,8 +50,9 @@ public class Game {
     @Fetch(value = FetchMode.SUBSELECT)
     private List<String> words = new ArrayList<>();
 
-    @ElementCollection
-    private List<String> badWords = new ArrayList<>();
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<String> invalidClues = new ArrayList<>();
 
     @Column
     private GameState gameState;
@@ -94,6 +95,10 @@ public class Game {
         return players;
     }
 
+    public void setPlayers(List<Player> p){
+        this.players = p;
+    }
+
     public void addPlayer(Player player) {
         this.players.add(player);
     }
@@ -101,7 +106,7 @@ public class Game {
     public synchronized String getCurrentWord() { return currentWord; }
 
     public synchronized void setCurrentWord(String currentWord) {
-        this.currentWord = currentWord;
+        this.currentWord = currentWord.toLowerCase();
     }
 
     public List<Clue> getEnteredClues() {
@@ -174,7 +179,7 @@ public class Game {
 
     public String getCurrentGuess() { return currentGuess; }
 
-    public void setCurrentGuess(String currentGuess) { this.currentGuess = currentGuess; }
+    public void setCurrentGuess(String currentGuess) { this.currentGuess = currentGuess.toLowerCase(); }
 
     public boolean isSpecialGame() {
         return specialGame;
@@ -208,16 +213,17 @@ public class Game {
         this.lobbyName = lobbyName;
     }
 
-    public List<String> getBadWords() {
-        return badWords;
+    public List<String> getInvalidClues() {
+        return invalidClues;
     }
 
-    public void setBadWords(List<String> badWords) {
-        this.badWords = badWords;
+    public void addInvalidClue(String invalidClue) {
+        this.invalidClues.add(invalidClue.toLowerCase());
     }
 
-    public void addBadWord(String badWords) {
-        this.badWords.add(badWords);
+    public void setInvalidClues(List<String> invalidClues) {
+        for(String invalidClue : invalidClues)
+        this.invalidClues.add(invalidClue.toLowerCase());
     }
 
     @Override

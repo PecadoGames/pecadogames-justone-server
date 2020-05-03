@@ -8,6 +8,8 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
@@ -28,15 +30,19 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @Transactional
-public class GameService extends Thread{
+public class GameService{
     private final GameRepository gameRepository;
+    private final LobbyRepository lobbyRepository;
+    private final UserRepository userRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 4;
-    private static final int ROUNDTIME = 30;
+    private static final int ROUNDTIME = 40;
 
     @Autowired
-    public GameService(GameRepository gameRepository) {
+    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository,UserRepository userRepository) {
         this.gameRepository = gameRepository;
+        this.lobbyRepository = lobbyRepository;
+        this.userRepository = userRepository;
     }
 
     public Game getGame(Long id) {
@@ -49,6 +55,10 @@ public class GameService extends Thread{
         else {
             throw new NotFoundException("Could not find game!");
         }
+    }
+
+    public int getMaxTime(){
+        return ROUNDTIME;
     }
 
     /**
@@ -115,7 +125,7 @@ public class GameService extends Thread{
         }
         if (!game.isSpecialGame()) {
             game.addClue(clue);
-            game.addClueAsString(clue.getActualClue());
+            //game.addClueAsString(clue.getActualClue());
             player.setClueIsSent(true);
             gameRepository.saveAndFlush(game);
         }
@@ -190,28 +200,29 @@ public class GameService extends Thread{
         if (!game.getEnteredClues().isEmpty()) {
             if(game.getEnteredClues().removeIf(clue1 -> clue1.getActualClue().equals(player.getToken()))) {
                 game.addClue(clue);
-                game.addClueAsString(clue.getActualClue());
+                //game.addClueAsString(clue.getActualClue());
                 player.setClueIsSent(true);
                 return;
             }
         }
         game.addClue(clue);
-        game.addClueAsString(clue.getActualClue());
+        //game.addClueAsString(clue.getActualClue());
         setTimeNeeded(game, clue);
         game.addClue(temporaryClue);
     }
 
 
-    public void submitGuess(Game game, MessagePutDTO messagePutDTO) {
+    public void submitGuess(Game game, MessagePutDTO messagePutDTO, long time) {
         if (!game.getCurrentGuesser().getToken().equals(messagePutDTO.getPlayerToken())) {
             throw new UnauthorizedException("User is not allowed to submit a guess!");
         }
         if(!game.getGameState().equals(GameState.ENTERGUESSSTATE)) {
             throw new UnauthorizedException("Can't submit guess in current state!");
         }
-
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
         if(game.isGuessCorrect()){
+            int pastScore = game.getCurrentGuesser().getScore();
+            game.getCurrentGuesser().setScore(pastScore + (int)(2*(ROUNDTIME - time)));
             System.out.println("Guess was correct");
         } else {
             System.out.println("Guess was not correct");
@@ -232,6 +243,7 @@ public class GameService extends Thread{
 
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
+            p.setVoted(false);
         }
         game.setGuessCorrect(false);
         game.setGameState(GameState.PICKWORDSTATE);
@@ -242,12 +254,22 @@ public class GameService extends Thread{
     public void startNewRound(Game game) {
         game.setRoundsPlayed(game.getRoundsPlayed() + 1);
 
+        for(Player p: game.getPlayers()){
+            Optional<User> optionalUser = userRepository.findById(p.getId());
+            if(optionalUser.isPresent()){
+                User user = optionalUser.get();
+                user.setScore(user.getScore() + p.getScore());
+            }
+
+        }
+
         int index = game.getPlayers().indexOf(game.getCurrentGuesser());
         Player currentGuesser = game.getPlayers().get((index + 1) % game.getPlayers().size());
         game.setCurrentGuesser(currentGuesser);
 
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
+            p.setVoted(false);
         }
 
         game.setCluesAsString(null);
@@ -257,12 +279,8 @@ public class GameService extends Thread{
 
     public void checkClues(Game game) {
         NLP nlp = new NLP();
-        Iterator<Clue> iterator = game.getEnteredClues().iterator();
-        while(iterator.hasNext()) {
-            if(!nlp.checkClue(iterator.next().getActualClue(), game.getCurrentWord())) {
-                iterator.remove();
-            }
-        }
+        game.getEnteredClues().removeIf(clue -> !nlp.checkClue(clue.getActualClue(), game.getCurrentWord()));
+        updateCluesAsString(game);
         gameRepository.saveAndFlush(game);
     }
 
@@ -299,6 +317,18 @@ public class GameService extends Thread{
         return currentWord;
     }
 
+    private void updateScores(Game game){
+        for(Player p: game.getPlayers()){
+            if(!game.getCurrentGuesser().equals(p)){
+                for(Clue clue: game.getEnteredClues()){
+                    if(clue.getPlayerId().equals(p.getId())){
+                        p.setScore(p.getScore() + (int) (clue.getTimeNeeded() * ((game.getPlayers().size()) - game.getEnteredClues().size())));
+                    }
+                }
+            }
+        }
+    }
+
 
     /**
      * Central timer logic for each game. Sets timer for each state,
@@ -320,17 +350,26 @@ public class GameService extends Thread{
                         game.getTimer().cancel();
                         game.getTimer().purge();
 
-                        if(getUpdatedGame(game).getGameState().equals(GameState.TRANSITIONSTATE)){
-                            startNewRound(game);
-                        }
                         if(getUpdatedGame(game).getGameState().equals(GameState.PICKWORDSTATE)){
                             pickWord(game);
                         }
                         if(getUpdatedGame(game).getGameState().equals(GameState.ENTERCLUESSTATE)){
                             sendClue(game);
                         }
+                        if(getUpdatedGame(game).getGameState().equals(GameState.VOTEONCLUESSTATE)){
+                            vote(game);
+                        }
                         if(getUpdatedGame(game).getGameState().equals(GameState.ENTERGUESSSTATE)){
                             game.setGuessCorrect(false);
+                        }
+                        if(getUpdatedGame(game).getGameState().equals(GameState.TRANSITIONSTATE)){
+                            updateScores(game);
+                            startNewRound(game);
+                        }
+                        if(getUpdatedGame(game).getGameState().equals(GameState.ENDGAMESTATE)){
+                            game.setPlayers(null);
+                            gameRepository.delete(game);
+                            gameRepository.flush();
                         }
                         game.setGameState(getNextState(game));
                         gameRepository.saveAndFlush(game);
@@ -343,8 +382,11 @@ public class GameService extends Thread{
                         break;
                     }
                 }
+                if(game.getGameState() == null){
+                    System.out.println("Game was terminated!");
+                }
                 //timer ran out, transition to next state
-                if (game.getRoundsPlayed() <= ROUNDS && !getCancel(game)) {
+                else if (game.getRoundsPlayed() <= ROUNDS && !getCancel(game)) {
                     Game updatedGame = getUpdatedGame(game);
                     System.out.println("Timer ran out, next state: " + updatedGame.getGameState());
                     updatedGame.getTimer().cancel();
@@ -360,6 +402,7 @@ public class GameService extends Thread{
                 //user input before timer ran out, update timer and transition to next state
                 else if(game.getRoundsPlayed() <= ROUNDS && getCancel(game)){
                     Game updatedGame = getUpdatedGame(game);
+
                     System.out.println("Timer updated because of player, Word is: " + updatedGame.getCurrentWord() + ", new State: " + updatedGame.getGameState());
                     updatedGame.getTimer().cancel();
                     updatedGame.getTimer().purge();
@@ -367,12 +410,12 @@ public class GameService extends Thread{
                     game.getTimer().purge();
                     updatedGame.getTimer().setCancel(false);
                     updatedGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-//                    updatedGame.setGameState(getNextState(game));
                     updatedGame.setTimer(new InternalTimer());
                     updatedGame.getTimer().setCancel(false);//
                     gameRepository.saveAndFlush(updatedGame);
                     timer(updatedGame, updatedGame.getGameState(), updatedGame.getStartTimeSeconds());
                 }
+
                 //game reached final state in final round = Game is over
                 else {
                     game.setGameState(GameState.ENDGAMESTATE);
@@ -380,8 +423,15 @@ public class GameService extends Thread{
                     game.getTimer().setRunning(false);
                     game.getTimer().cancel();
                     game.getTimer().purge();
+
                     game.setTimer(new InternalTimer());
+                    game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    game.setRoundsPlayed(ROUNDS);
+                    Lobby currentLobby = getUpdatedLobby(game.getLobbyId());
+                    currentLobby.setGameIsStarted(false);
+                    lobbyRepository.saveAndFlush(currentLobby);
                     gameRepository.saveAndFlush(game);
+                    timer(game,game.getGameState(),game.getStartTimeSeconds());
                 }
             }
         };
@@ -392,6 +442,11 @@ public class GameService extends Thread{
             game.getTimer().setCancel(false);
             game.getTimer().schedule(timerTask, 0, 1000);
         }
+    }
+
+    private Lobby getUpdatedLobby(Long lobbyId) {
+        Optional<Lobby> currentLobby = lobbyRepository.findByLobbyId(lobbyId);
+        return currentLobby.orElse(null);
     }
 
     /**
@@ -434,6 +489,8 @@ public class GameService extends Thread{
             case TRANSITIONSTATE:
                 nextGameState = GameState.PICKWORDSTATE;
                 break;
+            case ENDGAMESTATE:
+                nextGameState = GameState.ENDGAMESTATE;
             default:
                 nextGameState = null;
         }
@@ -450,24 +507,22 @@ public class GameService extends Thread{
         clue.setTimeNeeded(ROUNDTIME - timeNeeded);
     }
 
+    public void updateCluesAsString(Game game) {
+        game.getCluesAsString().clear();
+        for(Clue clue : game.getEnteredClues()) {
+            game.addClueAsString(clue.getActualClue());
+        }
+        gameRepository.saveAndFlush(game);
+    }
 
-    public boolean vote(Game game, Player player, List<String> badWords) {
-        for(String bw: badWords){
-            game.addBadWord(bw);
+
+    public boolean vote(Game game, Player player, List<String> invalidWords) {
+        if(!player.isVoted()) {
+            game.setInvalidClues(invalidWords);
             player.setVoted(true);
         }
-
-        int remove = 0;
-        for(String bw: game.getBadWords()){
-            for(String w: game.getBadWords()){
-                if(bw.equals(w)){
-                    remove++;
-                }
-            }
-            remove = remove - 1;//counted itself
-            if(remove >= ((game.getPlayers().size() - 1 )/2)){
-                game.getCluesAsString().remove(bw);
-            }
+        else {
+            throw new UnauthorizedException("This player already sent his votes!");
         }
         int counter = 0;
         for (Player p : game.getPlayers()){
@@ -475,8 +530,42 @@ public class GameService extends Thread{
                 counter++;
         }
 
-        gameRepository.saveAndFlush(game);
+        if(counter == game.getPlayers().size() - 1) {
+            checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
+            updateCluesAsString(game);
+            gameRepository.saveAndFlush(game);
+        }
         return allSent(game, counter);
+    }
+
+
+    public void vote(Game game) {
+        for (Player p: game.getPlayers()){
+            if(!game.getCurrentGuesser().equals(p) && !p.isVoted()){
+                p.setVoted(true);
+            }
+        }
+        checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
+        updateCluesAsString(game);
+        gameRepository.saveAndFlush(game);
+    }
+
+    public void checkVotes(Game game, int threshold) {
+        Iterator<Clue> iterator = game.getEnteredClues().iterator();
+        while(iterator.hasNext()) {
+            Clue clue = iterator.next();
+            int occurrences = Collections.frequency(game.getInvalidClues(), clue.getActualClue());
+            if(occurrences >=  threshold) {
+                iterator.remove();
+            }
+        }
+        //Remove duplicates from list of invalid clues to return to client
+        Set<String> set = new LinkedHashSet<>(game.getInvalidClues());
+        game.getInvalidClues().clear();
+        game.getInvalidClues().addAll(set);
+
+        updateCluesAsString(game);
+        gameRepository.saveAndFlush(game);
     }
 }
 

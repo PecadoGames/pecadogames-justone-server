@@ -5,7 +5,6 @@ import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
@@ -29,7 +28,7 @@ public class GameController {
     private final GameService gameService;
 
 
-    GameController(PlayerService playerService, GameService gameService, InternalTimerService internalTimerService){
+    GameController(PlayerService playerService, GameService gameService, InternalTimerService internalTimerService) {
         this.playerService = playerService;
         this.gameService = gameService;
     }
@@ -43,15 +42,16 @@ public class GameController {
         GameGetDTO gameGetDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
 
         List<String> tokens = new ArrayList<>();
-        for(Player player : game.getPlayers()) {
+        for (Player player : game.getPlayers()) {
             tokens.add(player.getToken());
         }
-        if(!tokens.contains(token)) {
+        if (!tokens.contains(token)) {
             throw new UnauthorizedException("You are not allowed to access this game instance!");
         }
         //if guesser requests game, eliminate current word from dto
-        if(game.getCurrentGuesser().getToken().equals(token)) {
+        if (game.getCurrentGuesser().getToken().equals(token) && !game.getGameState().equals(GameState.TRANSITIONSTATE)) {
             gameGetDTO.setCurrentWord(null);
+            gameGetDTO.setInvalidClues(null);
         }
         return gameGetDTO;
     }
@@ -59,32 +59,32 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/clue", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO){
+    public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         Game currentGame = gameService.getGame(lobbyId);
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
         Clue clue = new Clue();
         clue.setActualClue(messagePutDTO.getMessage());
         clue.setPlayerId(messagePutDTO.getPlayerId());
         System.out.println(clue.getActualClue());
-        if(gameService.sendClue(currentGame, player, clue)){
+        if (gameService.sendClue(currentGame, player, clue)) {
             currentGame.getTimer().setCancel(true);
             currentGame.setGameState(GameState.VOTEONCLUESSTATE);
-            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),currentGame);
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), currentGame);
         }
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game/word")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void pickWord(@PathVariable long lobbyId,@RequestParam("token") String token){
+    public void pickWord(@PathVariable long lobbyId, @RequestParam("token") String token) {
         Game game = gameService.getGame(lobbyId);
-        if(!game.getGameState().equals(GameState.PICKWORDSTATE)){
+        if (!game.getGameState().equals(GameState.PICKWORDSTATE)) {
             throw new UnauthorizedException("Can't choose word in current state");
         }
-        if(gameService.pickWord(token, game)){
+        if (gameService.pickWord(token, game)) {
             game.getTimer().setCancel(true);
             game.setGameState(GameState.ENTERCLUESSTATE);
-            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
         }
     }
 
@@ -94,22 +94,22 @@ public class GameController {
         long currentTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
         boolean found = false;
         Game game = gameService.getGame(lobbyId);
-        for(Player p : game.getPlayers()){
-            if(p.getToken().equals(token)) {
+        for (Player p : game.getPlayers()) {
+            if (p.getToken().equals(token)) {
                 found = true;
                 break;
             }
         }
-        if(!found)
+        if (!found)
             throw new UnauthorizedException("Not allowed to retrieve timer for this game!");
-        if(game.getStartTimeSeconds() == null){
+        if (game.getStartTimeSeconds() == null) {
             return "No timer started yet";
         }
-        if(game.getGameState().equals(GameState.ENDGAMESTATE)){
+        if (game.getGameState().equals(GameState.ENDGAMESTATE)) {
             return "Timer is over";
         }
         else {
-            long diff = currentTime - game.getStartTimeSeconds();
+            long diff = gameService.getMaxTime() - (currentTime - game.getStartTimeSeconds());
             return Long.toString(diff);
         }
     }
@@ -119,43 +119,30 @@ public class GameController {
     @ResponseBody
     public void sendGuess(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         Game game = gameService.getGame(lobbyId);
-        gameService.submitGuess(game, messagePutDTO);
+        gameService.submitGuess(game, messagePutDTO,TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds());
         game.getTimer().setCancel(true);
         game.setGameState(GameState.TRANSITIONSTATE);
-        gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
+        gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
     }
-//
-//    @PutMapping(path = "lobbies/{lobbyId}/game/transition")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    @ResponseBody
-//    public void startNewRound(@PathVariable long lobbyId, @RequestBody RequestPutDTO requestPutDTO) {
-//        Game game = gameService.getGame(lobbyId);
-//        if(!game.getGameState().equals(GameState.TRANSITIONSTATE)) {
-//            throw new ForbiddenException("Can't start new round in current state!");
-//        }
-//        gameService.startNewRound(game, requestPutDTO);
-//    }
 
     @PutMapping(path = "lobbies/{lobbyId}/game/vote")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void vote(@PathVariable long lobbyId, @RequestBody VotePutDTO votePutDTO) {
         Game game = gameService.getGame(lobbyId);
-        if(!game.getGameState().equals(GameState.VOTEONCLUESSTATE)) {
-            throw new ForbiddenException("Can't start new round in current state!");
+        if (!game.getGameState().equals(GameState.VOTEONCLUESSTATE)) {
+            throw new UnauthorizedException("Can't vote on clues in current state!");
         }
-        for (Player p : game.getPlayers()){
-            if(p.getToken().equals(votePutDTO.getPlayerToken())){
-                Player player = playerService.getPlayer(votePutDTO.getPlayerId());
-                List<String> badWords = votePutDTO.getBadWords();
-                if(gameService.vote(game, player,badWords)){
-                    game.getTimer().setCancel(true);
-                    game.setGameState(GameState.TRANSITIONSTATE);
-                    gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
-                }
-            }
+        Player player = playerService.getPlayerByToken(votePutDTO.getPlayerToken());
+        if (!game.getPlayers().contains(player) || game.getCurrentGuesser().equals(player)) {
+            throw new UnauthorizedException("This player is not allowed to vote on clues!");
         }
-
+        List<String> invalidWords = votePutDTO.getInvalidClues();
+        if (gameService.vote(game, player, invalidWords)) {
+            game.getTimer().setCancel(true);
+            game.setGameState(GameState.ENTERGUESSSTATE);
+            gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
+        }
     }
 
     private String asJsonString(final Object object) {

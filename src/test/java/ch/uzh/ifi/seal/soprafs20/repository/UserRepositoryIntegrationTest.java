@@ -87,7 +87,9 @@ public class UserRepositoryIntegrationTest {
         entityManager.flush();
 
         // when
-        User found = userRepository.findByToken(user.getToken());
+        Optional<User> optionalUser = userRepository.findByToken(user.getToken());
+        assertTrue(optionalUser.isPresent());
+        User found = optionalUser.get();
 
         // then
         assertNotNull(found.getId());
@@ -112,10 +114,10 @@ public class UserRepositoryIntegrationTest {
         entityManager.flush();
 
         // when
-        User found = userRepository.findByToken("unsuccessful");
+        Optional<User> found = userRepository.findByToken("unsuccessful");
 
         // then
-        assertNull(found);
+        assertTrue(found.isEmpty());
     }
 
     @Test

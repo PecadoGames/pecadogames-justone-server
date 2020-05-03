@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository("playerRepository")
 public interface PlayerRepository extends JpaRepository<Player, Long> {
     Optional<Player> findById(Long id);
+    Optional<Player> findByToken(String token);
 }
