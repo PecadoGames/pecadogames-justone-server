@@ -9,7 +9,6 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
-import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.VotePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
@@ -124,8 +123,6 @@ public class GameController {
         game.getTimer().setCancel(true);
         game.setGameState(GameState.TRANSITIONSTATE);
         gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),game);
-
-
     }
 //
 //    @PutMapping(path = "lobbies/{lobbyId}/game/transition")

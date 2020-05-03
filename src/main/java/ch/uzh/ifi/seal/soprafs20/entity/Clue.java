@@ -35,7 +35,7 @@ public class Clue {
         if (this == o) { return true; }
         if (!(o instanceof Clue)) { return false; }
         Clue other = (Clue) o;
-        return playerId != null && playerId.equals(other.getPlayerId());
+        return playerId != null && playerId.equals(other.getPlayerId()) && actualClue.equals(other.getActualClue());
     }
 
     @Override
