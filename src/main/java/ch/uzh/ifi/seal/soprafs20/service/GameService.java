@@ -54,6 +54,10 @@ public class GameService{
         }
     }
 
+    public int getMaxTime(){
+        return ROUNDTIME;
+    }
+
     /**
      * creates new Game instance, sets current guesser and chooses first word
      *

@@ -109,7 +109,7 @@ public class GameController {
             return "Timer is over";
         }
         else {
-            long diff = 60 - (currentTime - game.getStartTimeSeconds());
+            long diff = gameService.getMaxTime() - (currentTime - game.getStartTimeSeconds());
             return Long.toString(diff);
         }
     }
