@@ -2,24 +2,25 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
 public class FriendPutDTO {
 
-    private String token;
-    private Long senderID;
+    //accepting user token
+    private String accepterToken;
+    private Long requesterID;
     private boolean accepted;
 
-    public String getToken() {
-        return token;
+    public String getAccepterToken() {
+        return accepterToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setAccepterToken(String accepterToken) {
+        this.accepterToken = accepterToken;
     }
 
-    public Long getSenderID() {
-        return senderID;
+    public Long getRequesterID() {
+        return requesterID;
     }
 
-    public void setSenderID(Long id) {
-        senderID = id;
+    public void setRequesterID(Long id) {
+        requesterID = id;
     }
 
     public boolean getAccepted() {return accepted; }

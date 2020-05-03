@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.rest.mapper;
 
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -27,6 +26,7 @@ public interface DTOMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "username", target = "username")
     @Mapping(source = "status", target = "status")
+    @Mapping(source = "avatarColor", target = "avatarColor")
     @Mapping(source = "creationDate", target = "creationDate")
     @Mapping(source = "birthday", target = "birthday")
     UserGetDTO convertEntityToUserGetDTO(User user);
@@ -34,7 +34,6 @@ public interface DTOMapper {
     @Mapping(source = "username", target = "username")
     @Mapping(source = "password", target = "password")
     User convertLoginPutDTOtoEntity(LoginPutDTO loginPutDTO);
-
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "token", target = "token")
@@ -44,7 +43,7 @@ public interface DTOMapper {
     @Mapping(source = "id", target = "id")
     User convertLogoutPutDTOtoEntity(LogoutPutDTO logoutPutDTO);
 
-    @Mapping(source = "token", target = "token")
+    @Mapping(source = "username", target = "username")
     @Mapping(source = "id", target = "id")
     RequestGetDTO convertEntityToRequestGetDTO(User user);
 
@@ -54,21 +53,20 @@ public interface DTOMapper {
 
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "voiceChat", target = "voiceChat")
-    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "hostId", target = "hostId")
     @Mapping(source = "lobbyId", target = "lobbyId")
-    @Mapping(source = "totalNumPlayersAndBots", target = "totalPlayersAndBots")
-    @Mapping(source = "numberOfPlayers",target = "maxPlayersAndBots")
+    @Mapping(source = "currentNumPlayersAndBots", target = "currentNumPlayersAndBots")
+    @Mapping(source = "maxPlayersAndBots", target = "maxPlayersAndBots")
+    @Mapping(source = "gameStarted", target = "gameIsStarted")
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
 
     @Mapping(source = "lobbyName", target = "lobbyName")
-    @Mapping(source = "numberOfPlayers", target = "numberOfPlayers")
+    @Mapping(source = "maxPlayersAndBots", target = "maxPlayersAndBots")
     @Mapping(source = "voiceChat", target = "voiceChat")
-    @Mapping(source = "userId", target = "userId")
-    @Mapping(source = "token", target = "token")
+    @Mapping(source = "hostId", target = "hostId")
+    @Mapping(source = "hostToken", target = "hostToken")
     @Mapping(source = "private", target = "private")
     Lobby convertLobbyPostDTOtoEntity(LobbyPostDTO lobbyPostDTO);
-
-
 
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "voiceChat", target = "voiceChat")
@@ -76,7 +74,25 @@ public interface DTOMapper {
     @Mapping(source = "lobbyId", target = "lobbyId")
     InviteGetDTO convertEntityToInviteGetDTO(Lobby lobby);
 
+    @Mapping(source = "playerId", target = "authorId")
+    @Mapping(source = "message", target = "text")
+    Message convertMessagePutDTOtoEntity(MessagePutDTO messagePutDTO);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "score", target = "score")
+    @Mapping(source = "clueIsSent", target = "clueIsSent")
+    PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
 
+    @Mapping(source = "actualClue", target = "actualClue")
+    ClueGetDTO convertEntityToClueGetDTO(Clue clue);
 
+    @Mapping(source = "lobbyId",target = "lobbyId")
+    @Mapping(source = "roundsPlayed",target = "roundsPlayed")
+    @Mapping(source = "gameState",target = "gameState")
+    @Mapping(source = "overallScore",target = "overallScore")
+    @Mapping(source = "currentWord", target = "currentWord")
+    @Mapping(source = "lobbyName", target = "lobbyName")
+    @Mapping(source = "specialGame", target = "specialGame")
+    GameGetDTO convertEntityToGameGetDTO(Game game);
 }

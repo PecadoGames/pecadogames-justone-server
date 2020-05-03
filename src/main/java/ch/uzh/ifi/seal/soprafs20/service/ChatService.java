@@ -1,7 +1,8 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
-import ch.uzh.ifi.seal.soprafs20.entity.Chat;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,20 @@ public class ChatService {
     public void createChat(Long lobbyId) {
         Chat chat = new Chat();
         chat.setLobbyId(lobbyId);
-        chatRepository.save(chat);
+        chat = chatRepository.save(chat);
         chatRepository.flush();
+    }
+
+    public void addChatMessage(Lobby lobby, String token, Message message) {
+        // Long id = chatPutDTO.getUserId();
+        for (Player player : lobby.getPlayersInLobby()) {
+            if (player.getToken().equals(token)) {
+                message.setAuthorUsername(player.getUsername());
+                Chat chat = getChat(lobby.getLobbyId());
+                chat.setMessages(message);
+                return;
+            }
+        }
+        throw new UnauthorizedException("You are not allowed to send this message.");
     }
 }
