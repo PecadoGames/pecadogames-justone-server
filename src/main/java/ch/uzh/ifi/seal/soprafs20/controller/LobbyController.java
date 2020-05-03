@@ -1,14 +1,11 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
-import ch.uzh.ifi.seal.soprafs20.entity.Chat;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
-import ch.uzh.ifi.seal.soprafs20.service.ChatService;
-import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
-import ch.uzh.ifi.seal.soprafs20.service.UserService;
+import ch.uzh.ifi.seal.soprafs20.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -26,12 +23,18 @@ import java.util.List;
 public class LobbyController {
     private final LobbyService lobbyService;
     private final UserService userService;
+    private final PlayerService playerService;
     private final ChatService chatService;
+    private final MessageService messageService;
+    private final GameService gameService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, ChatService chatService){
+    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService, ChatService chatService, MessageService messageService, GameService gameService){
         this.lobbyService = lobbyService;
         this.userService = userService;
+        this.playerService = playerService;
         this.chatService = chatService;
+        this.messageService = messageService;
+        this.gameService = gameService;
     }
 
 
@@ -49,13 +52,16 @@ public class LobbyController {
         Lobby createdLobby;
         // convert API user to internal representation
         Lobby userLobby = DTOMapper.INSTANCE.convertLobbyPostDTOtoEntity(lobbyPostDTO);
-        User host = userService.getUser(lobbyPostDTO.getUserId());
+        User host = userService.getUser(lobbyPostDTO.getHostId());
+        //convert host from user to player
+//        playerService.hromecheckPlayerToken(host.getToken(), lobbyPostDTO.getHostToken());
+        Player hostAsPlayer = playerService.convertUserToPlayer(host);
         // create lobby
-        createdLobby = lobbyService.createLobby(userLobby,host);
+        createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer);
 
         //create chat for lobby
         chatService.createChat(createdLobby.getLobbyId());
-        // convert internal representation of user back to API
+
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{lobbyId}")
                 .buildAndExpand(createdLobby.getLobbyId()).toUri();
         if(createdLobby.isPrivate()) {
@@ -80,16 +86,40 @@ public class LobbyController {
         return lobbyGetDTOs;
     }
 
+    @PostMapping(path = "lobbies/{lobbyId}", consumes = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public ResponseEntity<Object> createGame(@PathVariable long lobbyId, @RequestBody GamePostDTO gamePostDTO) {
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+//        if(lobby.getCurrentNumPlayersAndBots() < 3 || lobby.getCurrentNumPlayersAndBots() > 7){
+//            throw new ConflictException("Invalid amount of players to start the game");
+//        }
+        Game createdGame = gameService.createGame(lobby, gamePostDTO);
+        gameService.setTimer(createdGame);
+        System.out.println("Game is starting!");
+        gameService.timer(createdGame,createdGame.getGameState(),createdGame.getStartTimeSeconds());
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
+                .build().toUri();
+        ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).build();
+    }
 
     @PutMapping(path = "/lobbies/{lobbyId}", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void updateLobby(@PathVariable long lobbyId, @RequestBody LobbyPutDTO lobbyPutDTO){
-        Lobby lobby;
-        lobby = lobbyService.getLobby(lobbyId);
+        Lobby lobby = lobbyService.getLobby(lobbyId);
         lobbyService.updateLobby(lobby,lobbyPutDTO);
     }
 
+    @GetMapping(path = "/lobbies/{lobbyId}", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public String getLobby(@PathVariable long lobbyId) {
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        String json = asJsonString(lobby);
+        return asJsonString(lobby);
+    }
 
     @PutMapping(path = "/lobbies/{lobbyId}/invitations", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -98,7 +128,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         User host = userService.getUser(invitePutDTO.getUserId());
         User userToInvite = userService.getUser(invitePutDTO.getUserToInviteId());
-        userService.addLobbyInvite(userToInvite,lobby,host);
+        userToInvite = userService.addLobbyInvite(userToInvite,lobby,host);
     }
 
     @PutMapping(path = "/lobbies/{lobbyId}/acceptances", consumes = "application/json")
@@ -106,7 +136,12 @@ public class LobbyController {
     @ResponseBody
     public LobbyGetDTO handleLobbyInvite(@PathVariable long lobbyId, @RequestBody LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO);
+        if(userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO)) {
+            User user = userService.getUser(lobbyAcceptancePutDTO.getAccepterId());
+            playerService.checkPlayerToken(user.getToken(), lobbyAcceptancePutDTO.getAccepterToken());
+            Player player = playerService.convertUserToPlayer(user);
+            lobbyService.addPlayerToLobby(lobbyAcceptancePutDTO.getAccepterToken(), player, lobby);
+        }
 
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
@@ -114,19 +149,44 @@ public class LobbyController {
     @GetMapping(path = "/lobbies/{lobbyId}/chat", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public String getChatMessages(@PathVariable long lobbyId) {
+    public String getChatMessages(@PathVariable long lobbyId,@RequestParam String token) {
+        boolean found = false;
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        for (Player player : lobby.getPlayersInLobby()){
+            if(player.getToken().equals(token)){
+                found = true;
+                break;
+            } else {
+                found = false;
+            }
+        }
+        if(!found)
+            throw new UnauthorizedException("This player is not allowed to access this chat history!");
         Chat chat = chatService.getChat(lobbyId);
         return asJsonString(chat);
     }
 
+    @PutMapping(path = "lobbies/{lobbyId}/chat", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void addChatMessage(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
+        Message message = DTOMapper.INSTANCE.convertMessagePutDTOtoEntity(messagePutDTO);
+        message = messageService.createMessage(message);
+        User author  = userService.getUser(messagePutDTO.getPlayerId());
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        chatService.addChatMessage(lobby, author.getToken(), message);
+    }
 
-    @PutMapping(path = "lobbies/{lobbyId}/joins", consumes = "application/json")
+    @PutMapping(path = "/lobbies/{lobbyId}/joins", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void joinLobby(@PathVariable long lobbyId, @RequestBody JoinLeavePutDTO joinLeavePutDTO){
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        User user = userService.getUser(joinLeavePutDTO.getUserId());
-        lobbyService.addUserToLobby(user,lobby);
+        User user = userService.getUser(joinLeavePutDTO.getPlayerId());
+        //convert user into player
+        playerService.checkPlayerToken(user.getToken(), joinLeavePutDTO.getPlayerToken());
+        Player player = playerService.convertUserToPlayer(user);
+        lobbyService.addPlayerToLobby(joinLeavePutDTO.getPlayerToken(), player, lobby);
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/rageQuits", consumes = "application/json")
@@ -134,9 +194,12 @@ public class LobbyController {
     @ResponseBody
     public void leaveLobby(@PathVariable long lobbyId, @RequestBody JoinLeavePutDTO joinLeavePutDTO){
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        User user = userService.getUser(joinLeavePutDTO.getUserId());
-        lobbyService.addUserToLobby(user,lobby);
+        Player playerToBeRemoved = playerService.getPlayer(joinLeavePutDTO.getPlayerId());
+        lobbyService.removePlayerFromLobby(playerToBeRemoved, lobby);
+        playerService.deletePlayer(playerToBeRemoved);
     }
+
+
 
     private String asJsonString(final Object object) {
         try {

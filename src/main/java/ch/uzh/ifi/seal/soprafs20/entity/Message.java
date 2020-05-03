@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 @Table(name = "MESSAGE")
@@ -21,13 +22,16 @@ public class Message implements Serializable {
     @Column(nullable = false)
     private Long authorId;
 
+    @Column
+    private String authorUsername;
+
     @NotBlank
     @NotEmpty
     @Column(nullable = false)
     private String text;
 
     @Column(nullable = false)
-    @JsonFormat(pattern="dd.MM.yyyy hh:mm:ss")
+    @JsonFormat(pattern="hh:mm:ss")
     private Date creationDate;
 
     public Long getMessageId() {
@@ -46,6 +50,10 @@ public class Message implements Serializable {
         this.authorId = authorId;
     }
 
+    public String getAuthorUsername() { return authorUsername; }
+
+    public void setAuthorUsername(String authorUsername) { this.authorUsername = authorUsername; }
+
     public String getText() {
         return text;
     }
@@ -58,8 +66,21 @@ public class Message implements Serializable {
         return creationDate;
     }
 
-    @JsonFormat(pattern="dd.MM.yyyy")
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
+    @JsonFormat(pattern="hh:mm:ss")
+    public void setCreationDate() {
+        this.creationDate = new Date();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Message)) { return false; }
+        Message other = (Message) o;
+        return authorId != null && authorId.equals(other.getAuthorId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getAuthorId());
     }
 }

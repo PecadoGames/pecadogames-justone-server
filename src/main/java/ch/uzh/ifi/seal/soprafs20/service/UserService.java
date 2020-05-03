@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
+import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
@@ -7,6 +8,7 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
@@ -15,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * User Service
@@ -56,6 +56,7 @@ public class UserService {
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
+        newUser.setAvatarColor(getRandomColor());
         newUser.setCreationDate();
         checkUsername(newUser.getUsername());
         checkIfUserExists(newUser);
@@ -102,7 +103,7 @@ public class UserService {
 
     public void updateUser(User user, UserPutDTO receivedValues) throws JsonParseException {
 
-        if (userRepository.findByUsername(receivedValues.getUsername()) != null) {
+        if (!user.getUsername().equals(receivedValues.getUsername()) && userRepository.findByUsername(receivedValues.getUsername()) != null) {
             throw new ConflictException("This username already exists.");
         }
         if (!user.getToken().equals(receivedValues.getToken())) {
@@ -116,24 +117,33 @@ public class UserService {
             checkUsername(receivedValues.getUsername());
             user.setUsername(receivedValues.getUsername());
         }
-        userRepository.save(user);
 
+        if (receivedValues.getAvatarColor() != null) {
+            checkAvatarColor(receivedValues.getAvatarColor());
+            user.setAvatarColor(receivedValues.getAvatarColor());
+        }
     }
 
-    public void addFriendRequest(User receiver, User sender) {
+    public void addFriendRequest(User receiver, RequestPutDTO requestPutDTO) {
+        User sender = getUser(requestPutDTO.getSenderID());
         if (userRepository.findByUsername(receiver.getUsername()) == null) {
             String exceptionMessage = "User with id %s does not exist!";
             throw new NotFoundException(String.format(exceptionMessage, receiver.getId().toString()));
         }
-        User user = userRepository.findById(sender.getId()).get();
-        if (!sender.getToken().equals(user.getToken())) {
+        if (!sender.getToken().equals(requestPutDTO.getToken())) {
             throw new UnauthorizedException("You are not allowed to send a friend request!");
+        }
+        if(receiver.getFriendRequests().contains(sender)) {
+            throw new NoContentException("This user already got a friend request from you!");
         }
         receiver.setFriendRequests(sender);
     }
 
     public void acceptOrDeclineFriendRequest(User receiver, FriendPutDTO friendPutDTO) {
-        User sender = getUser(friendPutDTO.getSenderID());
+        if(!receiver.getToken().equals(friendPutDTO.getAccepterToken())){
+            throw new UnauthorizedException("Not allowed to accept/deny friend request!");
+        }
+        User sender = getUser(friendPutDTO.getRequesterID());
         if (receiver.getFriendRequests().contains(sender)) {
             if (friendPutDTO.getAccepted()) {
                 receiver.setFriendList(sender);
@@ -146,34 +156,28 @@ public class UserService {
         }
     }
 
-    public void addLobbyInvite(User receiver, Lobby lobby, User sender) {
-        if (!sender.getToken().equals(lobby.getToken())) {
+    public User addLobbyInvite(User receiver, Lobby lobby, User sender) {
+        if (!sender.getToken().equals(lobby.getHostToken())) {
             throw new UnauthorizedException("User is not authorized to send lobby invites");
         }
         if (sender.getId().equals(receiver.getId())) {
             throw new ConflictException("Cannot invite yourself to the lobby");
         }
         receiver.setLobbyInvites(lobby);
+        return receiver;
     }
 
-    //TODO: @Mary review my changes to this method
-    public void acceptOrDeclineLobbyInvite(Lobby lobby, LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
+    public boolean acceptOrDeclineLobbyInvite(Lobby lobby, LobbyAcceptancePutDTO lobbyAcceptancePutDTO) {
         User receiver = getUser(lobbyAcceptancePutDTO.getAccepterId());
         if (!receiver.getToken().equals(lobbyAcceptancePutDTO.getAccepterToken()) || !receiver.getLobbyInvites().contains(lobby)) {
             throw new UnauthorizedException("You are not allowed to accept or decline this lobby invite!");
         }
         receiver.getLobbyInvites().remove(lobby);
-        if (lobbyAcceptancePutDTO.isAccepted() && lobby.getTotalNumPlayersAndBots() + 1 - lobby.getNumberOfBots() <= lobby.getNumberOfPlayers()) {
-            lobby.addUserToLobby(receiver);
-            //update player count
-            lobby.setTotalNumPlayersAndBots(lobby.getNumberOfPlayers() + 1);
-            return;
+        if (lobbyAcceptancePutDTO.isAccepted()) {
+            return true;
         }
-        if(!lobbyAcceptancePutDTO.isAccepted()) {
+        else {
             throw new NoContentException("You declined the lobby invite.");
-        }
-        if(lobby.getTotalNumPlayersAndBots() + 1 - lobby.getNumberOfBots() > lobby.getNumberOfPlayers()){
-            throw new ConflictException("Failed to join lobby: The lobby is already full");
         }
     }
 
@@ -195,5 +199,22 @@ public class UserService {
         if (username.contains(" ") || username.isEmpty() || username.isBlank() || username.length() > 20 || username.trim().isEmpty() || !username.matches("[a-zA-Z_0-9]*")) {
             throw new NotAcceptableException("This is an invalid username. Please choose a username with a maximum length of 20 characters consisting of letters, digits and underscores..");
         }
+    }
+
+    private AvatarColor getRandomColor() {
+        List<AvatarColor> values = List.of(AvatarColor.values());
+        int size = values.size();
+        Random random = new Random();
+
+        return values.get(random.nextInt(size));
+    }
+
+    private void checkAvatarColor(AvatarColor enteredColor) {
+        for (AvatarColor color : AvatarColor.values()) {
+            if (color.equals(enteredColor)) {
+                return;
+            }
+        }
+        throw new NotAcceptableException("This is an invalid color. Please choose from the following colors: " + Arrays.toString(AvatarColor.values()));
     }
 }

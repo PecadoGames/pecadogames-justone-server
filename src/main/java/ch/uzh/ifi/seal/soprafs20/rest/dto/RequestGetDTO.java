@@ -3,7 +3,12 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 public class RequestGetDTO {
 
     private Long id;
-    private String token;
+
+    private String username;
+
+    public String getUsername() {return username;}
+
+    public void setUsername(String username) {this.username = username;}
 
     public Long getId() {
         return id;
@@ -13,11 +18,5 @@ public class RequestGetDTO {
         this.id = id;
     }
 
-    public String getToken() {
-        return token;
-    }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
 }

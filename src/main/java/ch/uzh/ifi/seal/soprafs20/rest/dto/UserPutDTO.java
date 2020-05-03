@@ -1,26 +1,18 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
-import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
-//import ch.uzh.ifi.seal.soprafs20.exceptions.GlobalExceptionAdvice;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+
+//import ch.uzh.ifi.seal.soprafs20.exceptions.GlobalExceptionAdvice;
 
 public class UserPutDTO {
 
     private String username;
-
     @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
+    private AvatarColor avatarColor;
     private String token;
 
     public String getUsername(){return this.username;}
@@ -29,7 +21,7 @@ public class UserPutDTO {
         this.username = username;
     }
 
-    @JsonFormat(pattern="dd.MM.yyyy")
+    //@JsonFormat(pattern="dd.MM.yyyy")
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
@@ -37,6 +29,10 @@ public class UserPutDTO {
     public Date getBirthday() {
         return birthday;
     }
+
+    public void setAvatarColor(AvatarColor color) { this.avatarColor = color; }
+
+    public AvatarColor getAvatarColor() { return avatarColor; }
 
     public String getToken(){return token;}
 

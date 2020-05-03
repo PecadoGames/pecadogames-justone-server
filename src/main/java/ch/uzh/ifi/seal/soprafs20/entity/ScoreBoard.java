@@ -1,23 +1,36 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
 
-import javax.persistence.*;
-
-import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
-import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
-
-import java.util.ArrayList;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "ScoreBoard")
 public class ScoreBoard {
-    private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
     private Long lobbyId;
 
-    public void findByPlayerScore(){
+    public Long getLobbyId() {
+        return lobbyId;
+    }
 
+    public void setLobbyId(Long lobbyId) {
+        this.lobbyId = lobbyId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof ScoreBoard)) { return false; }
+        ScoreBoard other = (ScoreBoard) o;
+        return lobbyId != null && lobbyId.equals(other.getLobbyId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getLobbyId());
     }
 }

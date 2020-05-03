@@ -1,11 +1,16 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
+import com.fasterxml.jackson.core.JsonParseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
 
@@ -25,6 +31,8 @@ public class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
+    @InjectMocks
+    private PlayerService playerService;
 
     private User testUser;
 
@@ -67,9 +75,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
 
         // then -> attempt to create second user with same user -> check that an error is thrown
-        String exceptionMessage = "The username provided is not unique. Therefore, the user could not be created!";
-        ConflictException exception = assertThrows(ConflictException.class, () -> userService.createUser(testUser), exceptionMessage);
-        assertEquals(exceptionMessage, exception.getMessage());
+        assertThrows(ConflictException.class, () -> userService.createUser(testUser));
     }
 
     @Test
@@ -81,9 +87,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
         // then -> attempt to create second user with same user -> check that an error is thrown
-        String exceptionMessage = "ouldn't find user";
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.getUser(1L));
-        assertTrue(exception.getMessage().contains(exceptionMessage));
+        assertThrows(NotFoundException.class, () -> userService.getUser(1L));
     }
 
     @Test
@@ -103,23 +107,19 @@ public class UserServiceTest {
 
     @Test
     public void loginUser_validInputs_success() {
-        // when -> any object is being save in the userRepository -> return the dummy testUser
-        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         testUser.setStatus(UserStatus.OFFLINE);
 
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         userService.loginUser(testUser);
+
         assertEquals(UserStatus.ONLINE, testUser.getStatus());
     }
 
     @Test
     public void loginUser_invalidInput_throwsException() {
-        // when -> any object is being save in the userRepository -> return the dummy testUser
-
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
 
-        String exceptionMessage = "user credentials are incorrect!";
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.loginUser(testUser), exceptionMessage);
-        assertEquals(exceptionMessage, exception.getMessage());
+        assertThrows(NotFoundException.class, () -> userService.loginUser(testUser));
     }
 
     @Test
@@ -131,12 +131,33 @@ public class UserServiceTest {
         falseUser.setPassword("password");
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(falseUser);
-        String exceptionMessage = "user credentials are incorrect!";
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.loginUser(testUser), exceptionMessage);
-        assertEquals(exceptionMessage, exception.getMessage());
+        assertThrows(NotFoundException.class, () -> userService.loginUser(testUser));
         assertEquals(testUser.getStatus(), UserStatus.OFFLINE);
     }
 
+    @Test
+    public void loginUser_whenUserAlreadyLoggedIn_throwsException() {
+        testUser.setStatus(UserStatus.ONLINE);
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+
+        assertThrows(NoContentException.class, () -> userService.loginUser(testUser));
+    }
+
+    @Test
+    public void logoutUser_validInput_success() {
+        testUser.setStatus(UserStatus.ONLINE);
+
+        userService.logoutUser(testUser);
+        assertEquals(testUser.getStatus(), UserStatus.OFFLINE);
+        assertNull(testUser.getToken());
+    }
+
+    @Test
+    public void logoutUser_userIsOffline_throwsException() {
+        testUser.setStatus(UserStatus.OFFLINE);
+
+        assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser));
+    }
 
     @Test
     public void logoutUser_invalidToken_throwsException() {
@@ -148,23 +169,45 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
 
-        String exceptionMessage = "Logout is not allowed!";
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser2), exceptionMessage);
-        assertEquals(exceptionMessage, exception.getMessage());
+        assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser2));
         assertEquals(testUser2.getStatus(), UserStatus.ONLINE);
     }
 
     @Test
     public void updateUser_validInput_success() throws Exception {
-
         UserPutDTO userPutDTO = new UserPutDTO();
         userPutDTO.setUsername("changedUsername");
         userPutDTO.setBirthday(new SimpleDateFormat( "dd.MM.yyyy" ).parse( "20.05.2010" ));
         userPutDTO.setToken("testToken");
 
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
         userService.updateUser(testUser, userPutDTO);
 
         assertEquals(testUser.getUsername(), userPutDTO.getUsername());
+        assertEquals(testUser.getBirthday(), userPutDTO.getBirthday());
+    }
+
+    @Test
+    public void updateUser_validNewUsername_success() throws JsonParseException {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("changedUsername");
+        userPutDTO.setToken("testToken");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
+        userService.updateUser(testUser, userPutDTO);
+
+        assertEquals(testUser.getUsername(), userPutDTO.getUsername());
+    }
+
+    @Test
+    public void updateUser_validBirthday_success() throws JsonParseException, ParseException {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setBirthday(new SimpleDateFormat( "dd.MM.yyyy" ).parse( "20.05.2010" ));
+        userPutDTO.setToken("testToken");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
+        userService.updateUser(testUser, userPutDTO);
+
         assertEquals(testUser.getBirthday(), userPutDTO.getBirthday());
     }
 
@@ -174,10 +217,7 @@ public class UserServiceTest {
         userPutDTO.setUsername("changedUsername");
         userPutDTO.setToken("wrongToken");
 
-        String exceptionMessage = "You are not allowed to change this user's information";
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
-
+        assertThrows(UnauthorizedException.class, () -> userService.updateUser(testUser, userPutDTO));
         assertEquals(testUser.getUsername(), "testUsername");
     }
 
@@ -191,10 +231,7 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(user);
 
-        String exceptionMessage = "This username already exists";
-        ConflictException exception = assertThrows(ConflictException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
-
+        assertThrows(ConflictException.class, () -> userService.updateUser(testUser, userPutDTO));
         assertEquals(testUser.getUsername(), "testUsername");
     }
 
@@ -204,10 +241,7 @@ public class UserServiceTest {
         userPutDTO.setUsername("thisUsernameIsTooLong");
         userPutDTO.setToken("testToken");
 
-        String exceptionMessage = "This is an invalid username";
-        NotAcceptableException exception = assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
-
+        assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO));
         assertEquals(testUser.getUsername(), "testUsername");
     }
 
@@ -217,10 +251,7 @@ public class UserServiceTest {
         userPutDTO.setUsername("invalidU$ername");
         userPutDTO.setToken("testToken");
 
-        String exceptionMessage = "This is an invalid username";
-        NotAcceptableException exception = assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
-
+        assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO));
         assertEquals(testUser.getUsername(), "testUsername");
     }
 
@@ -230,32 +261,64 @@ public class UserServiceTest {
         testUser2.setId(2L);
         testUser2.setToken("testToken2");
 
+        RequestPutDTO requestPutDTO = new RequestPutDTO();
+        requestPutDTO.setSenderID(2L);
+        requestPutDTO.setToken("testToken2");
+
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
-        userService.addFriendRequest(testUser, testUser2);
+        userService.addFriendRequest(testUser, requestPutDTO);
 
         assertTrue(testUser.getFriendRequests().contains(testUser2));
         assertFalse(testUser2.getFriendRequests().contains(testUser));
     }
 
     @Test
-    public void addFriendRequest_invalidInput() {
+    public void addFriendRequest_alreadyAdded_throwsException() {
         User testUser2 = new User();
         testUser2.setId(2L);
         testUser2.setToken("testToken2");
 
-        User testUser_wrongToken = new User();
-        testUser_wrongToken.setId(2L);
-        testUser_wrongToken.setToken("wrongToken");
+        RequestPutDTO requestPutDTO = new RequestPutDTO();
+        requestPutDTO.setSenderID(2L);
+        requestPutDTO.setToken("testToken2");
+
+        testUser.setFriendRequests(testUser2);
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
 
-        String exceptionMessage = "not allowed to send a friend request";
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.addFriendRequest(testUser, testUser_wrongToken), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
+        assertThrows(NoContentException.class, () -> userService.addFriendRequest(testUser, requestPutDTO));
+        assertTrue(testUser.getFriendRequests().contains(testUser2));
+    }
+
+    @Test
+    public void addFriendRequest_invalidToken_throwsException() {
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setToken("testToken2");
+
+        RequestPutDTO requestPutDTO = new RequestPutDTO();
+        requestPutDTO.setSenderID(2L);
+        requestPutDTO.setToken("wrongToken");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
+
+        assertThrows(UnauthorizedException.class, () -> userService.addFriendRequest(testUser, requestPutDTO));
         assertFalse(testUser.getFriendRequests().contains(testUser2));
     }
+
+   @Test
+   public void addFriendRequest_userNotFound_throwsException() {
+       RequestPutDTO requestPutDTO = new RequestPutDTO();
+       requestPutDTO.setSenderID(2L);
+       requestPutDTO.setToken("testToken2");
+
+       Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
+
+       assertThrows(NotFoundException.class, () -> userService.addFriendRequest(testUser, requestPutDTO));
+   }
 
     @Test
     public void acceptFriendRequest_validInput_success() {
@@ -267,8 +330,8 @@ public class UserServiceTest {
 
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(true);
-        friendPutDTO.setToken(testUser2.getToken());
-        friendPutDTO.setSenderID(testUser2.getId());
+        friendPutDTO.setAccepterToken(testUser.getToken());
+        friendPutDTO.setRequesterID(testUser2.getId());
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
@@ -290,8 +353,8 @@ public class UserServiceTest {
 
         FriendPutDTO friendPutDTO = new FriendPutDTO();
         friendPutDTO.setAccepted(false);
-        friendPutDTO.setToken(testUser2.getToken());
-        friendPutDTO.setSenderID(testUser2.getId());
+        friendPutDTO.setAccepterToken(testUser.getToken());
+        friendPutDTO.setRequesterID(testUser2.getId());
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
@@ -304,23 +367,164 @@ public class UserServiceTest {
     }
 
     @Test
-    public void handleFriendRequest_invalidInput_throwsException() {
-        FriendPutDTO friendPutDTO = new FriendPutDTO();
-        friendPutDTO.setAccepted(false);
-        friendPutDTO.setToken("anyToken");
-        friendPutDTO.setSenderID(5L);
-
+    public void declineFriendRequest_validInput_unauthorizedUser() {
         User testUser2 = new User();
         testUser2.setId(2L);
         testUser2.setToken("testToken2");
 
+        testUser.setFriendRequests(testUser2);
+
+        FriendPutDTO friendPutDTO = new FriendPutDTO();
+        friendPutDTO.setAccepted(false);
+        friendPutDTO.setAccepterToken("WrongToken");
+        friendPutDTO.setRequesterID(testUser2.getId());
+
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
 
-        String exceptionMessage = "friend request from user";
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO), exceptionMessage);
-        assertTrue(exception.getMessage().contains(exceptionMessage));
 
+
+        assertThrows(UnauthorizedException.class,() ->{userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO);});
+        assertFalse(testUser.getFriendList().contains(testUser2));
+        assertFalse(testUser2.getFriendList().contains(testUser));
+        assertFalse(testUser.getFriendRequests().isEmpty());
+    }
+
+    @Test
+    public void handleFriendRequest_invalidInput_throwsException() {
+        FriendPutDTO friendPutDTO = new FriendPutDTO();
+        friendPutDTO.setAccepted(false);
+        friendPutDTO.setAccepterToken("testToken");
+        friendPutDTO.setRequesterID(5L);
+
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setToken("anyToken");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser2));
+
+        assertThrows(NotFoundException.class, () -> userService.acceptOrDeclineFriendRequest(testUser, friendPutDTO));
+    }
+
+    @Test
+    public void handleLobbyInvite_accepted_success() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setMaxPlayersAndBots(5);
+
+        User receiver = new User();
+        receiver.setToken("testToken");
+        receiver.setLobbyInvites(lobby);
+
+        Player player = new Player();
+        player.setToken("testToken");
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterToken("testToken");
+        lobbyAcceptancePutDTO.setAccepted(true);
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+
+        assertTrue(userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
+        assertFalse(receiver.getLobbyInvites().contains(lobby));
+    }
+
+    @Test
+    public void handleLobbyInvite_notAccepted_throwsException() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setMaxPlayersAndBots(5);
+
+        User receiver = new User();
+        receiver.setToken("testToken");
+        receiver.setLobbyInvites(lobby);
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterToken("testToken");
+        lobbyAcceptancePutDTO.setAccepted(false);
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+
+        assertThrows(NoContentException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
+        assertEquals(4, lobby.getCurrentNumPlayersAndBots());
+    }
+
+    @Test
+    public void handleLobbyInvite_invalidToken_throwsException() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setMaxPlayersAndBots(5);
+
+        User receiver = new User();
+        receiver.setToken("testToken");
+        receiver.setLobbyInvites(lobby);
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterToken("wrongToken");
+        lobbyAcceptancePutDTO.setAccepted(true);
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+
+        assertThrows(UnauthorizedException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
+    }
+
+    @Test
+    public void handleLobbyInvite_invalidRequest_throwsException() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setMaxPlayersAndBots(5);
+
+        User receiver = new User();
+        receiver.setToken("testToken");
+
+        LobbyAcceptancePutDTO lobbyAcceptancePutDTO = new LobbyAcceptancePutDTO();
+        lobbyAcceptancePutDTO.setAccepterToken("testToken");
+        lobbyAcceptancePutDTO.setAccepted(true);
+
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+
+        assertThrows(UnauthorizedException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
+    }
+
+    @Test
+    public void lobbyInviteSent_success(){
+        User userToInvite = new User();
+
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setMaxPlayersAndBots(5);
+        lobby.setHostToken("testToken");
+
+        userToInvite = userService.addLobbyInvite(userToInvite,lobby,testUser);
+
+        assertTrue(userToInvite.getLobbyInvites().contains(lobby));
+    }
+
+    @Test
+    public void lobbyInviteSent_unauthorized(){
+        User userToInvite = new User();
+
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setMaxPlayersAndBots(5);
+        lobby.setHostToken("anotherToken");
+
+        assertThrows(UnauthorizedException.class,()->
+        {userService.addLobbyInvite(userToInvite,lobby,testUser);});
+    }
+
+    @Test
+    public void lobbyInviteSent_autoInvite(){
+        User userToInvite = new User();
+
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setMaxPlayersAndBots(5);
+        lobby.setHostToken("testToken");
+
+        assertThrows(ConflictException.class,()->
+        {userService.addLobbyInvite(testUser,lobby,testUser);});
     }
 
     @Test

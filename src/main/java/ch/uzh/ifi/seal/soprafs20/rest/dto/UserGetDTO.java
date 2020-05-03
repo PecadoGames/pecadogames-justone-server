@@ -1,22 +1,18 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
+import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
-import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Set;
 
 public class UserGetDTO {
 
     private Long id;
     private String username;
     private UserStatus status;
+    private AvatarColor avatarColor;
     private Date creationDate;
     @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
@@ -46,6 +42,10 @@ public class UserGetDTO {
     public void setStatus(UserStatus status) {
         this.status = status;
     }
+
+    public AvatarColor getAvatarColor() { return avatarColor; }
+
+    public void setAvatarColor(AvatarColor color) { this.avatarColor = color; }
 
     public void setBirthday(Date birthday){
         this.birthday = birthday;

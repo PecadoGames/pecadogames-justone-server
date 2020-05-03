@@ -3,15 +3,21 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 public class LobbyGetDTO {
     private String lobbyName;
 
-    private boolean voiceChat;
-
-    private Long userId;
-
     private Long lobbyId;
 
-    private Integer totalPlayersAndBots;
+    private Long hostId;
+
+    private boolean voiceChat;
+
+    private long lobbyScore;
+
+    private boolean isPrivate;
+
+    private Integer currentNumPlayersAndBots;
 
     private Integer maxPlayersAndBots;
+
+    private boolean gameIsStarted;
 
 
     public String getLobbyName() {
@@ -30,12 +36,12 @@ public class LobbyGetDTO {
         this.voiceChat = voiceChat;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getHostId() {
+        return hostId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setHostId(long hostId) {
+        this.hostId = hostId;
     }
 
 
@@ -47,12 +53,12 @@ public class LobbyGetDTO {
         this.lobbyId = lobbyId;
     }
 
-    public Integer getTotalPlayersAndBots() {
-        return totalPlayersAndBots;
+    public Integer getCurrentNumPlayersAndBots() {
+        return currentNumPlayersAndBots;
     }
 
-    public void setTotalPlayersAndBots(Integer totalPlayersAndBots) {
-        this.totalPlayersAndBots = totalPlayersAndBots;
+    public void setCurrentNumPlayersAndBots(Integer currentNumPlayersAndBots) {
+        this.currentNumPlayersAndBots = currentNumPlayersAndBots;
     }
 
     public Integer getMaxPlayersAndBots() {
@@ -62,4 +68,8 @@ public class LobbyGetDTO {
     public void setMaxPlayersAndBots(Integer maxPlayersAndBots) {
         this.maxPlayersAndBots = maxPlayersAndBots;
     }
+
+    public boolean isGameIsStarted() { return gameIsStarted; }
+
+    public void setGameIsStarted(boolean gameIsStarted) { this.gameIsStarted = gameIsStarted; }
 }

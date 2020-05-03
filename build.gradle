@@ -43,6 +43,7 @@ dependencies {
     }
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+    compile group: 'org.apache.opennlp', name: 'opennlp-tools', version: '1.9.2'
 }
 
 bootJar {
@@ -90,6 +91,10 @@ sonarqube {
         property "sonar.coverage.jacoco.xmlReportPaths", ["$buildDir/jacocoReportDir/test/jacocoTestReport.xml"]
         property "sonar.cpd.exclusions", "**/entity/*.java,**/rest/dto/*.java"
     }
+}
+
+sourceSets {
+    main.java.srcDirs += "build/generated/sources/annotationProcessor/java/main"
 }
 
 project.tasks["sonarqube"].dependsOn {

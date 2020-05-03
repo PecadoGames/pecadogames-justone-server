@@ -3,13 +3,13 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 public class LobbyPostDTO {
     private String lobbyName;
 
-    private Integer numberOfPlayers;
+    private Integer maxPlayersAndBots;
 
     private boolean voiceChat;
 
-    private Long userId;
+    private Long hostId;
 
-    private String token; //user token!
+    private String hostToken; //user token!
 
     private boolean isPrivate;
 
@@ -23,12 +23,12 @@ public class LobbyPostDTO {
         this.lobbyName = lobbyName;
     }
 
-    public Integer getNumberOfPlayers() {
-        return numberOfPlayers;
+    public Integer getMaxPlayersAndBots() {
+        return maxPlayersAndBots;
     }
 
-    public void setNumberOfPlayers(Integer numberOfPlayers) {
-        this.numberOfPlayers = numberOfPlayers;
+    public void setMaxPlayersAndBots(Integer maxPlayersAndBots) {
+        this.maxPlayersAndBots = maxPlayersAndBots;
     }
 
     public boolean isVoiceChat() {
@@ -39,27 +39,27 @@ public class LobbyPostDTO {
         this.voiceChat = voiceChat;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getHostId() {
+        return hostId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setHostId(long hostId) {
+        this.hostId = hostId;
     }
 
-    public String getToken() {
-        return token;
+    public String getHostToken() {
+        return hostToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setHostToken(String hostToken) {
+        this.hostToken = hostToken;
     }
 
     public boolean isPrivate() {
         return isPrivate;
     }
 
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
+    public void setPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 }

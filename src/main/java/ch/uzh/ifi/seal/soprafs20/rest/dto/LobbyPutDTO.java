@@ -3,43 +3,33 @@ package ch.uzh.ifi.seal.soprafs20.rest.dto;
 import java.util.ArrayList;
 
 public class LobbyPutDTO {
-    private Integer numberOfPlayers;
-    private ArrayList<Long> usersToKick;
-    private Integer numberOfBots;
-    private String token;
 
+    private Integer maxNumberOfPlayersAndBots;
+    private ArrayList<Long> playersToKick;
+    private String hostToken;
 
-    public Integer getNumberOfPlayers() {
-        return numberOfPlayers;
+    public Integer getMaxNumberOfPlayersAndBots() {
+        return maxNumberOfPlayersAndBots;
     }
 
-    public void setNumberOfPlayers(Integer numberOfPlayers) {
-        this.numberOfPlayers = numberOfPlayers;
+    public void setMaxNumberOfPlayersAndBots(Integer maxNumberOfPlayersAndBots) {
+        this.maxNumberOfPlayersAndBots = maxNumberOfPlayersAndBots;
     }
 
-
-    public ArrayList<Long> getUsersToKick() {
-        return usersToKick;
+    public ArrayList<Long> getPlayersToKick() {
+        return playersToKick;
     }
 
-    public void setUsersToKick(ArrayList<Long> usersToKick) {
-        this.usersToKick = usersToKick;
+    public void setPlayersToKick(ArrayList<Long> playersToKick) {
+        this.playersToKick = playersToKick;
     }
 
-    public Integer getNumberOfBots() {
-        return numberOfBots;
+    public String getHostToken() {
+        return hostToken;
     }
 
-    public void setNumberOfBots(Integer numberOfBots) {
-        this.numberOfBots = numberOfBots;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
+    public void setHostToken(String hostToken) {
+        this.hostToken = hostToken;
     }
 
 

@@ -11,6 +11,7 @@ import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -40,8 +41,8 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @Override
     public ResponseEntity handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request){
-        log.error(String.format("HttpMessageNotReadable raised %s","Invalid date!"));
-        return new ResponseEntity("Invalid date!",HttpStatus.CONFLICT);
+        log.error(String.format("HttpMessageNotReadable raised %s","Invalid format!"));
+        return new ResponseEntity("Invalid format!",HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
@@ -86,13 +87,20 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         return new ResponseEntity(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    //Keep this one disable for all testing purposes -> it shows more detail with this one disabled
-    @ExceptionHandler(HttpServerErrorException.InternalServerError.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity handleException(Exception ex) {
-        log.error(String.format("Exception raised:%s", ex));
-        return new ResponseEntity(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(HttpClientErrorException.Forbidden.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity handleForbiddenException(Exception ex, HttpServletRequest request){
+        log.error(String.format("Request: %s raised %s", request.getRequestURL(),ex));
+        return new ResponseEntity(ex.getMessage(),HttpStatus.FORBIDDEN);
     }
+
+//    //Keep this one disable for all testing purposes -> it shows more detail with this one disabled
+//    @ExceptionHandler(HttpServerErrorException.InternalServerError.class)
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public ResponseEntity handleException(Exception ex) {
+//        log.error(String.format("Exception raised:%s", ex));
+//        return new ResponseEntity(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
 
 

@@ -113,11 +113,6 @@ public class UserControllerTest {
     public void createUser_validInput_userCreated() throws Exception {
         // given
         User user = new User();
-        user.setId(1L);
-        user.setUsername("testUsername");
-        user.setPassword("test");
-        user.setToken("1");
-        user.setStatus(UserStatus.ONLINE);
 
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("testUsername");
@@ -155,11 +150,6 @@ public class UserControllerTest {
     @Test
     public void loginUser_whenUserIsOffline() throws Exception {
         User user = new User();
-        user.setId(1L);
-        user.setUsername("testUsername");
-        user.setToken("1");
-        user.setPassword("1");
-        user.setStatus(UserStatus.OFFLINE);
 
         LoginPutDTO loginPutDTO = new LoginPutDTO();
         loginPutDTO.setUsername("testUsername");
@@ -177,13 +167,6 @@ public class UserControllerTest {
 
     @Test
     public void loginUser_whenUserAlreadyLoggedIn() throws Exception {
-        User user = new User();
-        user.setId(1L);
-        user.setUsername("testUsername");
-        user.setToken("1");
-        user.setPassword("1");
-        user.setStatus(UserStatus.OFFLINE);
-
         LoginPutDTO loginPutDTO = new LoginPutDTO();
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
@@ -217,11 +200,6 @@ public class UserControllerTest {
     @Test
     public void logoutUser_validInput() throws Exception {
         User user = new User();
-        user.setId(1L);
-        user.setToken("1");
-        user.setUsername("username");
-        user.setPassword("1");
-        user.setStatus(UserStatus.ONLINE);
 
         LogoutPutDTO logoutPutDTO = new LogoutPutDTO();
         logoutPutDTO.setId(1L);
@@ -238,7 +216,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void logoutUser_Unauthorized() throws Exception {
+    public void logoutUser_unauthorized() throws Exception {
         LogoutPutDTO logoutPutDTO = new LogoutPutDTO();
         logoutPutDTO.setId(1L);
         logoutPutDTO.setToken("1");
@@ -302,6 +280,7 @@ public class UserControllerTest {
     public void givenFriendRequests_whenGetFriendRequests_thenReturnJsonArray() throws Exception {
         User user1 = new User();
         user1.setId(1L);
+        user1.setToken("testToken");
 
         User user2 = new User();
         user2.setId(2L);
@@ -311,10 +290,12 @@ public class UserControllerTest {
         given(userService.getUser(Mockito.any())).willReturn(user1);
 
         // when
-        MockHttpServletRequestBuilder getRequest = get("/users/" + user1.getId() + "/friendRequests").contentType(MediaType.APPLICATION_JSON);
-
+        MockHttpServletRequestBuilder getRequest = get("/users/" + user1.getId() + "/friendRequests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", user1.getToken());
         //then
-        mockMvc.perform(getRequest).andExpect(status().isOk())
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(user2.getId().intValue())));
     }

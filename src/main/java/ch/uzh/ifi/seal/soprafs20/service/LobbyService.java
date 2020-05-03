@@ -2,7 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
-import ch.uzh.ifi.seal.soprafs20.entity.User;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotAcceptableException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
@@ -24,7 +24,7 @@ import java.util.UUID;
 @Service
 @Transactional
 public class LobbyService {
-    private final Logger log = LoggerFactory.getLogger(UserService.class);
+    private final Logger log = LoggerFactory.getLogger(LobbyService.class);
 
     private final LobbyRepository lobbyRepository;
 
@@ -48,72 +48,56 @@ public class LobbyService {
         }
     }
 
-    public Lobby createLobby(Lobby newLobby,User host){
+    public Lobby createLobby(Lobby newLobby, Player host){
         checkLobbyName(newLobby.getLobbyName());
         checkIfLobbyExists(newLobby);
         if(newLobby.isPrivate()){
             newLobby.setPrivateKey((UUID.randomUUID().toString()));
         }
-        newLobby.addUserToLobby(host);
-        newLobby.setTotalNumPlayersAndBots(newLobby.getUsersInLobby().size());
+        newLobby.addPlayerToLobby(host);
+        if(newLobby.getMaxPlayersAndBots() > 7 || newLobby.getMaxPlayersAndBots() < 3){
+            newLobby.setMaxPlayersAndBots(7);
+        }
+        newLobby.setCurrentNumPlayersAndBots(newLobby.getPlayersInLobby().size());
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();
         return newLobby;
     }
 
     /**
-     *  TODO: Implement kick player
      * @param lobby
      * @param receivedValues
      * @return
      */
     public Lobby updateLobby(Lobby lobby, LobbyPutDTO receivedValues){
-        if(!lobby.getToken().equals(receivedValues.getToken())){
+        if(!lobby.getHostToken().equals(receivedValues.getHostToken())){
             throw new UnauthorizedException("You are not allowed to change the settings of this lobby!");
         }
 
         //remove kicked players from lobby
-        if(receivedValues.getUsersToKick() != null){
-            lobby.replaceUsersInLobby(kickUsers(receivedValues.getUsersToKick(),lobby));
+        if(receivedValues.getPlayersToKick() != null){
+            lobby.replacePlayersInLobby(kickPlayers(receivedValues.getPlayersToKick(),lobby));
             //update number of player in lobby
-            lobby.setTotalNumPlayersAndBots(lobby.getTotalNumPlayersAndBots() - receivedValues.getUsersToKick().size());
+            lobby.setCurrentNumPlayersAndBots(lobby.getCurrentNumPlayersAndBots() - receivedValues.getPlayersToKick().size());
         }
-
-
-        //update bots
-        if(receivedValues.getNumberOfBots() != null && receivedValues.getNumberOfPlayers() == null){
-            if(receivedValues.getNumberOfBots() + lobby.getNumberOfPlayers() < 3 || receivedValues.getNumberOfBots() + lobby.getNumberOfPlayers() > 7){
-                throw new ConflictException("Illegal player/bots amount");
+        //change size of lobby
+        if(receivedValues.getMaxNumberOfPlayersAndBots() != null){
+            int newLobbySize = receivedValues.getMaxNumberOfPlayersAndBots();
+            if(newLobbySize >= 3 && newLobbySize <= 7 && newLobbySize >= lobby.getCurrentNumPlayersAndBots()){
+                lobby.setMaxPlayersAndBots(newLobbySize);
             }
-            else {lobby.setNumberOfBots(receivedValues.getNumberOfBots());}
         }
-        //update players
-        if(receivedValues.getNumberOfPlayers() != null && receivedValues.getNumberOfBots() == null){
-            if(lobby.getNumberOfBots() != null && receivedValues.getNumberOfPlayers() + lobby.getNumberOfBots() < 3 || lobby.getNumberOfBots() != null && receivedValues.getNumberOfPlayers() + lobby.getNumberOfBots() > 7){
-                throw new ConflictException("Illegal player/bot amount");
-            } else if(lobby.getNumberOfBots() == null && (receivedValues.getNumberOfPlayers() < 3 || receivedValues.getNumberOfPlayers() > 7)){
-                throw new ConflictException("Illegal player/bot amount");
-            } else {lobby.setNumberOfPlayers(receivedValues.getNumberOfPlayers());}
-        }
-
-        //update both players and bots
-        if(receivedValues.getNumberOfBots() != null && receivedValues.getNumberOfPlayers() != null){
-            if(receivedValues.getNumberOfBots() + receivedValues.getNumberOfPlayers() < 3 || receivedValues.getNumberOfBots() + receivedValues.getNumberOfPlayers() > 7){
-                throw new ConflictException("Illegal player/bot amount");
-            } else {lobby.setNumberOfBots(receivedValues.getNumberOfBots()); lobby.setNumberOfPlayers(receivedValues.getNumberOfPlayers());}
-        }
-
         return lobby;
     }
 
-    private boolean checkIfLobbyExists(Lobby newLobby) {
-        Optional<Lobby> lobbyByUserId = lobbyRepository.findByUserId(newLobby.getUserId());
+    private void checkIfLobbyExists(Lobby newLobby) {
+        Optional<Lobby> lobbyByUserId = lobbyRepository.findByHostId(newLobby.getHostId());
 
         String baseErrorMessage = "The current %s provided %s already hosting another lobby. Therefore, the lobby could not be created!";
         if (lobbyByUserId.isPresent()) {
             throw new ConflictException(String.format(baseErrorMessage, "userId", "is"));
         }
-        return true;
+
     }
 
     public void checkLobbyName(String username) {
@@ -122,28 +106,56 @@ public class LobbyService {
         }
     }
 
-    public void addUserToLobby(User userToAdd, Lobby lobby){
-        if(lobby.getTotalNumPlayersAndBots() + 1 <= lobby.getNumberOfPlayers() && !lobby.getUserId().equals(userToAdd.getId())){
-            lobby.addUserToLobby(userToAdd);
-            lobby.setTotalNumPlayersAndBots(lobby.getUsersInLobby().size());
-            lobbyRepository.save(lobby);
-        }else if(lobby.getUserId().equals(userToAdd.getId())){
-            throw new ConflictException("Host cannot join their own lobby");
-        } else {
-            throw new ConflictException("Lobby is full/ Game already started");
+    public void addPlayerToLobby(String playerToken, Player playerToAdd, Lobby lobby){
+        if(lobby.isGameStarted()){
+            throw new ConflictException("Cant join the lobby, the game is already under way!");
         }
-    }
-
-    public void removeUserFromLobby(User userToQuit, Lobby lobby){
-        lobby.getUsersInLobby().remove(userToQuit);
-        lobby.setTotalNumPlayersAndBots(lobby.getUsersInLobby().size());
+        //player that is not host wants to join but they are already in lobby
+        if(!lobby.getHostId().equals(playerToAdd.getId()) && lobby.getPlayersInLobby().contains(playerToAdd)){
+            throw new ConflictException("User is already in lobby!");        }
+        if(lobby.getHostId().equals(playerToAdd.getId())){
+            throw new ConflictException("Host cannot join their own lobby!");
+        }
+        checkIfLobbyIsFull(lobby);
+        lobby.addPlayerToLobby(playerToAdd);
+        lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
         lobbyRepository.save(lobby);
     }
 
-    public Set<User> kickUsers(List<Long> kickList, Lobby lobby){
+    public void removePlayerFromLobby(Player playerToRemove, Lobby lobby){
+        if(lobby.isGameStarted()){
+            throw new ConflictException("Cannot leave lobby, game already started!");
+        }
+        if(playerToRemove.getId().equals(lobby.getHostId())){
+            //host leaves lobby and is alone
+            if(lobby.getCurrentNumPlayersAndBots().equals(1)){
+                lobbyRepository.delete(lobby);
+            }
+            //host leaves lobby, so new host is chosen
+            else{
+                Player newHost = lobby.getPlayersInLobby().iterator().next();
+                lobby.setHostId(newHost.getId());
+                lobby.setHostToken(newHost.getToken());
+                lobby.getPlayersInLobby().remove(playerToRemove);
+                lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
+                lobbyRepository.save(lobby);
+            }
+        } else if(lobby.getPlayersInLobby().contains(playerToRemove)){
+            lobby.getPlayersInLobby().remove(playerToRemove);
+            lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
+        }
+    }
+
+    private void checkIfLobbyIsFull(Lobby lobby) {
+        if(lobby.getCurrentNumPlayersAndBots() + 1 > lobby.getMaxPlayersAndBots()) {
+            throw new ConflictException("Failed to join lobby: Sorry, the lobby is already full");
+        }
+    }
+
+    public Set<Player> kickPlayers(List<Long> kickList, Lobby lobby){
         //remove user from lobby but dont remove lobby leader
-        lobby.getUsersInLobby().removeIf(user -> kickList.contains(user.getId()) && !user.getId().equals(lobby.getUserId()));
-        return lobby.getUsersInLobby();
+        lobby.getPlayersInLobby().removeIf(player -> kickList.contains(player.getId()) && !player.getId().equals(lobby.getHostId()));
+        return lobby.getPlayersInLobby();
     }
 
 }

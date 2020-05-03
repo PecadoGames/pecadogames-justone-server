@@ -1,9 +1,14 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -13,26 +18,25 @@ public class Lobby implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long lobbyId;
 
     @Column(nullable = false)
     private String lobbyName;
 
-    @Column(nullable = false)
-    private Integer numberOfPlayers;
+    @Column
+    private boolean gameIsStarted;
 
     @Column(nullable = false)
     private boolean voiceChat;
 
+    //user id of lobby creator
     @Column(nullable = false)
-    private Long userId; //user id of lobby creator
+    private Long hostId;
 
     @Column(nullable = false)
-    private String userToken;
-
-    @Column
-    private Integer numberOfBots;
+    @JsonIgnore
+    private String hostToken;
 
     @Column
     private Long lobbyScore;
@@ -41,21 +45,26 @@ public class Lobby implements Serializable {
     private boolean isPrivate;
 
     @Column
+    @JsonIgnore
     private String privateKey;
 
+    //current number of player(and bots) in lobby
     @Column(nullable = false)
-    private int totalNumPlayersAndBots;
+    private Integer currentNumPlayersAndBots;
 
-    @OneToMany
-    private Set<User> usersInLobby = new HashSet<>();
+    //limit of players + bots in lobby
+    @Column(nullable = false)
+    private Integer maxPlayersAndBots;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private Set<Player> playersInLobby = new HashSet<>();
 
     public Long getLobbyId() {
         return lobbyId;
     }
 
-    public void setId(Long id) {
-        this.lobbyId = id;
-    }
+    public void setLobbyId(Long id) { this.lobbyId = id; }
 
     public String getLobbyName() {
         return lobbyName;
@@ -65,13 +74,13 @@ public class Lobby implements Serializable {
         this.lobbyName = lobbyName;
     }
 
-    public Integer getNumberOfPlayers() {
+    /*public Integer getNumberOfPlayers() {
         return numberOfPlayers;
     }
 
     public void setNumberOfPlayers(Integer numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
-    }
+    }*/
 
     public boolean isVoiceChat() {
         return voiceChat;
@@ -81,37 +90,29 @@ public class Lobby implements Serializable {
         this.voiceChat = voiceChat;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getHostId() {
+        return hostId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setHostId(long userId) {
+        this.hostId = userId;
     }
 
-    public String getToken() {
-        return userToken;
+    public String getHostToken() {
+        return hostToken;
     }
 
-    public void setToken(String token) {
-        this.userToken = token;
+    public void setHostToken(String token) {
+        this.hostToken = token;
     }
 
-    public String getUserToken() {
-        return userToken;
-    }
-
-    public void setUserToken(String userToken) {
-        this.userToken = userToken;
-    }
-
-    public Integer getNumberOfBots() {
+    /*public Integer getNumberOfBots() {
         return numberOfBots;
     }
 
     public void setNumberOfBots(Integer numberOfBots) {
         this.numberOfBots = numberOfBots;
-    }
+    }*/
 
     public Long getLobbyScore() {
         return lobbyScore;
@@ -121,16 +122,12 @@ public class Lobby implements Serializable {
         this.lobbyScore = lobbyScore;
     }
 
-    public void setLobbyId(Long lobbyId) {
-        this.lobbyId = lobbyId;
-    }
-
     public boolean isPrivate() {
         return isPrivate;
     }
 
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
+    public void setPrivate(boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 
     public String getPrivateKey() {
@@ -141,17 +138,46 @@ public class Lobby implements Serializable {
         this.privateKey = privateKey;
     }
 
-    public Set<User> getUsersInLobby() { return usersInLobby; }
+    public Set<Player> getPlayersInLobby() { return playersInLobby; }
 
-    public void addUserToLobby(User newUser) { usersInLobby.add(newUser); }
+    public void addPlayerToLobby(Player newPlayer) { playersInLobby.add(newPlayer); }
 
-    public void replaceUsersInLobby(Set<User> users){usersInLobby = users;}
+    public void replacePlayersInLobby(Set<Player> players){playersInLobby = players;}
 
-    public int getTotalNumPlayersAndBots() {
-        return totalNumPlayersAndBots;
+    public Integer getCurrentNumPlayersAndBots() {
+        return currentNumPlayersAndBots;
     }
 
-    public void setTotalNumPlayersAndBots(int totalNumPlayers) {
-        this.totalNumPlayersAndBots = totalNumPlayers;
+    public void setCurrentNumPlayersAndBots(Integer currentNumPlayersAndBots) {
+        this.currentNumPlayersAndBots = currentNumPlayersAndBots;
+    }
+
+    public Integer getMaxPlayersAndBots() {
+        return maxPlayersAndBots;
+    }
+
+    public void setMaxPlayersAndBots(Integer maxPlayersAndBots) {
+        this.maxPlayersAndBots = maxPlayersAndBots;
+    }
+
+    public boolean isGameStarted() {
+        return gameIsStarted;
+    }
+
+    public void setGameIsStarted(boolean gameIsStarted) {
+        this.gameIsStarted = gameIsStarted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Lobby)) { return false; }
+        Lobby other = (Lobby) o;
+        return lobbyId != null && lobbyId.equals(other.getLobbyId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getLobbyId());
     }
 }

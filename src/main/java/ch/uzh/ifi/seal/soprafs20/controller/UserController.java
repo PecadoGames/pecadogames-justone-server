@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
@@ -83,11 +84,14 @@ public class UserController {
         userService.updateUser(user, userPutDTO);
     }
 
-    @GetMapping(path = "/users/{id}/friendRequests", produces = "application/json")
+    @GetMapping(path = "/users/{id}/friendRequests",produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<RequestGetDTO> getFriendRequests(@PathVariable long id) {
+    public List<RequestGetDTO> getFriendRequests(@PathVariable long id, @RequestParam String token) {
         User user = userService.getUser(id);
+        if(!user.getToken().equals(token)){
+            throw new UnauthorizedException("You are not authorized to get this users friend requests");
+        }
         Set<User> requests = user.getFriendRequests();
         List<RequestGetDTO> requestGetDTOs = new ArrayList<>();
 
@@ -102,15 +106,17 @@ public class UserController {
     @ResponseBody
     public void sendFriendRequest(@PathVariable long id, @RequestBody RequestPutDTO requestPutDTO)  {
         User receiver = userService.getUser(id);
-        User sender = DTOMapper.INSTANCE.convertRequestPutDTOtoEntity(requestPutDTO);
-        userService.addFriendRequest(receiver, sender);
+        userService.addFriendRequest(receiver, requestPutDTO);
     }
 
     @GetMapping(path = "users/{id}/friends", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<RequestGetDTO> getFriends(@PathVariable long id) {
+    public List<RequestGetDTO> getFriends(@PathVariable long id, @RequestParam String token) {
         User user = userService.getUser(id);
+        if(!user.getToken().equals(token)){
+            throw new UnauthorizedException("You are not authorized to get this users friends");
+        }
         Set<User> friends = user.getFriendList();
         List<RequestGetDTO> requestGetDTOs = new ArrayList<>();
 
@@ -132,7 +138,7 @@ public class UserController {
     @PutMapping(path = "/login", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public String login(@RequestBody LoginPutDTO loginPutDTO) {
+    public LoginPutDTO login(@RequestBody LoginPutDTO loginPutDTO) {
 
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertLoginPutDTOtoEntity(loginPutDTO);
@@ -140,7 +146,8 @@ public class UserController {
         // check password
         User user = userService.loginUser(userInput);
 
-        return asJsonString(user.getId());
+        return DTOMapper.INSTANCE.convertEntityToLoginPutDTO(user);
+
     }
 
     @PutMapping(path = "/logout", consumes = "application/json")
