@@ -116,7 +116,7 @@ public class GameServiceTest {
         clue.setActualClue("star");
         clue.setPlayerId(testHost.getId());
 
-        assertThrows(ForbiddenException.class,()->{ gameService.sendClue(testGame, testHost, clue);});
+        assertThrows(UnauthorizedException.class,()->{ gameService.sendClue(testGame, testHost, clue);});
         assertTrue(testGame.getEnteredClues().isEmpty());
         assertFalse(testHost.isClueIsSent());
     }
@@ -134,7 +134,7 @@ public class GameServiceTest {
         clue.setPlayerId(player2.getId());
 
 
-        assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame, player2, clue);});
+        assertThrows(UnauthorizedException.class,()->{gameService.sendClue(testGame, player2, clue);});
         assertTrue(testGame.getEnteredClues().isEmpty());
     }
 
@@ -148,7 +148,7 @@ public class GameServiceTest {
         clue.setActualClue("star");
         clue.setPlayerId(testHost.getId());
 
-        Exception ex = assertThrows(ForbiddenException.class, ()->{ gameService.sendClue(testGame, testHost, clue);});
+        Exception ex = assertThrows(UnauthorizedException.class, ()->{ gameService.sendClue(testGame, testHost, clue);});
         assertTrue(ex.getMessage().contains("not accepted in current state"));
         assertTrue(testGame.getEnteredClues().isEmpty());
         assertFalse(testHost.isClueIsSent());
@@ -165,7 +165,7 @@ public class GameServiceTest {
         clue.setActualClue("star");
         clue.setPlayerId(testHost.getId());
 
-        Exception ex = assertThrows(ForbiddenException.class, ()->{gameService.sendClue(testGame, testHost, clue);});
+        Exception ex = assertThrows(UnauthorizedException.class, ()->{gameService.sendClue(testGame, testHost, clue);});
         assertTrue(testGame.getEnteredClues().isEmpty());
     }
 
@@ -265,7 +265,7 @@ public class GameServiceTest {
         clue.setActualClue("wars");
         clue.setPlayerId(player2.getId());
 
-        assertThrows(ForbiddenException.class,()->{gameService.sendClue(testGame, player2, clue);});
+        assertThrows(UnauthorizedException.class,()->{gameService.sendClue(testGame, player2, clue);});
         assertEquals(2,testGame.getEnteredClues().size());
         assertTrue(player2.isClueIsSent());
     }
@@ -331,7 +331,7 @@ public class GameServiceTest {
         messagePutDTO.setMessage("star wars");
         messagePutDTO.setPlayerToken(testGame.getCurrentGuesser().getToken());
 
-        assertThrows(ForbiddenException.class,()->{ gameService.submitGuess(testGame, messagePutDTO); });
+        assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO); });
         assertFalse(testGame.isGuessCorrect());
         assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
     }

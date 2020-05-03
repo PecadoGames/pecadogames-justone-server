@@ -79,7 +79,7 @@ public class GameController {
     public void pickWord(@PathVariable long lobbyId,@RequestParam("token") String token){
         Game game = gameService.getGame(lobbyId);
         if(!game.getGameState().equals(GameState.PICKWORDSTATE)){
-            throw new ForbiddenException("Can't choose word in current state");
+            throw new UnauthorizedException("Can't choose word in current state");
         }
         if(gameService.pickWord(token, game)){
             game.getTimer().setCancel(true);

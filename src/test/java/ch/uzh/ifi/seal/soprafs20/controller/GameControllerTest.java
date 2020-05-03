@@ -5,7 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
 import ch.uzh.ifi.seal.soprafs20.service.InternalTimerService;
@@ -189,14 +189,14 @@ public class GameControllerTest {
         messagePutDTO.setPlayerToken("token2");
 
         //given(gameService.getGame(Mockito.anyLong())).willReturn(game);
-        given(gameService.sendClue(Mockito.any(), Mockito.any(), Mockito.any())).willThrow(new ForbiddenException("ex"));
+        given(gameService.sendClue(Mockito.any(), Mockito.any(), Mockito.any())).willThrow(new UnauthorizedException("ex"));
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(messagePutDTO));
 
         mockMvc.perform(putRequest)
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

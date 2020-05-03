@@ -5,7 +5,6 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ForbiddenException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
@@ -109,10 +108,10 @@ public class GameService extends Thread{
      */
     public boolean sendClue(Game game, Player player, Clue clue){
         if(!game.getGameState().equals(GameState.ENTERCLUESSTATE))
-            throw new ForbiddenException("Clues are not accepted in current state!");
+            throw new UnauthorizedException("Clues are not accepted in current state!");
 
         if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
-            throw new ForbiddenException("This player is not allowed to send clue!");
+            throw new UnauthorizedException("This player is not allowed to send clue!");
         }
         if (!game.isSpecialGame()) {
             game.addClue(clue);
@@ -207,7 +206,7 @@ public class GameService extends Thread{
             throw new UnauthorizedException("User is not allowed to submit a guess!");
         }
         if(!game.getGameState().equals(GameState.ENTERGUESSSTATE)) {
-            throw new ForbiddenException("Can't submit guess in current state!");
+            throw new UnauthorizedException("Can't submit guess in current state!");
         }
 
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
@@ -222,7 +221,7 @@ public class GameService extends Thread{
 
     public void startNewRound(Game game, RequestPutDTO requestPutDTO) {
         if (!game.getCurrentGuesser().getToken().equals(requestPutDTO.getToken())) {
-            throw new ForbiddenException("User is not allowed to start a new round!");
+            throw new UnauthorizedException("User is not allowed to start a new round!");
         }
         game.setRoundsPlayed(game.getRoundsPlayed() + 1);
 
