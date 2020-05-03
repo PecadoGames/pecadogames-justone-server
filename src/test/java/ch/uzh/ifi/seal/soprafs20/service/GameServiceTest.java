@@ -256,7 +256,7 @@ public class GameServiceTest {
 
         gameService.pickWord(testHost.getToken(), testGame);
 
-        assertEquals("Erdbeermarmeladebrot", testGame.getCurrentWord());
+        assertEquals("erdbeermarmeladebrot", testGame.getCurrentWord());
         assertEquals(GameState.ENTERCLUESSTATE, testGame.getGameState());
     }
 
@@ -383,7 +383,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void gameService_identicalClue_removed() {
+    public void checkClues_identicalClue_removed() {
         testGame.setCurrentWord("Banana");
         Clue clue1 = new Clue();
         clue1.setActualClue("Banana");
@@ -409,4 +409,65 @@ public class GameServiceTest {
         assertTrue(testGame.getEnteredClues().contains(clue2));
         assertTrue(testGame.getEnteredClues().contains(clue4));
     }
+
+    @Test
+    public void checkVote_eliminateOneClue() {
+        Clue clue1 = new Clue();
+        clue1.setPlayerId(1L);
+        clue1.setActualClue("Apple");
+        Clue clue2 = new Clue();
+        clue2.setPlayerId(2L);
+        clue2.setActualClue("Banana");
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+        testGame.addInvalidClue("Banana");
+        testGame.addInvalidClue("Banana");
+
+        gameService.checkVotes(testGame, 2);
+
+        assertTrue(testGame.getEnteredClues().contains(clue1));
+        assertFalse(testGame.getEnteredClues().contains(clue2));
+        assertEquals(1, testGame.getInvalidClues().size());
+    }
+
+    @Test
+    public void checkVote_eliminateNoClue() {
+        Clue clue1 = new Clue();
+        clue1.setPlayerId(1L);
+        clue1.setActualClue("Apple");
+        Clue clue2 = new Clue();
+        clue2.setPlayerId(2L);
+        clue2.setActualClue("Banana");
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+
+        gameService.checkVotes(testGame, 2);
+
+        assertTrue(testGame.getEnteredClues().contains(clue1));
+        assertTrue(testGame.getEnteredClues().contains(clue2));
+        assertTrue(testGame.getInvalidClues().isEmpty());
+    }
+
+    @Test
+    public void checkVote_allCluesEliminated() {
+        Clue clue1 = new Clue();
+        clue1.setPlayerId(1L);
+        clue1.setActualClue("Banana");
+        Clue clue2 = new Clue();
+        clue2.setPlayerId(2L);
+        clue2.setActualClue("Banana");
+
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+        testGame.addInvalidClue("Banana");
+        testGame.addInvalidClue("Banana");
+
+        gameService.checkVotes(testGame, 2);
+
+        assertFalse(testGame.getEnteredClues().contains(clue1));
+        assertFalse(testGame.getEnteredClues().contains(clue2));
+        assertEquals(1, testGame.getInvalidClues().size());
+        assertTrue(testGame.getInvalidClues().contains("banana"));
+    }
+
 }

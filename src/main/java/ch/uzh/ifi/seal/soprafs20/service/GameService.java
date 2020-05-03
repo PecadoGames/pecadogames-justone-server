@@ -489,7 +489,8 @@ public class GameService{
 
     public boolean vote(Game game, Player player, List<String> invalidWords) {
         if(!player.isVoted()) {
-            game.addInvalidWords(invalidWords);
+            game.setInvalidClues(invalidWords);
+            player.setVoted(true);
         }
         else {
             throw new UnauthorizedException("This player already sent his votes!");

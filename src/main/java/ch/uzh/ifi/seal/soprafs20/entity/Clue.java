@@ -23,7 +23,7 @@ public class Clue {
     }
 
     public void setActualClue(String actualClue) {
-        this.actualClue = actualClue;
+        this.actualClue = actualClue.toLowerCase();
     }
 
     public Long getTimeNeeded() { return timeNeeded; }

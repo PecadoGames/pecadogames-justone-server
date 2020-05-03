@@ -106,7 +106,7 @@ public class Game {
     public synchronized String getCurrentWord() { return currentWord; }
 
     public synchronized void setCurrentWord(String currentWord) {
-        this.currentWord = currentWord;
+        this.currentWord = currentWord.toLowerCase();
     }
 
     public List<Clue> getEnteredClues() {
@@ -179,7 +179,7 @@ public class Game {
 
     public String getCurrentGuess() { return currentGuess; }
 
-    public void setCurrentGuess(String currentGuess) { this.currentGuess = currentGuess; }
+    public void setCurrentGuess(String currentGuess) { this.currentGuess = currentGuess.toLowerCase(); }
 
     public boolean isSpecialGame() {
         return specialGame;
@@ -217,16 +217,13 @@ public class Game {
         return invalidClues;
     }
 
-    public void setInvalidClues(List<String> badWords) {
-        this.invalidClues = badWords;
+    public void addInvalidClue(String invalidClue) {
+        this.invalidClues.add(invalidClue.toLowerCase());
     }
 
-    public void addInvalidWord(String invalidWord) {
-        this.invalidClues.add(invalidWord);
-    }
-
-    public void addInvalidWords(List<String> invalidWords) {
-        this.invalidClues.addAll(invalidWords);
+    public void setInvalidClues(List<String> invalidClues) {
+        for(String invalidClue : invalidClues)
+        this.invalidClues.add(invalidClue.toLowerCase());
     }
 
     @Override
