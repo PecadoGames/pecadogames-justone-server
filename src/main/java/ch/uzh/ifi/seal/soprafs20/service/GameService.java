@@ -132,6 +132,7 @@ public class GameService extends Thread{
             game.setGameState(GameState.VOTEONCLUESSTATE);
             game.getTimer().setCancel(true);
             checkClues(game);
+            gameRepository.saveAndFlush(game);
             return true;
         }
         return false;
@@ -262,6 +263,7 @@ public class GameService extends Thread{
                 iterator.remove();
             }
         }
+        gameRepository.saveAndFlush(game);
     }
 
     /**
