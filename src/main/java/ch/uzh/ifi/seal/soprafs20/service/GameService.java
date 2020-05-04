@@ -36,7 +36,7 @@ public class GameService{
     private final UserRepository userRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 3;
-    private static final int ROUNDTIME = 20;
+    private static final int ROUNDTIME = 10;
 
     @Autowired
     public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository,UserRepository userRepository) {
