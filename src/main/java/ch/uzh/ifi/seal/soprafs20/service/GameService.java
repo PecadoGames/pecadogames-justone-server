@@ -547,7 +547,7 @@ public class GameService{
         }
 
         if(counter == game.getPlayers().size() - 1) {
-            checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
+            checkVotes(game, (int)Math.ceil(((float)game.getPlayers().size() - 1 )/2));
             gameRepository.saveAndFlush(game);
         }
         return allSent(game, counter);
@@ -560,7 +560,7 @@ public class GameService{
                 p.setVoted(true);
             }
         }
-        checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
+        checkVotes(game, (int)Math.ceil(((float)game.getPlayers().size() - 1 )/2));
         gameRepository.saveAndFlush(game);
     }
 
