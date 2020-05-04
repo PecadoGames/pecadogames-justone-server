@@ -36,7 +36,7 @@ public class GameService{
     private final UserRepository userRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 3;
-    private static final int ROUNDTIME = 20;
+    private static final int ROUNDTIME = 45;
 
     @Autowired
     public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository,UserRepository userRepository) {
@@ -345,7 +345,7 @@ public class GameService{
      * Timer also takes care of all the logic set up for the next state if no user input was entered
      * TODO: Implement the game logic changes for each state if no input is received and the timer ends
      *
-     * @param game - takes a game instance as input
+     * @param g - takes a game instance as input
      * @param gameState - state to which the game transitions if timer is finished
      */
     public void timer(Game g, GameState gameState,long startTime) {
