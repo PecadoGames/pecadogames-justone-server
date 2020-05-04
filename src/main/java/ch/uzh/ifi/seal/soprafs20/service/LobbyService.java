@@ -129,19 +129,20 @@ public class LobbyService {
         if(playerToRemove.getId().equals(lobby.getHostId())){
             //host leaves lobby and is alone
             if(lobby.getCurrentNumPlayersAndBots().equals(1)){
+                lobby.replacePlayersInLobby(null);
                 lobbyRepository.delete(lobby);
             }
             //host leaves lobby, so new host is chosen
             else{
+                lobby.removePlayerFromLobby(playerToRemove);
                 Player newHost = lobby.getPlayersInLobby().iterator().next();
                 lobby.setHostId(newHost.getId());
                 lobby.setHostToken(newHost.getToken());
-                lobby.getPlayersInLobby().remove(playerToRemove);
                 lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
                 lobbyRepository.save(lobby);
             }
         } else if(lobby.getPlayersInLobby().contains(playerToRemove)){
-            lobby.getPlayersInLobby().remove(playerToRemove);
+            lobby.removePlayerFromLobby(playerToRemove);
             lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
         }
     }

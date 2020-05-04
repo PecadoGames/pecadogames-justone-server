@@ -144,6 +144,10 @@ public class Lobby implements Serializable {
 
     public void replacePlayersInLobby(Set<Player> players){playersInLobby = players;}
 
+    public void removePlayerFromLobby(Player player) {
+        playersInLobby.remove(player);
+    }
+
     public Integer getCurrentNumPlayersAndBots() {
         return currentNumPlayersAndBots;
     }

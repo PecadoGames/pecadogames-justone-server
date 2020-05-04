@@ -6,11 +6,12 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotAcceptableException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.PlayerRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,10 +28,10 @@ public class LobbyServiceIntegrationTest {
     @Autowired
     private LobbyService lobbyService;
 
-//    @BeforeEach
+//    @AfterEach
 //    public void setup() {
-//        lobbyRepository.deleteAll();
 //        playerRepository.deleteAll();
+//        lobbyRepository.deleteAll();
 //    }
 
     @Test
@@ -60,6 +61,10 @@ public class LobbyServiceIntegrationTest {
         assertTrue(createdLobby.getPlayersInLobby().contains(host));
         assertEquals(createdLobby.getMaxPlayersAndBots(), lobby.getMaxPlayersAndBots());
         assertFalse(createdLobby.isVoiceChat());
+
+        createdLobby.replacePlayersInLobby(null);
+        lobbyRepository.delete(createdLobby);
+        assertFalse(lobbyRepository.findByLobbyId(createdLobby.getLobbyId()).isPresent());
     }
 
 //    @Test
@@ -133,5 +138,11 @@ public class LobbyServiceIntegrationTest {
         Lobby createdLobby = lobbyService.createLobby(lobby, host);
         Exception ex = assertThrows(ConflictException.class, () -> lobbyService.createLobby(lobby, host));
         assertTrue(ex.getMessage().contains("already hosting another lobby"));
-        }
+    }
+
+    @Test
+    public void deleteLobby_success() {
+        Optional<Lobby> foundLobby = lobbyRepository.findByHostId(1L);
+        assertTrue(foundLobby.isPresent());
+    }
 }
