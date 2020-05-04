@@ -36,7 +36,7 @@ public class GameService{
     private final UserRepository userRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 3;
-    private static final int ROUNDTIME = 20;
+    private static final int ROUNDTIME = 10;
 
     @Autowired
     public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository,UserRepository userRepository) {
@@ -126,8 +126,8 @@ public class GameService{
         if (!game.isSpecialGame()) {
             player.setClue(clue);
             player.setClueIsSent(true);
-            if(!game.getCluesAsString().contains(clue)) {
-                game.addClueAsString(clue);
+            if(game.getCluesAsString().contains(clue)) {
+                game.getCluesAsString().remove(clue);
             }
             gameRepository.saveAndFlush(game);
         }
@@ -545,7 +545,7 @@ public class GameService{
         }
 
         if(counter == game.getPlayers().size() - 1) {
-            checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
+            checkVotes(game, (int) Math.ceil((game.getPlayers().size() - 1 ) /2));
             gameRepository.saveAndFlush(game);
         }
         return allSent(game, counter);
@@ -558,7 +558,7 @@ public class GameService{
                 p.setVoted(true);
             }
         }
-        checkVotes(game, Math.round((game.getPlayers().size() - 1 )/2));
+        checkVotes(game, (int) Math.ceil((game.getPlayers().size() - 1 ) /2));
         gameRepository.saveAndFlush(game);
     }
 

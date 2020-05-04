@@ -109,8 +109,12 @@ public class GameController {
             return "Timer is over";
         }
         else {
+
             long diff = gameService.getMaxTime() - (currentTime - game.getStartTimeSeconds());
-            return Long.toString(diff);
+            if(diff < 0)
+                return "0";
+            else
+                return Long.toString(diff);
         }
     }
 

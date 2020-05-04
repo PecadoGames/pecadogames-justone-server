@@ -15,7 +15,7 @@ public class InternalTimer extends Timer  {
     private long time;
 
     @Column
-    private volatile boolean isRunning;
+    private  boolean isRunning;
 
 
     @Column
