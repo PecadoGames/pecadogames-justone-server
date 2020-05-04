@@ -128,6 +128,8 @@ public class GameService{
             player.setClueIsSent(true);
             if(game.getCluesAsString().contains(clue)) {
                 game.getCluesAsString().remove(clue);
+            } else {
+                game.getCluesAsString().add(clue);
             }
             gameRepository.saveAndFlush(game);
         }
