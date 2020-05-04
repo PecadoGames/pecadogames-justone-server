@@ -36,7 +36,7 @@ public class GameService{
     private final UserRepository userRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 3;
-    private static final int ROUNDTIME = 40;
+    private static final int ROUNDTIME = 20;
 
     @Autowired
     public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository,UserRepository userRepository) {
@@ -126,7 +126,9 @@ public class GameService{
         if (!game.isSpecialGame()) {
             player.setClue(clue);
             player.setClueIsSent(true);
-            game.addClueAsString(clue);
+            if(!game.getCluesAsString().contains(clue)) {
+                game.addClueAsString(clue);
+            }
             gameRepository.saveAndFlush(game);
         }
         else {
@@ -194,22 +196,20 @@ public class GameService{
      * @param player
      * @param clue
      */
-    private void sendClueSpecial(Game game, Player player, Clue clue) {
-        Clue temporaryClue = new Clue();
-        temporaryClue.setPlayerId(player.getId());
-        temporaryClue.setActualClue(player.getToken());
+    private void sendClueSpecial(Game game, Player player, String clue) {
+        String temporaryClue = player.getToken();
+
         if (!game.getEnteredClues().isEmpty()) {
-            if(game.getEnteredClues().removeIf(clue1 -> clue1.getActualClue().equals(player.getToken()))) {
-                game.addClue(clue);
+            if(game.getCluesAsString().removeIf(clue1 -> clue1.equals(player.getToken()))) {
+                game.addClueAsString(clue);
                 //game.addClueAsString(clue.getActualClue());
                 player.setClueIsSent(true);
                 return;
             }
         }
-        game.addClue(clue);
-        //game.addClueAsString(clue.getActualClue());
-        setTimeNeeded(game, clue);
-        game.addClue(temporaryClue);
+        game.addClueAsString(clue);
+//        setTimeNeeded(game, clue);
+        game.addClueAsString(temporaryClue);
     }
 
 
@@ -346,115 +346,118 @@ public class GameService{
      * @param game - takes a game instance as input
      * @param gameState - state to which the game transitions if timer is finished
      */
-    public void timer(Game game, GameState gameState,long startTime) {
+    public void timer(Game g, GameState gameState,long startTime) {
+        final boolean[] cont = {false};
+        final Game[] game = {g};
+        final long[] time = new long[1];
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                while (!getUpdatedGame(game).getTimer().isCancel()) {
-                    game.setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - startTime);
-                    log.info("Time" + game.getTime());
-                    log.info("Rounds played: " + getUpdatedGame(game));
-                    log.info("Entered while loop");
-                    if (game.getTime() >= ROUNDTIME && getUpdatedGame(game).getRoundsPlayed() <= ROUNDS) {
-                        log.info("Timer limit reached! entered if statement");
-                        game.getTimer().cancel();
-                        game.getTimer().purge();
+                game[0] = getUpdatedGame(game[0]);
+                game[0].setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game[0].getStartTimeSeconds());
+//                System.out.println("Timer: " + time[0]);
 
-                        if(getUpdatedGame(game).getGameState().equals(GameState.PICKWORDSTATE)){
-                            pickWord(game);
-                        }
-                        if(getUpdatedGame(game).getGameState().equals(GameState.ENTERCLUESSTATE)){
-                            sendClue(game);
-                        }
-                        if(getUpdatedGame(game).getGameState().equals(GameState.VOTEONCLUESSTATE)){
-                            vote(game);
-                        }
-                        if(getUpdatedGame(game).getGameState().equals(GameState.ENTERGUESSSTATE)){
-                            game.setGuessCorrect(false);
-                        }
-                        if(getUpdatedGame(game).getGameState().equals(GameState.TRANSITIONSTATE)){
-                            updateScores(game);
-                            startNewRound(game);
-                        }
-                        if(getUpdatedGame(game).getGameState().equals(GameState.ENDGAMESTATE)){
-                            game.setPlayers(null);
-                            gameRepository.delete(game);
-                            gameRepository.flush();
-                        }
-                        game.setGameState(getNextState(game));
-                        gameRepository.saveAndFlush(game);
-                        break;
+//                if (!getCancel(game[0]) && time[0] < ROUNDTIME) {
+//                    game[0].getTimer().cancel();
+//                    game[0].getTimer().purge();
+//                    game[0].setTimer(new InternalTimer());
+//                    gameRepository.saveAndFlush(game[0]);
+//                }
+                if (game[0].getTime() >= ROUNDTIME && game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0])) {
+                    game[0].getTimer().cancel();
+                    game[0].getTimer().purge();
+
+                    if ((game[0]).getGameState().equals(GameState.PICKWORDSTATE)) {
+                        pickWord(game[0]);
                     }
-                    if (game.getRoundsPlayed() > ROUNDS) {
-                        game.getTimer().cancel();
-                        game.getTimer().purge();
-                        game.getTimer().setCancel(true);
-                        break;
+                    else if ((game[0]).getGameState().equals(GameState.ENTERCLUESSTATE)) {
+                        sendClue(game[0]);
                     }
+                    else if ((game[0]).getGameState().equals(GameState.VOTEONCLUESSTATE)) {
+                        vote(game[0]);
+                    }
+                    else if ((game[0]).getGameState().equals(GameState.ENTERGUESSSTATE)) {
+                        game[0].setGuessCorrect(false);
+                    }
+                    else if ((game[0]).getGameState().equals(GameState.TRANSITIONSTATE)) {
+                        updateScores(game[0]);
+                        startNewRound(game[0]);
+                    }
+                    else if ((game[0]).getGameState().equals(GameState.ENDGAMESTATE)) {
+                        game[0].setPlayers(null);
+                        gameRepository.delete(game[0]);
+                        gameRepository.flush();
+                        return;
+                    }
+                    game[0].setGameState(getNextState(game[0]));
+                    System.out.println("Timer ran out, next state: " + game[0].getGameState());
+                    game[0].getTimer().cancel();
+                    game[0].getTimer().purge();
+                    game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    gameRepository.saveAndFlush(game[0]);
+                    gameRepository.saveAndFlush(game[0]);
+
                 }
-                if(game.getGameState() == null){
+
+                if(game[0].getRoundsPlayed() > ROUNDS) {
+                    game[0].getTimer().cancel();
+                    game[0].getTimer().purge();
+                    game[0].getTimer().setCancel(true);
+                    gameRepository.saveAndFlush(game[0]);
+                }
+                if(game[0].getGameState() == null){
+                    System.out.println("Game was terminated");
+                }
+
+                if (game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0])) {
+
+
+
+                }
+                //Update timer user input
+                else if (getCancel(game[0]) && game[0].getRoundsPlayed() <= ROUNDS && !game[0].getGameState().equals(GameState.ENDGAMESTATE)) {
+                    game[0] = getUpdatedGame(game[0]);
+                    System.out.println("Timer updated because of player, Word is: " + game[0].getCurrentWord() + ", new State: " + game[0].getGameState());
+                    game[0].getTimer().cancel();
+                    game[0].getTimer().purge();
+                    game[0].setTimer(new InternalTimer());
+                    game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    game[0].getTimer().setCancel(false);//
+                    gameRepository.saveAndFlush(game[0]);
+
+                }
+
+                else if (game[0].getGameState() == null) {
                     System.out.println("Game was terminated!");
                 }
-                //timer ran out, transition to next state
-                else if (game.getRoundsPlayed() <= ROUNDS && !getCancel(game)) {
-                    Game updatedGame = getUpdatedGame(game);
-                    System.out.println("Timer ran out, next state: " + updatedGame.getGameState());
-                    updatedGame.getTimer().cancel();
-                    updatedGame.getTimer().purge();
-                    game.getTimer().cancel();
-                    game.getTimer().purge();
-                    game.setTimer(null);
-                    updatedGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-                    updatedGame.setTimer(new InternalTimer());
-                    gameRepository.saveAndFlush(updatedGame);
-                    timer(updatedGame, updatedGame.getGameState(), updatedGame.getStartTimeSeconds());
+                else{
+                    game[0].setGameState(GameState.ENDGAMESTATE);
+                    game[0].getTimer().setCancel(true);
+                    game[0].getTimer().cancel();
+                    game[0].getTimer().purge();
 
-
-                }
-                //user input before timer ran out, update timer and transition to next state
-                else if(game.getRoundsPlayed() <= ROUNDS && getCancel(game)){
-                    Game updatedGame = getUpdatedGame(game);
-                    System.out.println("Timer updated because of player, Word is: " + updatedGame.getCurrentWord() + ", new State: " + updatedGame.getGameState());
-                    updatedGame.getTimer().cancel();
-                    updatedGame.getTimer().purge();
-                    game.getTimer().cancel();
-                    game.getTimer().purge();
-                    game.setTimer(null);
-                    updatedGame.getTimer().setCancel(false);
-                    updatedGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-                    updatedGame.setTimer(new InternalTimer());
-                    updatedGame.getTimer().setCancel(false);//
-                    gameRepository.saveAndFlush(updatedGame);
-                    timer(updatedGame, updatedGame.getGameState(), updatedGame.getStartTimeSeconds());
-                }
-
-                //game reached final state in final round = Game is over
-                else {
-                    game.setGameState(GameState.ENDGAMESTATE);
-                    game.getTimer().setCancel(true);
-                    game.getTimer().setRunning(false);
-                    game.getTimer().cancel();
-                    game.getTimer().purge();
-
-                    game.setTimer(new InternalTimer());
-                    game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-                    game.setRoundsPlayed(ROUNDS);
-                    Lobby currentLobby = getUpdatedLobby(game.getLobbyId());
+                    game[0].setTimer(new InternalTimer());
+                    game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+                    game[0].setRoundsPlayed(ROUNDS);
+                    Lobby currentLobby = getUpdatedLobby(game[0].getLobbyId());
                     currentLobby.setGameIsStarted(false);
                     lobbyRepository.saveAndFlush(currentLobby);
-                    gameRepository.saveAndFlush(game);
-                    timer(game,game.getGameState(),game.getStartTimeSeconds());
+                    game[0] = gameRepository.saveAndFlush(game[0]);
+                    timer(game[0],game[0].getGameState(),game[0].getStartTimeSeconds());
                 }
+
             }
         };
-        if (game.getRoundsPlayed() <= ROUNDS) {
-            game.getTimer().cancel();
-            game.getTimer().purge();
-            game.setTimer(new InternalTimer());
-            game.getTimer().setCancel(false);
-            game.getTimer().schedule(timerTask, 0, 1000);
+        if(game[0].getRoundsPlayed() <= ROUNDS) {
+            game[0].getTimer().cancel();
+            game[0].getTimer().purge();
+            game[0].setTimer(new InternalTimer());
+            game[0].getTimer().setCancel(false);
+            game[0].getTimer().schedule(timerTask, 0, 1000);
         }
     }
+
+
 
     private Lobby getUpdatedLobby(Long lobbyId) {
         Optional<Lobby> currentLobby = lobbyRepository.findByLobbyId(lobbyId);
@@ -564,7 +567,7 @@ public class GameService{
         while(iterator.hasNext()) {
             String string = iterator.next();
             int occurrences = Collections.frequency(game.getInvalidClues(), string);
-            if(occurrences >=  threshold && threshold > 1) {
+            if(occurrences >=  threshold) {
                 iterator.remove();
                 if(!game.getInvalidClues().contains(string)) {
                     game.addInvalidClue(string);
@@ -575,7 +578,7 @@ public class GameService{
         Set<String> set = new LinkedHashSet<>(game.getInvalidClues());
         game.getInvalidClues().clear();
         game.getInvalidClues().addAll(set);
-
+        System.out.println("Clues after voting: " + game.getCluesAsString());
         gameRepository.saveAndFlush(game);
     }
 }
