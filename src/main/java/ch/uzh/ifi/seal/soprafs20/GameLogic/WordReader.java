@@ -1,14 +1,8 @@
 package ch.uzh.ifi.seal.soprafs20.GameLogic;
 
-import com.fasterxml.jackson.core.util.BufferRecycler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;

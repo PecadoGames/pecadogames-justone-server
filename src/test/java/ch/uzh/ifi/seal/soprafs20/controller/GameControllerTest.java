@@ -160,6 +160,7 @@ public class GameControllerTest {
 
         given(playerService.getPlayer(Mockito.any())).willReturn(player1);
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        given(playerService.getPlayer(Mockito.anyLong())).willReturn(player1);
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -194,6 +195,7 @@ public class GameControllerTest {
         given(playerService.getPlayer(Mockito.any())).willReturn(player1);
 
         given(gameService.sendClue(Mockito.any(), Mockito.any(), Mockito.any())).willThrow(new UnauthorizedException("ex"));
+        given(playerService.getPlayer(Mockito.anyLong())).willReturn(player1);
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
                 .contentType(MediaType.APPLICATION_JSON)
