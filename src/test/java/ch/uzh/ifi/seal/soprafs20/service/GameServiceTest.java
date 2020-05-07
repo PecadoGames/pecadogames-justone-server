@@ -462,4 +462,19 @@ public class GameServiceTest {
         assertTrue(testGame.getInvalidClues().contains("banana"));
     }
 
+    @Test
+    public void test_MathCeil() {
+        int amountOfGuessers = 3;
+        int threshold = (int)Math.ceil((float)3/2);
+        int threshold2 = (int)Math.ceil((float)4/2);
+        int threshold3 = (int)Math.ceil((float)5/2);
+
+        //assertEquals(2, threshold);
+        assertEquals(2, threshold);
+        assertEquals(2, threshold2);
+        assertEquals(3, threshold3);
+    }
+
+
+
 }
