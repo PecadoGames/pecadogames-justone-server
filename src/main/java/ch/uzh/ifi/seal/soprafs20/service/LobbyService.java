@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
+import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotAcceptableException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
@@ -128,6 +129,7 @@ public class LobbyService {
         if(playerToRemove.getId().equals(lobby.getHostId())){
             //host leaves lobby and is alone
             if(lobby.getPlayersInLobby().size() == 1){
+                removeLobbyInviteFromAllUsers(lobby);
                 playerRepository.delete(playerToRemove);
                 lobbyRepository.delete(lobby);
             }
@@ -163,6 +165,12 @@ public class LobbyService {
             lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
         }
         return lobby.getPlayersInLobby();
+    }
+
+    public void removeLobbyInviteFromAllUsers(Lobby lobby){
+        for(User u: lobby.getInvitedUsers()){
+            u.getLobbyInvites().remove(lobby);
+        }
     }
 
 }

@@ -175,6 +175,7 @@ public class UserService {
             throw new ConflictException("Cannot invite yourself to the lobby");
         }
         receiver.setLobbyInvites(lobby);
+        lobby.addInvitedUser(receiver);
         return receiver;
     }
 

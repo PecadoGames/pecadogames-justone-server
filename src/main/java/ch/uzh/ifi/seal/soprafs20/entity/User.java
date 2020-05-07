@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -68,6 +69,7 @@ public class User implements Serializable {
     @Fetch(value = FetchMode.SUBSELECT)
     private Set<User> friendList = new HashSet<>();
 
+    @Cascade(org.hibernate.annotations.CascadeType.REMOVE)
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private Set<Lobby> lobbyInvites = new HashSet<>();

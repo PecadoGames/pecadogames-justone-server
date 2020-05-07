@@ -56,6 +56,10 @@ public class Lobby implements Serializable {
     @Column(nullable = false)
     private Integer maxPlayersAndBots;
 
+    @Column
+    @ManyToMany
+    private Set<User> invitedUsers = new HashSet<>();
+
     @OneToMany(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private Set<Player> playersInLobby = new HashSet<>();
@@ -179,5 +183,17 @@ public class Lobby implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(getLobbyId());
+    }
+
+    public void addInvitedUser(User receiver) {
+        this.invitedUsers.add(receiver);
+    }
+
+    public Set<User> getInvitedUsers() {
+        return invitedUsers;
+    }
+
+    public void setInvitedUsers(Set<User> invitedUsers) {
+        this.invitedUsers = invitedUsers;
     }
 }
