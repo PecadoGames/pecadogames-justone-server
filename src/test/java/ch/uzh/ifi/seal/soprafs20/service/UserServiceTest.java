@@ -444,9 +444,10 @@ public class UserServiceTest {
         lobbyAcceptancePutDTO.setAccepterToken("testToken");
         lobbyAcceptancePutDTO.setAccepted(false);
 
-        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(receiver));
+        Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.of(receiver));
 
-        assertThrows(NoContentException.class, () -> userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO));
+        userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO);
+
         assertEquals(4, lobby.getCurrentNumPlayersAndBots());
     }
 

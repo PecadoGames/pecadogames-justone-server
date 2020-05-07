@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.PlayerRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,6 +22,8 @@ public class LobbyServiceTest {
 
     @Mock
     private LobbyRepository lobbyRepository;
+    @Mock
+    private PlayerRepository playerRepository;
 
     @InjectMocks
     private LobbyService lobbyService;
@@ -180,7 +181,6 @@ public class LobbyServiceTest {
 
     @Test
     public void removePlayerFromLobby_success(){
-
         //second user
         Player player2 = new Player();
         player2.setToken("123");
@@ -193,14 +193,7 @@ public class LobbyServiceTest {
         testLobby.addPlayerToLobby(player2);
         testLobby.setCurrentNumPlayersAndBots(2);
 
-        //kick list setup
-        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        lobbyPutDTO.setHostToken("1");
-        ArrayList<Long> kick = new ArrayList<>();
-        kick.add(3L);
-        lobbyPutDTO.setPlayersToKick(kick);
-
-        lobbyService.updateLobby(testLobby,lobbyPutDTO);
+        lobbyService.kickPlayers(testLobby, player2);
 
         assertEquals(1,testLobby.getPlayersInLobby().size());
         assertFalse(testLobby.getPlayersInLobby().contains(player2));
@@ -224,9 +217,7 @@ public class LobbyServiceTest {
         //kick list setup
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setHostToken("1");
-        ArrayList<Long> kick = new ArrayList<>();
-        kick.add(1L);
-        lobbyPutDTO.setPlayersToKick(kick);
+        lobbyPutDTO.setPlayerToKickId(1L);
 
         lobbyService.updateLobby(testLobby,lobbyPutDTO);
 
@@ -390,7 +381,9 @@ public class LobbyServiceTest {
         testLobby.setHostId(player2.getId());
         testLobby.setHostToken(player2.getToken());
         testLobby.setCurrentNumPlayersAndBots(2);
+
         Mockito.doReturn(testLobby).when(lobbyRepository).save(testLobby);
+        Mockito.doNothing().when(playerRepository).delete(Mockito.any());
 
         lobbyService.removePlayerFromLobby(host,testLobby);
 
