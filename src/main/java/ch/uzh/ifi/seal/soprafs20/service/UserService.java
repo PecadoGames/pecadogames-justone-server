@@ -184,12 +184,11 @@ public class UserService {
             throw new UnauthorizedException("You are not allowed to accept or decline this lobby invite!");
         }
         receiver.getLobbyInvites().remove(lobby);
+        userRepository.saveAndFlush(receiver);
         if (lobbyAcceptancePutDTO.isAccepted()) {
             return true;
         }
-        else {
-            throw new NoContentException("You declined the lobby invite.");
-        }
+        return false;
     }
 
     private void checkIfUserExists(User userToBeCreated) {

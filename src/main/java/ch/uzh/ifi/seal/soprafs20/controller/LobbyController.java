@@ -3,6 +3,8 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotAcceptableException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
@@ -55,21 +57,22 @@ public class LobbyController {
         Lobby userLobby = DTOMapper.INSTANCE.convertLobbyPostDTOtoEntity(lobbyPostDTO);
         User host = userService.getUser(lobbyPostDTO.getHostId());
         //convert host from user to player
-//        playerService.hromecheckPlayerToken(host.getToken(), lobbyPostDTO.getHostToken());
         Player hostAsPlayer = playerService.convertUserToPlayer(host);
         // create lobby
-        createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer);
+        try {
+            createdLobby = lobbyService.createLobby(userLobby, hostAsPlayer);
 
-        //create chat for lobby
-        chatService.createChat(createdLobby.getLobbyId());
+            //create chat for lobby
+            chatService.createChat(createdLobby.getLobbyId());
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{lobbyId}")
-                .buildAndExpand(createdLobby.getLobbyId()).toUri();
-        if(createdLobby.isPrivate()) {
-            return ResponseEntity.created(location)
-                    .body(createdLobby.getPrivateKey());
+            URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{lobbyId}")
+                    .buildAndExpand(createdLobby.getLobbyId()).toUri();
+            return ResponseEntity.created(location).build();
+
+        } catch (NotAcceptableException e){
+            playerService.deletePlayer(hostAsPlayer);
+            throw new NotAcceptableException("Could not create lobby");
         }
-        return ResponseEntity.created(location).build();
     }
 
     @GetMapping(path = "/lobbies", produces = "application/json")
@@ -188,8 +191,16 @@ public class LobbyController {
         User user = userService.getUser(joinLeavePutDTO.getPlayerId());
         //convert user into player
         playerService.checkPlayerToken(user.getToken(), joinLeavePutDTO.getPlayerToken());
+        if(lobby.isPrivate()){
+            throw new UnauthorizedException("Lobby is private, unable to join!");
+        }
         Player player = playerService.convertUserToPlayer(user);
-        lobbyService.addPlayerToLobby(joinLeavePutDTO.getPlayerToken(), player, lobby);
+        try{
+            lobbyService.addPlayerToLobby(joinLeavePutDTO.getPlayerToken(), player, lobby);
+        } catch (ConflictException e){
+            playerService.deletePlayer(player);
+        }
+
     }
 
     @PutMapping(path = "lobbies/{lobbyId}/rageQuits", consumes = "application/json")
