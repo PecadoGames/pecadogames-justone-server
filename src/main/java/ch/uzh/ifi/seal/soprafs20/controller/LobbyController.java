@@ -1,6 +1,5 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
-import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
@@ -208,6 +207,7 @@ public class LobbyController {
             lobbyService.addPlayerToLobby(joinLeavePutDTO.getPlayerToken(), player, lobby);
         } catch (ConflictException e){
             playerService.deletePlayer(player);
+            throw e;
         }
 
     }

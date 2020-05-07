@@ -11,7 +11,6 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.VotePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
-import ch.uzh.ifi.seal.soprafs20.service.InternalTimerService;
 import ch.uzh.ifi.seal.soprafs20.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +27,7 @@ public class GameController {
     private final GameService gameService;
 
 
-    GameController(PlayerService playerService, GameService gameService, InternalTimerService internalTimerService) {
+    GameController(PlayerService playerService, GameService gameService) {
         this.playerService = playerService;
         this.gameService = gameService;
     }
