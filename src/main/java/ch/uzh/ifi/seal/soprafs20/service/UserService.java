@@ -31,6 +31,7 @@ public class UserService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
+    private final Random random = new Random();
 
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -215,7 +216,6 @@ public class UserService {
     private AvatarColor getRandomColor() {
         List<AvatarColor> values = List.of(AvatarColor.values());
         int size = values.size();
-        Random random = new Random();
 
         return values.get(random.nextInt(size));
     }

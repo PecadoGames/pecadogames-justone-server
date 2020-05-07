@@ -37,6 +37,7 @@ public class GameService{
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 3;
     private static final int ROUNDTIME = 45;
+    private final Random rand = new Random();
 
     @Autowired
     public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository,UserRepository userRepository) {
@@ -93,7 +94,6 @@ public class GameService{
         newGame.setSpecialGame(newGame.getPlayers().size() == 3);
 
         //assign first guesser
-        Random rand = new Random();
         Player currentGuesser = newGame.getPlayers().get(rand.nextInt(newGame.getPlayers().size()));
         newGame.setCurrentGuesser(currentGuesser);
 
@@ -316,8 +316,7 @@ public class GameService{
      * @return random word from list
      */
     public String chooseWordAtRandom(List<String> words) {
-        Random random = new Random();
-        String currentWord = words.get(random.nextInt(words.size()));
+        String currentWord = words.get(rand.nextInt(words.size()));
         words.remove(currentWord);
         return currentWord;
     }
@@ -455,7 +454,10 @@ public class GameService{
 
     private Lobby getUpdatedLobby(Long lobbyId) {
         Optional<Lobby> currentLobby = lobbyRepository.findByLobbyId(lobbyId);
-        return currentLobby.orElse(null);
+        if(currentLobby.isPresent()) {
+            return currentLobby.get();
+        }
+        throw new NotFoundException(String.format("Lobby with ID %d not found", lobbyId));
     }
 
     /**
