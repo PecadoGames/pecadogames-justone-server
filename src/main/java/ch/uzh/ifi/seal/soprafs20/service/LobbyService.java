@@ -130,14 +130,13 @@ public class LobbyService {
             //host leaves lobby and is alone
             if(lobby.getPlayersInLobby().size() == 1){
                 removeLobbyInviteFromAllUsers(lobby);
-                playerRepository.delete(playerToRemove);
+                deletePlayer(playerToRemove);
                 lobbyRepository.delete(lobby);
             }
             //host leaves lobby, so new host is chosen
             else{
-
                 lobby.getPlayersInLobby().remove(playerToRemove);
-                playerRepository.delete(playerToRemove);
+                deletePlayer(playerToRemove);
                 Player newHost = lobby.getPlayersInLobby().iterator().next();
                 lobby.setHostId(newHost.getId());
                 lobby.setHostToken(newHost.getToken());
@@ -146,7 +145,7 @@ public class LobbyService {
             }
         } else if(lobby.getPlayersInLobby().contains(playerToRemove)){
             lobby.getPlayersInLobby().remove(playerToRemove);
-            playerRepository.delete(playerToRemove);
+            deletePlayer(playerToRemove);
             lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
         }
     }
@@ -161,7 +160,7 @@ public class LobbyService {
         //remove user from lobby but dont remove lobby leader
         if(!playerToKick.getId().equals(lobby.getHostId())){
             lobby.getPlayersInLobby().remove(playerToKick);
-            playerRepository.delete(playerToKick);
+            deletePlayer(playerToKick);
             lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
         }
         return lobby.getPlayersInLobby();
@@ -170,6 +169,15 @@ public class LobbyService {
     public void removeLobbyInviteFromAllUsers(Lobby lobby){
         for(User u: lobby.getInvitedUsers()){
             u.getLobbyInvites().remove(lobby);
+        }
+    }
+
+    public void deletePlayer(Player player) {
+        try {
+            playerRepository.delete(player);
+        }
+        catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Player could not be deleted.");
         }
     }
 
