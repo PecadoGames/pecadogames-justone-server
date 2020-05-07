@@ -165,12 +165,14 @@ public class UserController {
     @GetMapping(path = "/users/{userId}/invitations")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<InviteGetDTO> getLobbyInvites(@PathVariable long userId){
+    public List<InviteGetDTO> getLobbyInvites(@PathVariable long userId, @RequestParam("token") String token){
         User user = userService.getUser(userId);
         Set<Lobby> invites = user.getLobbyInvites();
         List<InviteGetDTO> lobbies = new ArrayList<>();
         for(Lobby lobby : invites){
-            lobbies.add(DTOMapper.INSTANCE.convertEntityToInviteGetDTO(lobby));
+            InviteGetDTO inviteGetDTO = DTOMapper.INSTANCE.convertEntityToInviteGetDTO(lobby);
+            inviteGetDTO.setHostName(userService.getUser(lobby.getHostId()).getUsername());
+            lobbies.add(inviteGetDTO);
         }
         return lobbies;
     }
