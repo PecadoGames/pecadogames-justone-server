@@ -357,14 +357,7 @@ public class GameService{
             public void run() {
                 game[0] = getUpdatedGame(game[0]);
                 game[0].setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game[0].getStartTimeSeconds());
-//                System.out.println("Timer: " + time[0]);
 
-//                if (!getCancel(game[0]) && time[0] < ROUNDTIME) {
-//                    game[0].getTimer().cancel();
-//                    game[0].getTimer().purge();
-//                    game[0].setTimer(new InternalTimer());
-//                    gameRepository.saveAndFlush(game[0]);
-//                }
                 if (game[0].getTime() >= ROUNDTIME && game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0])) {
                     game[0].getTimer().cancel();
                     game[0].getTimer().purge();
@@ -397,7 +390,6 @@ public class GameService{
                     game[0].getTimer().purge();
                     game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     gameRepository.saveAndFlush(game[0]);
-                    gameRepository.saveAndFlush(game[0]);
 
                 }
 
@@ -407,15 +399,15 @@ public class GameService{
                     game[0].getTimer().setCancel(true);
                     gameRepository.saveAndFlush(game[0]);
                 }
-                if(game[0].getGameState() == null){
+                else if(game[0].getGameState() == null){
                     System.out.println("Game was terminated");
                 }
 
                 if (game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0])) {
-
-
-
+                    game[0].getTimer().cancel();
                 }
+
+
                 //Update timer user input
                 else if (getCancel(game[0]) && game[0].getRoundsPlayed() <= ROUNDS && !game[0].getGameState().equals(GameState.ENDGAMESTATE)) {
                     game[0] = getUpdatedGame(game[0]);
