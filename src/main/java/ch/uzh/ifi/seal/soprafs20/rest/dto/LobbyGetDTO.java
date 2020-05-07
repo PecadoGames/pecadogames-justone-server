@@ -44,6 +44,13 @@ public class LobbyGetDTO {
         this.hostId = hostId;
     }
 
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
+    }
 
     public Long getLobbyId() {
         return lobbyId;
