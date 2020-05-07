@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class LobbyPutDTO {
 
     private Integer maxNumberOfPlayersAndBots;
-    private ArrayList<Long> playersToKick;
+    private Long playerToKickId;
     private String hostToken;
 
     public Integer getMaxNumberOfPlayersAndBots() {
@@ -16,12 +16,12 @@ public class LobbyPutDTO {
         this.maxNumberOfPlayersAndBots = maxNumberOfPlayersAndBots;
     }
 
-    public ArrayList<Long> getPlayersToKick() {
-        return playersToKick;
+    public Long getPlayerToKickId() {
+        return playerToKickId;
     }
 
-    public void setPlayersToKick(ArrayList<Long> playersToKick) {
-        this.playersToKick = playersToKick;
+    public void setPlayerToKickId(Long playersToKickId) {
+        this.playerToKickId = playersToKickId;
     }
 
     public String getHostToken() {

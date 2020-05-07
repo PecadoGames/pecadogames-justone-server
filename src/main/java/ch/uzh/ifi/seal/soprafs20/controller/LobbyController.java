@@ -118,6 +118,15 @@ public class LobbyController {
         lobbyService.updateLobby(lobby,lobbyPutDTO);
     }
 
+    @PutMapping(path = "/lobbies/{lobbyId}/kick", consumes = "application/json")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void kickPlayer(@PathVariable long lobbyId, @RequestBody LobbyPutDTO lobbyPutDTO){
+        Lobby lobby = lobbyService.getLobby(lobbyId);
+        Player playerTokick = playerService.getPlayer(lobbyPutDTO.getPlayerToKickId());
+        lobbyService.kickPlayers(lobby,playerTokick);
+    }
+
     @GetMapping(path = "/lobbies/{lobbyId}", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
