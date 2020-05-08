@@ -4,6 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.core.JsonParseException;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
@@ -72,6 +73,7 @@ public class User implements Serializable {
     @Cascade(org.hibernate.annotations.CascadeType.REMOVE)
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
+    @JsonManagedReference
     private Set<Lobby> lobbyInvites = new HashSet<>();
 
     public Long getId() {

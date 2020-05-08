@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -58,6 +59,7 @@ public class Lobby implements Serializable {
 
     @Column
     @ManyToMany
+    @JsonBackReference
     private Set<User> invitedUsers = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER)

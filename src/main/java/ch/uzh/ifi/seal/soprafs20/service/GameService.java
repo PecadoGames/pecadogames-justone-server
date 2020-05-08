@@ -454,7 +454,7 @@ public class GameService{
 
     private Lobby getUpdatedLobby(Long lobbyId) {
         Optional<Lobby> currentLobby = lobbyRepository.findByLobbyId(lobbyId);
-        if(currentLobby.isPresent()) {
+        if(currentLobby.isPresent()){
             return currentLobby.get();
         }
         throw new NotFoundException(String.format("Lobby with ID %d not found", lobbyId));
