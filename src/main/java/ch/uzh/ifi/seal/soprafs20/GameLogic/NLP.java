@@ -9,15 +9,18 @@ public class NLP {
     public boolean checkClue(String clue, String word) {
         String clueToLower = clue.toLowerCase();
         String wordToLower = word.toLowerCase();
+        String clueStem = stemWord(clueToLower);
+        String wordStem = stemWord(wordToLower);
 
-        if(clueToLower.contains(" ")) {
-            return false;
-        }
+        if(!(clue.matches("^[a-zA-Z]+$") || clue.matches("^[0-9]+$"))) { return false; }
 
-        if(clueToLower.contains(wordToLower) || wordToLower.contains(clueToLower)) {
-            return false;
-        }
-        return !stemWord(clueToLower).equals(stemWord(wordToLower));
+        if(clueToLower.contains(wordToLower) || wordToLower.contains(clueToLower)) { return false; }
+
+        if(clueStem.equals(wordStem)) {return false;}
+
+        if(clueStem.contains(wordStem) || wordStem.contains(clueStem)) { return false; }
+
+        return true;
     }
 
     public String stemWord(String word) {
