@@ -109,7 +109,7 @@ public class GameController {
         }
         else {
 
-            long diff = gameService.getMaxTime() - (currentTime - game.getStartTimeSeconds());
+            long diff = gameService.getMaxTime(game) - (currentTime - game.getStartTimeSeconds());
             if(diff < 0)
                 return "0";
             else

@@ -1,9 +1,13 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
+import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.PlayerRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
@@ -24,6 +28,12 @@ public class GameServiceTest {
 
     @Mock
     private GameRepository gameRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private LobbyRepository lobbyRepository;
 
     @InjectMocks
     private GameService gameService;
@@ -474,6 +484,250 @@ public class GameServiceTest {
         assertEquals(2, threshold2);
         assertEquals(3, threshold3);
     }
+
+    @Test
+    public void requestLessTransitionPickWord_EnterClue() throws InterruptedException {
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setHostId(1L);
+        lobby.setHostToken("testToken");
+
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player1.setToken("tesToken2");
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.PICKWORDSTATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(0);
+        WordReader reader = new WordReader();
+        testGame.setWords(reader.getRandomWords(13));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(false);
+        testGame.setTime(10);
+        gameService.timer(testGame);
+        Thread.sleep(35*1000);
+
+        assertEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
+    }
+
+    @Test
+    public void requestLessStartNewRound() throws InterruptedException {
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setHostId(1L);
+        lobby.setHostToken("testToken");
+
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+        player1.setClueIsSent(true);
+
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setToken("testToken");
+        user1.setScore(10);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("tesToken2");
+        player2.setClueIsSent(true);
+
+        User user2 = new User();
+        user2.setId(1L);
+        user2.setToken("tesToken2");
+        user2.setScore(10);
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.TRANSITIONSTATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+        WordReader reader = new WordReader();
+        testGame.setWords(reader.getRandomWords(13));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(false);
+        testGame.setTime(5);
+
+        Mockito.when(userRepository.findById(player1.getId())).thenReturn(java.util.Optional.of(user1));
+        Mockito.when(userRepository.findById(player2.getId())).thenReturn(java.util.Optional.of(user2
+        ));
+
+
+        gameService.timer(testGame);
+        Thread.sleep(1*1000);
+
+        assertEquals(GameState.PICKWORDSTATE, testGame.getGameState());
+    }
+
+    @Test
+    public void requestLessEndGame() throws InterruptedException {
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setHostId(1L);
+        lobby.setHostToken("testToken");
+
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+        player1.setClueIsSent(true);
+
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setToken("testToken");
+        user1.setScore(10);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("tesToken2");
+        player2.setClueIsSent(true);
+
+        User user2 = new User();
+        user2.setId(1L);
+        user2.setToken("tesToken2");
+        user2.setScore(10);
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.TRANSITIONSTATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setRoundsPlayed(4);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+
+
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(false);
+        testGame.setTime(10);
+
+        Mockito.when(userRepository.findById(player1.getId())).thenReturn(java.util.Optional.of(user1));
+        Mockito.when(userRepository.findById(player2.getId())).thenReturn(java.util.Optional.of(user2));
+
+
+        gameService.timer(testGame);
+        Thread.sleep(2*1000);
+
+        assertEquals(GameState.ENDGAMESTATE, testGame.getGameState());
+    }
+
+    @Test
+    public void deleteGame() throws InterruptedException {
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setHostId(1L);
+        lobby.setHostToken("testToken");
+        lobby.setGameIsStarted(false);
+
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+        player1.setClueIsSent(true);
+
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setToken("testToken");
+        user1.setScore(10);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("tesToken2");
+        player2.setClueIsSent(true);
+
+        User user2 = new User();
+        user2.setId(1L);
+        user2.setToken("tesToken2");
+        user2.setScore(10);
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENDGAMESTATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setRoundsPlayed(4);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+        WordReader reader = new WordReader();
+        testGame.setWords(reader.getRandomWords(13));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(false);
+        testGame.setTime(10);
+
+        Mockito.when(lobbyRepository.findByLobbyId(testGame.getLobbyId())).thenReturn(java.util.Optional.of(lobby));
+
+
+        gameService.timer(testGame);
+        Thread.sleep(5*1000);
+
+        assertEquals(GameState.ENDGAMESTATE, testGame.getGameState());
+        assertTrue(gameRepository.findByLobbyId(testGame.getLobbyId()).isEmpty());
+        assertFalse(lobby.isGameStarted());
+    }
+
+    @Test
+    public void userPickedWord() throws InterruptedException {
+
+
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+        player1.setClueIsSent(true);
+
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setToken("testToken");
+        user1.setScore(10);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("tesToken2");
+        player2.setClueIsSent(true);
+
+        User user2 = new User();
+        user2.setId(1L);
+        user2.setToken("tesToken2");
+        user2.setScore(10);
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTERCLUESSTATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(true);
+        testGame.setTime(3);
+
+        Mockito.when(gameRepository.findByLobbyId(testGame.getLobbyId())).thenReturn(java.util.Optional.ofNullable(testGame));
+
+        gameService.timer(testGame);
+//        Thread.sleep(1*1000);
+
+        assertEquals(GameState.ENTERCLUESSTATE, testGame.getGameState());
+    }
+
 
 
 
