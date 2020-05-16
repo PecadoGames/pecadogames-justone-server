@@ -188,7 +188,9 @@ public class LobbyController {
         message = messageService.createMessage(message);
         User author  = userService.getUser(messagePutDTO.getPlayerId());
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        chatService.addChatMessage(lobby, author.getToken(), message);
+        if(messagePutDTO.getMessage().length() < 50) {
+            chatService.addChatMessage(lobby, author.getToken(), message);
+        }
     }
 
     @PutMapping(path = "/lobbies/{lobbyId}/joins", consumes = "application/json")
