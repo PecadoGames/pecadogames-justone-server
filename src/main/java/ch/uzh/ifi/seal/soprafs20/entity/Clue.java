@@ -1,14 +1,35 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Clue {
+@Entity
+@Table(name = "CLUE")
+public class Clue implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue
+    private Long clueId;
+
+    @Column(nullable = false)
     private Long playerId;
 
+    @NotBlank
+    @NotEmpty
+    @Column(nullable = false)
     private String actualClue;
 
+    @Column
     private Long timeNeeded;
+
+    public Long getClueId() { return clueId; }
+
+    public void setClueId(Long clueId) { this.clueId = clueId; }
 
     public Long getPlayerId() {
         return playerId;
@@ -35,7 +56,7 @@ public class Clue {
         if (this == o) { return true; }
         if (!(o instanceof Clue)) { return false; }
         Clue other = (Clue) o;
-        return playerId != null && playerId.equals(other.getPlayerId()) && actualClue.equals(other.getActualClue());
+        return actualClue.toLowerCase().equals(other.getActualClue().toLowerCase());
     }
 
     @Override

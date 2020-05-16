@@ -39,20 +39,22 @@ public class Game {
     @Column(nullable = false)
     private boolean specialGame;
 
-    @Transient
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<String> words = new ArrayList<>();
+
+    @OneToMany
     private List<Clue> enteredClues = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private List<String> cluesAsString = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
-    private List<String> words = new ArrayList<>();
+    @OneToMany
+    private List<Clue> invalidClues = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
-    private List<String> invalidClues = new ArrayList<>();
+    @OneToMany
+    private List<Clue> duplicateClues = new ArrayList<>();
 
     @Column
     private GameState gameState;
@@ -114,11 +116,21 @@ public class Game {
     }
 
     public void setEnteredClues(List<Clue> enteredClues) {
-        this.enteredClues = enteredClues;
+        this.enteredClues.clear();
+        for (Clue clue : enteredClues) {
+            clue.setActualClue(clue.getActualClue().toLowerCase());
+            this.enteredClues.add(clue);
+        }
     }
 
     public void addClue(Clue clue){
+        clue.setActualClue(clue.getActualClue().toLowerCase());
         this.enteredClues.add(clue);
+    }
+
+    public void removeClue(Clue clue) {
+        clue.setActualClue(clue.getActualClue().toLowerCase());
+        this.enteredClues.remove(clue);
     }
 
     public List<String> getCluesAsString() {
@@ -213,17 +225,28 @@ public class Game {
         this.lobbyName = lobbyName;
     }
 
-    public List<String> getInvalidClues() {
+    public List<Clue> getInvalidClues() {
         return invalidClues;
     }
 
-    public void addInvalidClue(String invalidClue) {
-        this.invalidClues.add(invalidClue.toLowerCase());
+    public void addInvalidClue(Clue invalidClue) {
+        invalidClue.setActualClue(invalidClue.getActualClue().toLowerCase());
+        this.invalidClues.add(invalidClue);
     }
 
-    public void setInvalidClues(List<String> invalidClues) {
-        for(String invalidClue : invalidClues)
-        this.invalidClues.add(invalidClue.toLowerCase());
+    public void setInvalidClues(List<Clue> invalidClues) {
+        this.invalidClues.clear();
+        for(Clue invalidClue : invalidClues) {
+            invalidClue.setActualClue(invalidClue.getActualClue().toLowerCase());
+            this.invalidClues.add(invalidClue);
+        }
+    }
+
+    public void addInvalidClues(List<Clue> invalidClues) {
+        for(Clue invalidClue : invalidClues) {
+            invalidClue.setActualClue(invalidClue.getActualClue().toLowerCase());
+            this.invalidClues.add(invalidClue);
+        }
     }
 
     @Override

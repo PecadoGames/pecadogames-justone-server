@@ -7,6 +7,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
+import ch.uzh.ifi.seal.soprafs20.repository.ClueRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
@@ -34,6 +35,7 @@ public class GameService{
     private final GameRepository gameRepository;
     private final LobbyRepository lobbyRepository;
     private final UserRepository userRepository;
+    private final ClueRepository clueRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 3;
     private static final int pickWordTime = 10;
@@ -45,10 +47,11 @@ public class GameService{
     private final Random rand = new Random();
 
     @Autowired
-    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository,UserRepository userRepository) {
+    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository, UserRepository userRepository, ClueRepository clueRepository) {
         this.gameRepository = gameRepository;
         this.lobbyRepository = lobbyRepository;
         this.userRepository = userRepository;
+        this.clueRepository = clueRepository;
     }
 
     public Game getGame(Long id) {
@@ -129,28 +132,28 @@ public class GameService{
     /**
      * @param game
      * @param player
-     * @param clue
-     * @return game with updated clue list
+     * @param actualClue
      */
-    public boolean sendClue(Game game, Player player, String clue){
+    public boolean sendClue(Game game, Player player, String actualClue){
         if(!game.getGameState().equals(GameState.ENTERCLUESSTATE))
             throw new UnauthorizedException("Clues are not accepted in current state!");
 
         if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
-            throw new UnauthorizedException("This player is not allowed to send clue!");
+            throw new UnauthorizedException("This player is not allowed to send a clue!");
         }
+        Clue clue = new Clue();
+        clue.setPlayerId(player.getId());
+        clue.setActualClue(actualClue);
         if (!game.isSpecialGame()) {
-            player.setClue(clue);
+            player.addClue(clue);
             player.setClueIsSent(true);
-            if(game.getCluesAsString().contains(clue)) {
-                game.getCluesAsString().remove(clue);
-            } else {
-                game.getCluesAsString().add(clue);
-            }
+            // if the same clue is sent twice, remove it from list of entered clues
+            addClue(clue, game);
+            clueRepository.saveAndFlush(clue);
             gameRepository.saveAndFlush(game);
         }
         else {
-//            sendClueSpecial(game, player, clue);//handle double clue input from player
+            sendClueSpecial(game, player, clue);//handle double clue input from player
         }
         int counter = 0;
         for (Player playerInGame : game.getPlayers()){
@@ -214,20 +217,21 @@ public class GameService{
      * @param player
      * @param clue
      */
-    private void sendClueSpecial(Game game, Player player, String clue) {
-        String temporaryClue = player.getToken();
+    private void sendClueSpecial(Game game, Player player, Clue clue) {
+        Clue temporaryClue = new Clue();
+        temporaryClue.setActualClue(player.getToken());
+        temporaryClue.setPlayerId(player.getId());
 
         if (!game.getEnteredClues().isEmpty()) {
-            if(game.getCluesAsString().removeIf(clue1 -> clue1.equals(player.getToken()))) {
-                game.addClueAsString(clue);
-                //game.addClueAsString(clue.getActualClue());
+            if(game.getEnteredClues().contains(temporaryClue)) {
+                game.removeClue(temporaryClue);
+                addClue(clue, game);
                 player.setClueIsSent(true);
                 return;
             }
         }
-        game.addClueAsString(clue);
-//        setTimeNeeded(game, clue);
-        game.addClueAsString(temporaryClue);
+        addClue(clue, game);
+        game.addClue(temporaryClue);
     }
 
 
@@ -298,10 +302,14 @@ public class GameService{
 
     public void checkClues(Game game) {
         NLP nlp = new NLP();
+        List<Clue> cluesToRemove = new ArrayList<>();
         System.out.println("Game clues as string: "+ game.getCluesAsString());
-        game.getCluesAsString().removeIf(clue -> !nlp.checkClue(clue, game.getCurrentWord()));
-//        updateCluesAsString(game);
-//        System.out.println(game.getEnteredClues().toString());
+        for (Clue clue : game.getEnteredClues()) {
+            if (!nlp.checkClue(clue.getActualClue(), game.getCurrentWord())) {
+                cluesToRemove.add(clue);
+            }
+        }
+        game.getEnteredClues().removeAll(cluesToRemove);
         gameRepository.saveAndFlush(game);
     }
 
@@ -315,7 +323,6 @@ public class GameService{
         if(game.isSpecialGame()) {
             return counter == (game.getPlayers().size() - 1) * 2;
         }
-        System.out.println("only one guesser");
         return counter == game.getPlayers().size() - 1;
     }
 
@@ -339,19 +346,18 @@ public class GameService{
 
     public void updateScores(Game game){
         game = getUpdatedGame(game);
-        Iterator<Player> iterator = game.getPlayers().iterator();
-        while(iterator.hasNext()){
-            Player player = iterator.next();
-            if(game.getCluesAsString().contains(player.getClue())){
-                int newScore = 40 * (((game.getPlayers().size()) - game.getCluesAsString().size()));
-                player.setScore(player.getScore() + newScore);
-                game.setOverallScore(game.getOverallScore() + player.getScore());
+        for (Player player : game.getPlayers()) {
+            // in case of 3-player-logic, the size of clues is 2, otherwise 1 (or 0, if player did not send any clues)
+            for(int i = 0; i < player.getClues().size(); i++) {
+                if (game.getEnteredClues().contains(player.getClue(i))) {
+                    int newScore = 40 * (((game.getPlayers().size()) - game.getCluesAsString().size()));
+                    player.setScore(player.getScore() + newScore);
+                }
             }
+            game.setOverallScore(game.getOverallScore() + player.getScore());
         }
 
     }
-
-
 
     /**
      * Central timer logic for each game. Sets timer for each state,
@@ -361,7 +367,6 @@ public class GameService{
      * TODO: Implement the game logic changes for each state if no input is received and the timer ends
      *
      * @param g - takes a game instance as input
-     * @param gameState - state to which the game transitions if timer is finished
      */
     public void timer(Game g) {
         final Game[] game = {g};
@@ -514,7 +519,11 @@ public class GameService{
 
     public boolean vote(Game game, Player player, List<String> invalidWords) {
         if(!player.isVoted()) {
-            game.setInvalidClues(invalidWords);
+            Clue clue = new Clue();
+            for(String s : invalidWords) {
+                clue.setActualClue(s);
+                game.addInvalidClue(clue);
+            }
             player.setVoted(true);
         }
         else {
@@ -545,23 +554,31 @@ public class GameService{
     }
 
     public void checkVotes(Game game, int threshold) {
-        Iterator<String> iterator = game.getCluesAsString().iterator();
+        Iterator<Clue> iterator = game.getEnteredClues().iterator();
         while(iterator.hasNext()) {
-            String string = iterator.next();
-            int occurrences = Collections.frequency(game.getInvalidClues(), string);
+            Clue clue = iterator.next();
+            int occurrences = Collections.frequency(game.getInvalidClues(), clue);
             if(occurrences >=  threshold) {
                 iterator.remove();
-                if(!game.getInvalidClues().contains(string)) {
-                    game.addInvalidClue(string);
-                }
             }
         }
         //Remove duplicates from list of invalid clues to return to client
-        Set<String> set = new LinkedHashSet<>(game.getInvalidClues());
+        Set<Clue> set = new LinkedHashSet<>(game.getInvalidClues());
         game.getInvalidClues().clear();
         game.getInvalidClues().addAll(set);
-        System.out.println("Clues after voting: " + game.getCluesAsString());
         gameRepository.saveAndFlush(game);
+    }
+
+    public void addClue(Clue clue, Game game) {
+        // if the same clue is sent twice, remove it from list of entered clues
+        if(game.getEnteredClues().contains(clue)) {
+            game.getEnteredClues().remove(clue);
+            game.addInvalidClue(clue);
+        }
+        //only add the clue to list of entered clues if the same clue wasn't sent before
+        else if(!game.getInvalidClues().contains(clue)) {
+            game.addClue(clue);
+        }
     }
 }
 

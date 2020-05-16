@@ -4,9 +4,9 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
+import ch.uzh.ifi.seal.soprafs20.repository.ClueRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
-import ch.uzh.ifi.seal.soprafs20.repository.PlayerRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
@@ -34,6 +34,9 @@ public class GameServiceTest {
 
     @Mock
     private LobbyRepository lobbyRepository;
+
+    @Mock
+    private ClueRepository clueRepository;
 
     @InjectMocks
     private GameService gameService;
@@ -111,7 +114,8 @@ public class GameServiceTest {
         clue.setPlayerId(player2.getId());
 
         gameService.sendClue(testGame, player2, clue.getActualClue());
-        assertTrue(testGame.getCluesAsString().contains("star"));
+
+        assertTrue(testGame.getEnteredClues().contains(clue));
         assertTrue(player2.isClueIsSent());
     }
 
@@ -188,17 +192,20 @@ public class GameServiceTest {
         messagePutDTO.setPlayerToken("token2");
         messagePutDTO.setPlayerId(2L);
         messagePutDTO.setMessage("star");
-        long sendTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
 
         Clue clue = new Clue();
         clue.setActualClue("star");
         clue.setPlayerId(player2.getId());
 
-//        gameService.sendClue(testGame, player2, clue.getActualClue());
-//
-//        assertTrue(testGame.getCluesAsString().contains("star"));
-//        assertTrue(testGame.getCluesAsString().contains("token2"));
-//        assertFalse(player2.isClueIsSent());
+        Clue temporaryClue = new Clue();
+        temporaryClue.setActualClue(player2.getToken());
+        temporaryClue.setPlayerId(player2.getId());
+
+        gameService.sendClue(testGame, player2, clue.getActualClue());
+
+        assertTrue(testGame.getEnteredClues().contains(clue));
+        assertTrue(testGame.getEnteredClues().contains(temporaryClue));
+        assertFalse(player2.isClueIsSent());
     }
 
     @Test
@@ -212,21 +219,20 @@ public class GameServiceTest {
 
         testGame.setGameState(GameState.ENTERCLUESSTATE);
         testGame.setSpecialGame(true);
-        testGame.setCurrentWord("star wars");
-        testGame.getEnteredClues().add(enteredClue1);
-        testGame.getEnteredClues().add(enteredClue2);
-        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        testGame.setCurrentWord("banana");
+        testGame.addClue(enteredClue1);
+        testGame.addClue(enteredClue2);
 
         Clue clue = new Clue();
         clue.setActualClue("star");
         clue.setPlayerId(player2.getId());
 
-//        gameService.sendClue(testGame, player2, clue.getActualClue());
+        gameService.sendClue(testGame, player2, clue.getActualClue());
 
-//        assertTrue(testGame.getCluesAsString().contains(clue.getActualClue()));
-//        assertTrue(testGame.getCluesAsString().contains(enteredClue1.getActualClue()));
-//        assertFalse(testGame.getCluesAsString().contains(enteredClue2.getActualClue()));
-//        assertTrue(player2.isClueIsSent());
+        assertTrue(testGame.getEnteredClues().contains(clue));
+        assertTrue(testGame.getEnteredClues().contains(enteredClue1));
+        assertFalse(testGame.getEnteredClues().contains(enteredClue2));
+        assertTrue(player2.isClueIsSent());
     }
 
     @Test
@@ -396,20 +402,15 @@ public class GameServiceTest {
         Clue clue3 = new Clue();
         clue3.setPlayerId(3L);
         clue3.setActualClue("Banana");
-        Clue clue4 = new Clue();
-        clue4.setPlayerId(4L);
-        clue4.setActualClue("Apple");
-        testGame.addClueAsString(clue1.getActualClue());
-        testGame.addClueAsString(clue2.getActualClue());
-        testGame.addClueAsString(clue3.getActualClue());
-        testGame.addClueAsString(clue4.getActualClue());
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+        testGame.addClue(clue3);
 
         gameService.checkClues(testGame);
-        assertFalse(testGame.getCluesAsString().contains("Banana"));
-        assertFalse(testGame.getCluesAsString().contains(clue3.getActualClue()));
-        assertFalse(testGame.getCluesAsString().contains(clue1.getActualClue()));
-        assertTrue(testGame.getCluesAsString().contains(clue2.getActualClue()));
-        assertTrue(testGame.getCluesAsString().contains(clue4.getActualClue()));
+
+        assertFalse(testGame.getEnteredClues().contains(clue1));
+        assertFalse(testGame.getEnteredClues().contains(clue3));
+        assertTrue(testGame.getEnteredClues().contains(clue2));
     }
 
     @Test
@@ -420,16 +421,17 @@ public class GameServiceTest {
         Clue clue2 = new Clue();
         clue2.setPlayerId(2L);
         clue2.setActualClue("Banana");
-        testGame.addClueAsString(clue1.getActualClue());
-        testGame.addClueAsString(clue2.getActualClue());
-        testGame.addInvalidClue("Banana");
-        testGame.addInvalidClue("Banana");
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+        testGame.addInvalidClue(clue2);
+        testGame.addInvalidClue(clue2);
 
         gameService.checkVotes(testGame, 2);
 
-        assertTrue(testGame.getCluesAsString().contains(clue1.getActualClue()));
-        assertFalse(testGame.getCluesAsString().contains(clue2.getActualClue()));
+        assertTrue(testGame.getEnteredClues().contains(clue1));
+        assertFalse(testGame.getEnteredClues().contains(clue2));
         assertEquals(1, testGame.getInvalidClues().size());
+        assertTrue(testGame.getInvalidClues().contains(clue2));
     }
 
     @Test
@@ -461,15 +463,13 @@ public class GameServiceTest {
 
         testGame.addClueAsString(clue1.getActualClue());
         testGame.addClueAsString(clue2.getActualClue());
-        testGame.addInvalidClue("banana");
-        testGame.addInvalidClue("banana");
+        testGame.addInvalidClue(clue1);
+        testGame.addInvalidClue(clue2);
 
         gameService.checkVotes(testGame, 2);
 
-        assertFalse(testGame.getCluesAsString().contains(clue1.getActualClue()));
-        assertFalse(testGame.getCluesAsString().contains(clue2.getActualClue()));
-        assertEquals(1, testGame.getInvalidClues().size());
-        assertTrue(testGame.getInvalidClues().contains("banana"));
+        //assertEquals(1, testGame.getInvalidClues().size());
+        assertTrue(testGame.getInvalidClues().contains(clue1));
     }
 
     @Test

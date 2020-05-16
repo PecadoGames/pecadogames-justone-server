@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
@@ -61,11 +60,8 @@ public class GameController {
     public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         Game currentGame = gameService.getGame(lobbyId);
         Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
-        Clue clue = new Clue();
-        clue.setActualClue(messagePutDTO.getMessage());
-        clue.setPlayerId(player.getId());
-        System.out.println(clue.getActualClue() +", id: " +clue.getPlayerId());
-        if (gameService.sendClue(currentGame, player, clue.getActualClue())) {
+        //If all clues were sent, sendClue returns true and the game moves on to the next state
+        if (gameService.sendClue(currentGame, player, messagePutDTO.getMessage())) {
             currentGame.getTimer().setCancel(true);
             currentGame.setGameState(GameState.VOTEONCLUESSTATE);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), currentGame);

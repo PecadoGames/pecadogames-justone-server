@@ -5,6 +5,8 @@ import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -34,8 +36,8 @@ public class Player {
     @Column
     private volatile boolean voted;
 
-    @Column
-    private String clue;
+    @OneToMany
+    private List<Clue> clues = new ArrayList<Clue>();
 
 
 
@@ -95,6 +97,24 @@ public class Player {
         this.voted = voted;
     }
 
+    public List<Clue> getClues() {
+        return clues;
+    }
+
+    public Clue getClue(int i) { return clues.get(i); }
+
+    public void setClues(List<Clue> clues) {
+        this.clues.clear();
+        for (Clue clue : clues) {
+            clue.setActualClue(clue.getActualClue().toLowerCase());
+            this.clues.add(clue);
+        }
+    }
+
+    public void addClue(Clue clue) {
+        clue.setActualClue(clue.getActualClue().toLowerCase());
+        this.clues.add(clue); }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
@@ -106,13 +126,5 @@ public class Player {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
-    }
-
-    public String getClue() {
-        return clue;
-    }
-
-    public void setClue(String clue) {
-        this.clue = clue;
     }
 }
