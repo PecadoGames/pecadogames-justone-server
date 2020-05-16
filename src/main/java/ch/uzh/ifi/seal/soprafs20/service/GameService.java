@@ -267,6 +267,7 @@ public class GameService{
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
             p.setVoted(false);
+            p.getClues().clear();
         }
         game.setGuessCorrect(false);
         game.setGameState(GameState.PICKWORDSTATE);
@@ -293,9 +294,10 @@ public class GameService{
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
             p.setVoted(false);
+            p.getClues().clear();
         }
 
-        game.setCluesAsString(null);
+        game.getEnteredClues().clear();
         gameRepository.saveAndFlush(game);
         //ToDo: Update scores of player and overall score
     }
