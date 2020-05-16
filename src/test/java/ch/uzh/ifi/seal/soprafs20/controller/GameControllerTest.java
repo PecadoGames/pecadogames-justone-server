@@ -57,6 +57,7 @@ public class GameControllerTest {
         game.addPlayer(player2);
         game.setCurrentGuesser(player1);
         game.setCurrentWord("Erdbeermarmeladebrot");
+        game.setCurrentGuess("Bananenbrot");
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
 
@@ -69,7 +70,8 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.lobbyId", is(game.getLobbyId().intValue())))
                 .andExpect(jsonPath("$.roundsPlayed", is(game.getRoundsPlayed())))
                 .andExpect(jsonPath("$.players", hasSize(2)))
-                .andExpect(jsonPath("$.currentWord", is(game.getCurrentWord())));
+                .andExpect(jsonPath("$.currentWord", is(game.getCurrentWord())))
+                .andExpect(jsonPath("$.currentGuess", is(game.getCurrentGuess())));
     }
 
     @Test

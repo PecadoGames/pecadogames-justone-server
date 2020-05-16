@@ -21,6 +21,7 @@ public class GameGetDTO {
     private int overallScore;
     private boolean specialGame;
     private boolean isGuessCorrect;
+    private String currentGuess;
 
 
     public List<PlayerGetDTO> getPlayers() {
@@ -114,4 +115,8 @@ public class GameGetDTO {
     public void setGuessCorrect(boolean guessCorrect) {
         isGuessCorrect = guessCorrect;
     }
+
+    public String getCurrentGuess() { return currentGuess; }
+
+    public void setCurrentGuess(String guess) { currentGuess = guess; }
 }
