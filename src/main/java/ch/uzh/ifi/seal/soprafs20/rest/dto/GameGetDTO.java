@@ -16,7 +16,7 @@ public class GameGetDTO {
     private int roundsPlayed;
     private String currentWord;
     private GameState gameState;
-    private List<String> cluesAsString = new ArrayList<>();
+    private List<Clue> enteredClues = new ArrayList<>();
     private List<Clue> invalidClues = new ArrayList<>();
     private int overallScore;
     private boolean specialGame;
@@ -86,13 +86,9 @@ public class GameGetDTO {
         this.lobbyName = lobbyName;
     }
 
-    public List<String> getCluesAsString() {
-        return cluesAsString;
-    }
+    public List<Clue> getEnteredClues() { return enteredClues; }
 
-    public void setCluesAsString(List<String> cluesAsString) {
-        this.cluesAsString = cluesAsString;
-    }
+    public void setEnteredClues(List<Clue> clues) { this.enteredClues = clues; }
 
     public List<Clue> getInvalidClues() { return invalidClues; }
 
