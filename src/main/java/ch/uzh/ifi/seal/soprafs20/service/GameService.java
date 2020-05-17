@@ -269,6 +269,7 @@ public class GameService{
             p.setVoted(false);
             p.getClues().clear();
         }
+        game.getEnteredClues().clear();
         game.setGuessCorrect(false);
         game.setGameState(GameState.PICKWORDSTATE);
 
