@@ -170,8 +170,6 @@ public class LobbyController {
             if(player.getToken().equals(token)){
                 found = true;
                 break;
-            } else {
-                found = false;
             }
         }
         if(!found)

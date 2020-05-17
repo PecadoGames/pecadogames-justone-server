@@ -6,8 +6,10 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 
 @Entity
 @Table(name = "MESSAGE")
@@ -68,7 +70,10 @@ public class Message implements Serializable {
 
     @JsonFormat(pattern="hh:mm:ss")
     public void setCreationDate() {
-        this.creationDate = new Date();
+        TimeZone time_zone_default = TimeZone.getTimeZone("Europe/Rome");
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeZone(time_zone_default);
+        this.creationDate = cal.getTime();
     }
 
     @Override
