@@ -50,7 +50,7 @@ public class GameController {
         //if guesser requests game, eliminate current word from dto
         if (game.getCurrentGuesser().getToken().equals(token) && !game.getGameState().equals(GameState.TRANSITIONSTATE)) {
             gameGetDTO.setCurrentWord(null);
-            gameGetDTO.setInvalidClues(null);
+            gameGetDTO.getInvalidClues().clear();
         }
         return gameGetDTO;
     }

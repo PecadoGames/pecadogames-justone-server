@@ -279,6 +279,7 @@ public class GameService{
             p.getClues().clear();
         }
         game.getEnteredClues().clear();
+        game.getInvalidClues().clear();
         game.setGuessCorrect(false);
         game.setGameState(GameState.PICKWORDSTATE);
 
@@ -308,6 +309,7 @@ public class GameService{
         }
 
         game.getEnteredClues().clear();
+        game.getInvalidClues().clear();
         gameRepository.saveAndFlush(game);
         //ToDo: Update scores of player and overall score
     }
