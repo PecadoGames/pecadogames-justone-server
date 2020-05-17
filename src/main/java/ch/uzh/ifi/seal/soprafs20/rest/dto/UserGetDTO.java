@@ -17,6 +17,7 @@ public class UserGetDTO {
     @JsonFormat(pattern="dd.MM.yyyy")
     private Date birthday;
     private String token;
+    private int score;
 
     public Long getId() {
         return id;
@@ -67,6 +68,14 @@ public class UserGetDTO {
     public void setToken(String token){this.token = token;}
 
     public String getToken(){return token;}
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
 
 
 }
