@@ -11,6 +11,7 @@ import ch.uzh.ifi.seal.soprafs20.repository.ClueRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
@@ -132,18 +133,19 @@ public class GameService{
     /**
      * @param game
      * @param player
-     * @param actualClue
+     * @param cluePutDTO
      */
-    public boolean sendClue(Game game, Player player, String actualClue){
+    public boolean sendClue(Game game, Player player, CluePutDTO cluePutDTO){
         if(!game.getGameState().equals(GameState.ENTERCLUESSTATE))
             throw new UnauthorizedException("Clues are not accepted in current state!");
 
-        if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player)){
+        if(!game.getPlayers().contains(player) || player.isClueIsSent() || game.getCurrentGuesser().equals(player) ||
+                (!player.getToken().equals(cluePutDTO.getPlayerToken()))){
             throw new UnauthorizedException("This player is not allowed to send a clue!");
         }
         Clue clue = new Clue();
         clue.setPlayerId(player.getId());
-        clue.setActualClue(actualClue);
+        clue.setActualClue(cluePutDTO.getMessage());
         if (!game.isSpecialGame()) {
             player.addClue(clue);
             player.setClueIsSent(true);
@@ -153,7 +155,7 @@ public class GameService{
             gameRepository.saveAndFlush(game);
         }
         else {
-            sendClueSpecial(game, player, clue);//handle double clue input from player
+            sendClueSpecial(game, player, cluePutDTO);//handle double clue input from player
         }
         int counter = 0;
         for (Player playerInGame : game.getPlayers()){
@@ -215,23 +217,30 @@ public class GameService{
      *
      * @param game
      * @param player
-     * @param clue
+     * @param cluePutDTO
      */
-    private void sendClueSpecial(Game game, Player player, Clue clue) {
-        Clue temporaryClue = new Clue();
-        temporaryClue.setActualClue(player.getToken());
-        temporaryClue.setPlayerId(player.getId());
+    private void sendClueSpecial(Game game, Player player, CluePutDTO cluePutDTO) {
+        Clue firstClue = new Clue();
+        firstClue.setPlayerId(player.getId());
+        firstClue.setActualClue(cluePutDTO.getMessage());
+        player.addClue(firstClue);
 
-        if (!game.getEnteredClues().isEmpty()) {
-            if(game.getEnteredClues().contains(temporaryClue)) {
-                game.removeClue(temporaryClue);
-                addClue(clue, game);
-                player.setClueIsSent(true);
-                return;
-            }
+        Clue secondClue = new Clue();
+        secondClue.setPlayerId(player.getId());
+        if(cluePutDTO.getMessage2() != null) {
+            secondClue.setActualClue(cluePutDTO.getMessage2());
+            player.addClue(secondClue);
         }
-        addClue(clue, game);
-        game.addClue(temporaryClue);
+        else {
+            secondClue.setActualClue("");
+        }
+        addClue(firstClue, game);
+        addClue(secondClue, game);
+        player.setClueIsSent(true);
+
+        gameRepository.saveAndFlush(game);
+        clueRepository.saveAndFlush(firstClue);
+        clueRepository.saveAndFlush(secondClue);
     }
 
 

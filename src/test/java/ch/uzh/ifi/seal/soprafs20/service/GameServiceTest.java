@@ -8,6 +8,7 @@ import ch.uzh.ifi.seal.soprafs20.repository.ClueRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
@@ -109,11 +110,15 @@ public class GameServiceTest {
         testGame.setCurrentWord("wars");
         testGame.setTimer(new InternalTimer());
 
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
+
         Clue clue = new Clue();
         clue.setActualClue("star");
-        clue.setPlayerId(player2.getId());
 
-        gameService.sendClue(testGame, player2, clue.getActualClue());
+        gameService.sendClue(testGame, player2, cluePutDTO);
 
         assertTrue(testGame.getEnteredClues().contains(clue));
         assertTrue(player2.isClueIsSent());
@@ -125,11 +130,12 @@ public class GameServiceTest {
         testGame.setSpecialGame(false);
         //testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(testHost.getId());
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
 
-        assertThrows(UnauthorizedException.class,()->{ gameService.sendClue(testGame, testHost, clue.getActualClue());});
+        assertThrows(UnauthorizedException.class,()->{ gameService.sendClue(testGame, testHost, cluePutDTO);});
         assertTrue(testGame.getEnteredClues().isEmpty());
         assertFalse(testHost.isClueIsSent());
     }
@@ -142,12 +148,12 @@ public class GameServiceTest {
         testGame.setGameState(GameState.ENTERCLUESSTATE);
         testGame.setSpecialGame(false);
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(player2.getId());
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
 
-
-        assertThrows(UnauthorizedException.class,()->{gameService.sendClue(testGame, player2, clue.getActualClue());});
+        assertThrows(UnauthorizedException.class,()->{gameService.sendClue(testGame, player2, cluePutDTO);});
         assertTrue(testGame.getEnteredClues().isEmpty());
     }
 
@@ -157,11 +163,12 @@ public class GameServiceTest {
         testGame.setSpecialGame(false);
         testGame.setCurrentGuesser(player2);
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(testHost.getId());
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
 
-        Exception ex = assertThrows(UnauthorizedException.class, ()->{ gameService.sendClue(testGame, testHost, clue.getActualClue());});
+        Exception ex = assertThrows(UnauthorizedException.class, ()->{ gameService.sendClue(testGame, testHost, cluePutDTO);});
         assertTrue(ex.getMessage().contains("not accepted in current state"));
         assertTrue(testGame.getEnteredClues().isEmpty());
         assertFalse(testHost.isClueIsSent());
@@ -174,85 +181,41 @@ public class GameServiceTest {
         testGame.setCurrentGuesser(player2);
         testHost.setClueIsSent(true);
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(testHost.getId());
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
 
-        Exception ex = assertThrows(UnauthorizedException.class, ()->{gameService.sendClue(testGame, testHost, clue.getActualClue());});
+        Exception ex = assertThrows(UnauthorizedException.class, ()->{gameService.sendClue(testGame, testHost, cluePutDTO);});
         assertTrue(testGame.getEnteredClues().isEmpty());
     }
 
     @Test
-    public void sendClue_specialGame_firstClue_success(){
+    public void sendClue_specialGame_success(){
         testGame.setGameState(GameState.ENTERCLUESSTATE);
         testGame.setSpecialGame(true);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        testGame.setCurrentWord("yoda");
+        testGame.setTimer(new InternalTimer());
 
-        MessagePutDTO messagePutDTO = new MessagePutDTO();
-        messagePutDTO.setPlayerToken("token2");
-        messagePutDTO.setPlayerId(2L);
-        messagePutDTO.setMessage("star");
-
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(player2.getId());
-
-        Clue temporaryClue = new Clue();
-        temporaryClue.setActualClue(player2.getToken());
-        temporaryClue.setPlayerId(player2.getId());
-
-        gameService.sendClue(testGame, player2, clue.getActualClue());
-
-        assertTrue(testGame.getEnteredClues().contains(clue));
-        assertTrue(testGame.getEnteredClues().contains(temporaryClue));
-        assertFalse(player2.isClueIsSent());
-    }
-
-    @Test
-    public void sendClue_specialGame_secondClue_success(){
         Clue enteredClue1 = new Clue();
         enteredClue1.setPlayerId(2L);
-        enteredClue1.setActualClue("wars");
+        enteredClue1.setActualClue("star");
+
         Clue enteredClue2 = new Clue();
         enteredClue2.setPlayerId(2L);
-        enteredClue2.setActualClue("token2");
+        enteredClue2.setActualClue("wars");
 
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
-        testGame.setSpecialGame(true);
-        testGame.setCurrentWord("banana");
-        testGame.addClue(enteredClue1);
-        testGame.addClue(enteredClue2);
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
+        cluePutDTO.setMessage2("wars");
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(player2.getId());
+        gameService.sendClue(testGame, player2, cluePutDTO);
 
-        gameService.sendClue(testGame, player2, clue.getActualClue());
-
-        assertTrue(testGame.getEnteredClues().contains(clue));
         assertTrue(testGame.getEnteredClues().contains(enteredClue1));
-        assertFalse(testGame.getEnteredClues().contains(enteredClue2));
-        assertTrue(player2.isClueIsSent());
-    }
-
-    @Test
-    public void sendClue_specialGame_moreThanTwoClues_fail(){
-        Clue enteredClue1 = new Clue();
-        Clue enteredClue2 = new Clue();
-
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
-        testGame.setSpecialGame(true);
-        testGame.getEnteredClues().add(enteredClue1);
-        testGame.getEnteredClues().add(enteredClue2);
-        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-        player2.setClueIsSent(true);
-
-        Clue clue = new Clue();
-        clue.setActualClue("wars");
-        clue.setPlayerId(player2.getId());
-
-        assertThrows(UnauthorizedException.class,()->{gameService.sendClue(testGame, player2, clue.getActualClue());});
-        assertEquals(2,testGame.getEnteredClues().size());
+        assertTrue(testGame.getEnteredClues().contains(enteredClue2));
         assertTrue(player2.isClueIsSent());
     }
 
