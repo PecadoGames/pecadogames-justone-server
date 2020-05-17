@@ -16,8 +16,8 @@ public class GameGetDTO {
     private int roundsPlayed;
     private String currentWord;
     private GameState gameState;
-    private List<Clue> enteredClues = new ArrayList<>();
-    private List<Clue> invalidClues = new ArrayList<>();
+    private List<ClueGetDTO> enteredClues = new ArrayList<>();
+    private List<ClueGetDTO> invalidClues = new ArrayList<>();
     private int overallScore;
     private boolean specialGame;
     private boolean isGuessCorrect;
@@ -86,15 +86,27 @@ public class GameGetDTO {
         this.lobbyName = lobbyName;
     }
 
-    public List<Clue> getEnteredClues() { return enteredClues; }
+    public List<ClueGetDTO> getEnteredClues() { return enteredClues; }
 
-    public void setEnteredClues(List<Clue> clues) { this.enteredClues = clues; }
+    public void setEnteredClues(List<Clue> clues) {
+        for (Clue clue : clues) {
+            ClueGetDTO clueGetDTO = DTOMapper.INSTANCE.convertEntityToClueGetDTO(clue);
+            this.enteredClues.add(clueGetDTO);
+        }
+    }
 
-    public List<Clue> getInvalidClues() { return invalidClues; }
+    public List<ClueGetDTO> getInvalidClues() { return invalidClues; }
 
-    public void setInvalidClues(List<Clue> invalidClues) { this.invalidClues = invalidClues; }
+    public void setInvalidClues(List<Clue> invalidClues) {
+        for (Clue clue : invalidClues) {
+            ClueGetDTO clueGetDTO = DTOMapper.INSTANCE.convertEntityToClueGetDTO(clue);
+            this.invalidClues.add(clueGetDTO);
+        }
+    }
 
-    public void addInvalidClue(Clue clue) { invalidClues.add(clue); }
+    public void addInvalidClue(Clue clue) {
+        ClueGetDTO clueGetDTO = DTOMapper.INSTANCE.convertEntityToClueGetDTO(clue);
+        invalidClues.add(clueGetDTO); }
 
     public boolean isSpecialGame() {
         return specialGame;
