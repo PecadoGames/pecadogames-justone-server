@@ -228,4 +228,8 @@ public class UserService {
         }
         throw new NotAcceptableException("This is an invalid color. Please choose from the following colors: " + Arrays.toString(AvatarColor.values()));
     }
+
+    public void save(User user) {
+        userRepository.saveAndFlush(user);
+    }
 }
