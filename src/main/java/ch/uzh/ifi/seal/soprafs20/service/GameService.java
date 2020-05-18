@@ -148,7 +148,7 @@ public class GameService{
         Clue clue = new Clue();
         clue.setPlayerId(player.getId());
         clue.setActualClue(cluePutDTO.getMessage());
-        clue.setTimeNeeded(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getTime());
+        clue.setTimeNeeded(enterCluesTime - (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds()));
         if (!game.isSpecialGame()) {
             player.addClue(clue);
             player.setClueIsSent(true);
@@ -388,10 +388,10 @@ public class GameService{
             int newScore = 0;
             for(int i = 0; i < player.getClues().size(); i++) {
                 if (game.getEnteredClues().contains(player.getClue(i)) && game.isGuessCorrect()) {
-                    newScore = (int)(enterCluesTime - player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size()));
+                    newScore = (int)((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size())));
 
                 } else if(game.getEnteredClues().contains(player.getClue(i)) && !game.isGuessCorrect()){
-                    newScore = (int)(enterCluesTime - player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size())) - 15;
+                    newScore = (int) ((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size())) - 15);
                 }
                 player.setScore(player.getScore() + newScore);
                 Optional<User> optionalUser = userRepository.findById(player.getId());
@@ -576,7 +576,7 @@ public class GameService{
 
     public boolean vote(Game game, Player player, List<String> invalidWords) {
         if(!player.isVoted()) {
-            Clue clue = new Clue();
+
             for(String s : invalidWords) {
                 Clue clue = new Clue();
                 clue.setPlayerId(player.getId());
