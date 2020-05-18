@@ -66,7 +66,9 @@ public class LobbyGetDTO {
 
     public Integer getCurrentNumPlayers() { return currentNumPlayers; }
 
-    public void setCurrentNumPlayers(Integer currentNumPlayers) { this.currentNumPlayers = currentNumPlayers; }
+    public void setCurrentNumPlayers(Integer currentNumPlayers) {
+        this.currentNumPlayers = currentNumPlayers;
+    }
 
     public Integer getCurrentNumBots() { return currentNumBots; }
 
@@ -91,4 +93,5 @@ public class LobbyGetDTO {
     public void setCurrentNumPlayersAndBots(Integer currentNumPlayersAndBots) {
         this.currentNumPlayersAndBots = this.currentNumPlayers + this.currentNumBots;
     }
+
 }

@@ -2,8 +2,10 @@ package ch.uzh.ifi.seal.soprafs20.rest.mapper;
 
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -60,7 +62,13 @@ public interface DTOMapper {
     @Mapping(source = "private", target = "private")
     @Mapping(source = "currentNumPlayers", target = "currentNumPlayers")
     @Mapping(source = "currentNumBots", target = "currentNumBots")
+    @Mapping(target = "currentNumPlayersAndBots", ignore = true)
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
+
+    @AfterMapping
+    default void setCurrentNumPlayerAndBots(Lobby lobby, @MappingTarget LobbyGetDTO lobbyGetDTO) {
+        lobbyGetDTO.setCurrentNumPlayersAndBots(lobbyGetDTO.getCurrentNumPlayers() + lobbyGetDTO.getCurrentNumBots());
+    }
 
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "maxPlayersAndBots", target = "maxPlayersAndBots")

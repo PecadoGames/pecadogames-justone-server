@@ -49,7 +49,6 @@ public class Lobby implements Serializable {
     @JsonIgnore
     private String privateKey;
 
-    //current number of player(and bots) in lobby
     @Column(nullable = false)
     private Integer currentNumPlayers;
 
@@ -83,14 +82,6 @@ public class Lobby implements Serializable {
         this.lobbyName = lobbyName;
     }
 
-    /*public Integer getNumberOfPlayers() {
-        return numberOfPlayers;
-    }
-
-    public void setNumberOfPlayers(Integer numberOfPlayers) {
-        this.numberOfPlayers = numberOfPlayers;
-    }*/
-
     public boolean isVoiceChat() {
         return voiceChat;
     }
@@ -114,14 +105,6 @@ public class Lobby implements Serializable {
     public void setHostToken(String token) {
         this.hostToken = token;
     }
-
-    /*public Integer getNumberOfBots() {
-        return numberOfBots;
-    }
-
-    public void setNumberOfBots(Integer numberOfBots) {
-        this.numberOfBots = numberOfBots;
-    }*/
 
     public Long getLobbyScore() {
         return lobbyScore;
