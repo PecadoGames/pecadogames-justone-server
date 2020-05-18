@@ -38,8 +38,9 @@ public class LobbyServiceIntegrationTest {
         for(Lobby l : allLobbies) {
             l.replacePlayersInLobby(null);
         }
-        lobbyRepository.deleteAll();
+        lobbyRepository.saveAll(allLobbies);
         playerRepository.deleteAll();
+        lobbyRepository.deleteAll();
     }
 
     @Test

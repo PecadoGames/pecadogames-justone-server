@@ -9,16 +9,21 @@ import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.PlayerRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @WebAppConfiguration
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GameServiceIntegrationTest {
 
     @Autowired
@@ -38,6 +43,22 @@ public class GameServiceIntegrationTest {
         gameRepository.deleteAll();
         lobbyRepository.deleteAll();
         playerRepository.deleteAll();
+    }
+
+    @AfterAll
+    public void cleanUp() {
+        List<Game> allGames = gameRepository.findAll();
+        for(Game g : allGames) {
+            g.getPlayers().clear();
+        }
+        List<Lobby> allLobbies = lobbyRepository.findAll();
+        for(Lobby l : allLobbies) {
+            l.getPlayersInLobby().clear();
+        }
+        lobbyRepository.saveAll(allLobbies);
+        gameRepository.deleteAll();
+        playerRepository.deleteAll();
+        lobbyRepository.deleteAll();
     }
 
     @Test
