@@ -229,7 +229,7 @@ public class LobbyController {
         try {
             User user = userService.getUserByToken(token);
         } catch (NotFoundException e){
-            throw new NotAcceptableException("Cant get lobby scores as " + e.getMessage().toLowerCase());
+            throw new NotFoundException("Cant get lobby scores as " + e.getMessage().toLowerCase());
         }
         List<LobbyScore> lobbyScores;
 
