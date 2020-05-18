@@ -32,22 +32,22 @@ jobs:
       run: ./gradlew test jacocoTestReport sonarqube -PsonarToken=$SONAR_TOKEN -PsonarProjectKey=$SONAR_PROJECT_KEY -PsonarOrganization=$SONAR_ORG
 
     # https://devcenter.heroku.com/articles/authentication
-    - name: create .netrc file for heroku authentication
-      run: |+
-          cat >~/.netrc <<EOF
-          machine api.heroku.com
-              login $HEROKU_EMAIL
-              password $HEROKU_KEY
-          machine git.heroku.com
-              login $HEROKU_EMAIL
-              password $HEROKU_KEY
-          EOF
-
-    - name: login to heroku cli
-      run: heroku login
-
-    - name: add heroku as git remote
-      run: heroku git:remote -a $HEROKU_APP_NAME
-
-    - name: deploy project to heroku
-      run: git push heroku HEAD:refs/heads/master
+#    - name: create .netrc file for heroku authentication
+#      run: |+
+#          cat >~/.netrc <<EOF
+#          machine api.heroku.com
+#              login $HEROKU_EMAIL
+#              password $HEROKU_KEY
+#          machine git.heroku.com
+#              login $HEROKU_EMAIL
+#              password $HEROKU_KEY
+#          EOF
+#
+#    - name: login to heroku cli
+#      run: heroku login
+#
+#    - name: add heroku as git remote
+#      run: heroku git:remote -a $HEROKU_APP_NAME
+#
+#    - name: deploy project to heroku
+#      run: git push heroku HEAD:refs/heads/master
