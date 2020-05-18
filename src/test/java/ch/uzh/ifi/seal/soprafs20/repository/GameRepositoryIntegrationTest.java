@@ -2,7 +2,6 @@ package ch.uzh.ifi.seal.soprafs20.repository;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import org.junit.jupiter.api.Test;
@@ -92,34 +91,5 @@ public class GameRepositoryIntegrationTest {
         assertEquals(actualGame.getOverallScore(), newGame.getOverallScore());
         assertEquals(13, actualGame.getWords().size());
     }
-
-    @Test
-    public void findById_transientFields() {
-
-        Clue clue1 = new Clue();
-        clue1.setPlayerId(5L);
-        clue1.setActualClue("banane");
-
-        Clue clue2 = new Clue();
-        clue2.setPlayerId(6L);
-        clue2.setActualClue("kiwi");
-
-        Game game = new Game();
-        game.setLobbyId(4L);
-        game.setSpecialGame(true);
-        game.setRoundsPlayed(0);
-        game.setOverallScore(0);
-        game.addClue(clue1);
-        game.addClue(clue2);
-
-        entityManager.merge(game);
-        entityManager.flush();
-
-        Optional<Game> foundGame4 = gameRepository.findByLobbyId(game.getLobbyId());
-
-        assertTrue(foundGame4.isPresent());
-        Game actualGame = foundGame4.get();
-        assertTrue(actualGame.getEnteredClues().isEmpty());
-        }
 
 }
