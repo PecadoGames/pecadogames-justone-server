@@ -54,6 +54,8 @@ public class LobbyControllerTest {
     private GameService gameService;
     @MockBean
     private MessageService messageService;
+    @MockBean
+    private LobbyScoreService lobbyScoreService;
 
 
     @Test
@@ -78,7 +80,7 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].lobbyId", is(lobby.getLobbyId().intValue())))
                 .andExpect(jsonPath("$[0].lobbyName", is(lobby.getLobbyName())))
-                .andExpect(jsonPath("$[0].currentNumPlayersAndBots", is(lobby.getCurrentNumPlayers())))
+                .andExpect(jsonPath("$[0].currentNumPlayers", is(lobby.getCurrentNumPlayers())))
                 .andExpect(jsonPath("$[0].maxPlayersAndBots",is(lobby.getMaxPlayersAndBots())))
                 .andExpect(jsonPath("$[0].voiceChat", is(lobby.isVoiceChat())))
                 .andExpect(jsonPath(("$[0].hostId"), is(lobby.getHostId().intValue())));

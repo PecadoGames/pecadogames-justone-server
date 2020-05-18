@@ -38,6 +38,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.setVoiceChat(false);
         lobby.setPrivate(true);
         lobby.setCurrentNumPlayers(1);
+        lobby.setCurrentNumBots(0);
         lobby.setMaxPlayersAndBots(7);
 
         entityManager.persist(lobby);
@@ -66,6 +67,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.setVoiceChat(false);
         lobby.setPrivate(true);
         lobby.setCurrentNumPlayers(1);
+        lobby.setCurrentNumBots(0);
         lobby.setMaxPlayersAndBots(7);
 
         entityManager.persist(lobby);
@@ -93,6 +95,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.setVoiceChat(false);
         lobby.setPrivate(true);
         lobby.setCurrentNumPlayers(1);
+        lobby.setCurrentNumBots(0);
         lobby.setMaxPlayersAndBots(7);
 
         entityManager.persist(lobby);
@@ -130,6 +133,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.setVoiceChat(false);
         lobby.setPrivate(true);
         lobby.setCurrentNumPlayers(1);
+        lobby.setCurrentNumBots(0);
         lobby.setMaxPlayersAndBots(7);
 
         entityManager.persist(lobby);

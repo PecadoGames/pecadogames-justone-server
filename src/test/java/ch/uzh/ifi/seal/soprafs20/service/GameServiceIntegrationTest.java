@@ -80,6 +80,7 @@ public class GameServiceIntegrationTest {
         lobby.setMaxPlayersAndBots(7);
         lobby.setVoiceChat(false);
         lobby.addPlayerToLobby(host);
+        lobby.setCurrentNumBots(0);
         lobby.setCurrentNumPlayers(1);
 
         lobbyRepository.save(lobby);
@@ -120,6 +121,7 @@ public class GameServiceIntegrationTest {
         lobby.setMaxPlayersAndBots(7);
         lobby.setVoiceChat(false);
         lobby.addPlayerToLobby(host);
+        lobby.setCurrentNumBots(0);
         lobby.setCurrentNumPlayers(1);
         lobby.setGameIsStarted(true);
 
