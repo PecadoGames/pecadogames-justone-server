@@ -7,10 +7,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
-import ch.uzh.ifi.seal.soprafs20.repository.ClueRepository;
-import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
-import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
-import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.*;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
@@ -50,7 +47,7 @@ public class GameService{
     private final Random rand = new Random();
 
     @Autowired
-    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository, UserRepository userRepository, LobbyScoreRepository lobbyScoreRepository,ClueRepository clueRepository, PlayerRepository playerRepository) {
+    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository, UserRepository userRepository, LobbyScoreRepository lobbyScoreRepository, ClueRepository clueRepository, PlayerRepository playerRepository) {
 
         this.gameRepository = gameRepository;
         this.lobbyRepository = lobbyRepository;
