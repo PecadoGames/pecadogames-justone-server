@@ -1,5 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
+import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
+
 public class PlayerGetDTO {
     private String username;
 //    private UserStatus status;
@@ -7,6 +9,7 @@ public class PlayerGetDTO {
     private boolean isVoted;
     private Long id;
     private int score;
+    private AvatarColor avatarColor;
 
     public String getUsername() {
         return username;
@@ -53,5 +56,13 @@ public class PlayerGetDTO {
 
     public void setVoted(boolean voted) {
         isVoted = voted;
+    }
+
+    public AvatarColor getAvatarColor() {
+        return avatarColor;
+    }
+
+    public void setAvatarColor(AvatarColor avatarColor) {
+        this.avatarColor = avatarColor;
     }
 }
