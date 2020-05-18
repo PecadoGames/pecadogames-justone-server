@@ -538,7 +538,7 @@ public class GameServiceTest {
 
 
         gameService.timer(testGame);
-        Thread.sleep(1*1000);
+        Thread.sleep(1000);
 
         assertEquals(GameState.PICKWORDSTATE, testGame.getGameState());
     }
@@ -578,7 +578,7 @@ public class GameServiceTest {
         testGame.addPlayer(player1);
         testGame.addPlayer(player2);
         testGame.setCurrentGuesser(player1);
-        testGame.setRoundsPlayed(4);
+        testGame.setRoundsPlayed(3);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
 
 
@@ -593,7 +593,7 @@ public class GameServiceTest {
         gameService.timer(testGame);
         Thread.sleep(2*1000);
 
-        //assertEquals(GameState.ENDGAMESTATE, testGame.getGameState());
+        assertEquals(GameState.ENDGAMESTATE, testGame.getGameState());
     }
 
     @Test
