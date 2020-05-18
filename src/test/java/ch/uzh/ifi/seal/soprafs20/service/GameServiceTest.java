@@ -109,7 +109,7 @@ public class GameServiceTest {
 
     @Test
     public void sendClue_normalGame_success(){
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(false);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
         testGame.setCurrentWord("wars");
@@ -131,7 +131,7 @@ public class GameServiceTest {
 
     @Test
     public void sendClue_normalGame_fail_unauthorizedUser(){
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(false);
         //testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
@@ -150,7 +150,7 @@ public class GameServiceTest {
         Player player2 = new Player();
         player2.setId(3L);
 
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(false);
 
         CluePutDTO cluePutDTO = new CluePutDTO();
@@ -164,7 +164,7 @@ public class GameServiceTest {
 
     @Test
     public void sendClue_normalGame_invalidState() {
-        testGame.setGameState(GameState.NLPSTATE);
+        testGame.setGameState(GameState.ENTER_GUESS_STATE);
         testGame.setSpecialGame(false);
         testGame.setCurrentGuesser(player2);
 
@@ -181,7 +181,7 @@ public class GameServiceTest {
 
     @Test
     public void sendClue_normalGame_clueAlreadySent() {
-        testGame.setGameState(GameState.NLPSTATE);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(false);
         testGame.setCurrentGuesser(player2);
         testHost.setClueIsSent(true);
@@ -197,7 +197,7 @@ public class GameServiceTest {
 
     @Test
     public void sendClue_specialGame_success(){
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(true);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
         testGame.setCurrentWord("yoda");
@@ -233,7 +233,7 @@ public class GameServiceTest {
         gameService.pickWord(testHost.getToken(), testGame);
 
         assertEquals("erdbeermarmeladebrot", testGame.getCurrentWord());
-        assertEquals(GameState.ENTERCLUESSTATE, testGame.getGameState());
+        assertEquals(GameState.ENTER_CLUES_STATE, testGame.getGameState());
     }
 
     @Test
@@ -247,7 +247,7 @@ public class GameServiceTest {
 
     @Test
     public void submitGuess_validInput_guessCorrect_success() {
-        testGame.setGameState(GameState.ENTERGUESSSTATE);
+        testGame.setGameState(GameState.ENTER_GUESS_STATE);
         testGame.setCurrentWord("Star Wars");
         testGame.setStartTimeSeconds(60);
 
@@ -262,7 +262,7 @@ public class GameServiceTest {
 
     @Test
     public void submitGuess_validInput_guessIncorrect_success() {
-        testGame.setGameState(GameState.ENTERGUESSSTATE);
+        testGame.setGameState(GameState.ENTER_GUESS_STATE);
         testGame.setCurrentWord("Star Wars");
         testGame.setStartTimeSeconds(60);
 
@@ -277,7 +277,7 @@ public class GameServiceTest {
 
     @Test
     public void submitGuess_invalidState_throwsException() {
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setCurrentWord("Star Wars");
         testGame.setStartTimeSeconds(60);
 
@@ -287,12 +287,12 @@ public class GameServiceTest {
 
         assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO, 30); });
         assertFalse(testGame.isGuessCorrect());
-        assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
+        assertNotEquals(GameState.TRANSITION_STATE, testGame.getGameState());
     }
 
     @Test
     public void submitGuess_invalidToken_throwsException() {
-        testGame.setGameState(GameState.ENTERGUESSSTATE);
+        testGame.setGameState(GameState.ENTER_GUESS_STATE);
         testGame.setCurrentWord("Star Wars");
         testGame.setStartTimeSeconds(60);
 
@@ -302,7 +302,7 @@ public class GameServiceTest {
 
         assertThrows(UnauthorizedException.class,()->{ gameService.submitGuess(testGame, messagePutDTO, 30); });
         assertFalse(testGame.isGuessCorrect());
-        assertNotEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
+        assertNotEquals(GameState.TRANSITION_STATE, testGame.getGameState());
     }
 
     @Test
@@ -314,7 +314,7 @@ public class GameServiceTest {
 
         assertEquals(1, testGame.getRoundsPlayed());
         assertEquals(player2, testGame.getCurrentGuesser());
-        assertEquals(GameState.PICKWORDSTATE, testGame.getGameState());
+        assertEquals(GameState.PICK_WORD_STATE, testGame.getGameState());
     }
 
     @Test
@@ -471,7 +471,7 @@ public class GameServiceTest {
 
 
         testGame.setLobbyId(1L);
-        testGame.setGameState(GameState.PICKWORDSTATE);
+        testGame.setGameState(GameState.PICK_WORD_STATE);
         testGame.setLobbyName("Test");
         testGame.addPlayer(player1);
         testGame.addPlayer(player2);
@@ -486,7 +486,7 @@ public class GameServiceTest {
         gameService.timer(testGame);
         Thread.sleep(10*1000);
 
-        assertEquals(GameState.ENTERCLUESSTATE, testGame.getGameState());
+        assertEquals(GameState.ENTER_CLUES_STATE, testGame.getGameState());
     }
 
     @Test
@@ -519,7 +519,7 @@ public class GameServiceTest {
 
 
         testGame.setLobbyId(1L);
-        testGame.setGameState(GameState.TRANSITIONSTATE);
+        testGame.setGameState(GameState.TRANSITION_STATE);
         testGame.setLobbyName("Test");
         testGame.addPlayer(player1);
         testGame.addPlayer(player2);
@@ -540,7 +540,7 @@ public class GameServiceTest {
         gameService.timer(testGame);
         Thread.sleep(1000);
 
-        assertEquals(GameState.PICKWORDSTATE, testGame.getGameState());
+        assertEquals(GameState.PICK_WORD_STATE, testGame.getGameState());
     }
 
     @Test
@@ -573,7 +573,7 @@ public class GameServiceTest {
 
 
         testGame.setLobbyId(1L);
-        testGame.setGameState(GameState.TRANSITIONSTATE);
+        testGame.setGameState(GameState.TRANSITION_STATE);
         testGame.setLobbyName("Test");
         testGame.addPlayer(player1);
         testGame.addPlayer(player2);
@@ -593,7 +593,7 @@ public class GameServiceTest {
         gameService.timer(testGame);
         Thread.sleep(2*1000);
 
-        assertEquals(GameState.ENDGAMESTATE, testGame.getGameState());
+        assertEquals(GameState.END_GAME_STATE, testGame.getGameState());
     }
 
     @Test
@@ -627,7 +627,7 @@ public class GameServiceTest {
 
 
         testGame.setLobbyId(1L);
-        testGame.setGameState(GameState.ENDGAMESTATE);
+        testGame.setGameState(GameState.END_GAME_STATE);
         testGame.setLobbyName("Test");
         testGame.addPlayer(player1);
         testGame.addPlayer(player2);
@@ -646,7 +646,7 @@ public class GameServiceTest {
         gameService.timer(testGame);
         Thread.sleep(5*1000);
 
-        assertEquals(GameState.ENDGAMESTATE, testGame.getGameState());
+        assertEquals(GameState.END_GAME_STATE, testGame.getGameState());
         assertTrue(gameRepository.findByLobbyId(testGame.getLobbyId()).isEmpty());
         assertFalse(lobby.isGameStarted());
     }
@@ -677,7 +677,7 @@ public class GameServiceTest {
 
 
         testGame.setLobbyId(1L);
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setLobbyName("Test");
         testGame.addPlayer(player1);
         testGame.addPlayer(player2);
@@ -693,7 +693,7 @@ public class GameServiceTest {
         gameService.timer(testGame);
 //        Thread.sleep(1*1000);
 
-        assertEquals(GameState.ENTERCLUESSTATE, testGame.getGameState());
+        assertEquals(GameState.ENTER_CLUES_STATE, testGame.getGameState());
     }
 
     @Test

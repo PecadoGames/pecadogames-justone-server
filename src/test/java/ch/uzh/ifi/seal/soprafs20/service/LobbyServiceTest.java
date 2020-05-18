@@ -42,7 +42,7 @@ public class LobbyServiceTest {
         testLobby.setMaxPlayersAndBots(5);
         testLobby.setVoiceChat(false);
         testLobby.setHostId(1L);
-        testLobby.setCurrentNumPlayersAndBots(1);
+        testLobby.setCurrentNumPlayers(1);
         testLobby.setLobbyId(1L);
 
         host = new Player();
@@ -66,7 +66,7 @@ public class LobbyServiceTest {
         assertEquals(testLobby.getLobbyId(),lobby.getLobbyId());
         assertEquals(testLobby.getLobbyName(),lobby.getLobbyName());
         assertEquals(testLobby.getMaxPlayersAndBots(),lobby.getMaxPlayersAndBots());
-        assertEquals(testLobby.getCurrentNumPlayersAndBots(),lobby.getCurrentNumPlayersAndBots());
+        assertEquals(testLobby.getCurrentNumPlayers(),lobby.getCurrentNumPlayers());
         assertNull(lobby.getPrivateKey());
     }
 
@@ -80,7 +80,7 @@ public class LobbyServiceTest {
         assertEquals(testLobby.getLobbyId(),lobby.getLobbyId());
         assertEquals(testLobby.getLobbyName(),lobby.getLobbyName());
         assertEquals(testLobby.getMaxPlayersAndBots(),lobby.getMaxPlayersAndBots());
-        assertEquals(testLobby.getCurrentNumPlayersAndBots(),lobby.getCurrentNumPlayersAndBots());
+        assertEquals(testLobby.getCurrentNumPlayers(),lobby.getCurrentNumPlayers());
         assertNotNull(lobby.getPrivateKey());
     }
 
@@ -143,7 +143,7 @@ public class LobbyServiceTest {
         testLobby.addPlayerToLobby(player1);
         testLobby.addPlayerToLobby(player2);
         testLobby.addPlayerToLobby(player3);
-        testLobby.setCurrentNumPlayersAndBots(4);
+        testLobby.setCurrentNumPlayers(4);
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setMaxNumberOfPlayersAndBots(3);
@@ -191,13 +191,13 @@ public class LobbyServiceTest {
         testLobby.setPrivate(false);
         testLobby.addPlayerToLobby(host);
         testLobby.addPlayerToLobby(player2);
-        testLobby.setCurrentNumPlayersAndBots(2);
+        testLobby.setCurrentNumPlayers(2);
 
         lobbyService.kickPlayers(testLobby, player2);
 
         assertEquals(1,testLobby.getPlayersInLobby().size());
         assertFalse(testLobby.getPlayersInLobby().contains(player2));
-        assertEquals(1, testLobby.getCurrentNumPlayersAndBots());
+        assertEquals(1, testLobby.getCurrentNumPlayers());
     }
 
     @Test
@@ -302,7 +302,7 @@ public class LobbyServiceTest {
         //lobby setup
         testLobby.setPrivate(false);
         testLobby.setMaxPlayersAndBots(3);
-        testLobby.setCurrentNumPlayersAndBots(3);
+        testLobby.setCurrentNumPlayers(3);
         testLobby.addPlayerToLobby(host);
         testLobby.addPlayerToLobby(player2);
         testLobby.addPlayerToLobby(player3);
@@ -333,7 +333,7 @@ public class LobbyServiceTest {
         //lobby setup
         testLobby.setPrivate(false);
         testLobby.setMaxPlayersAndBots(5);
-        testLobby.setCurrentNumPlayersAndBots(3);
+        testLobby.setCurrentNumPlayers(3);
         testLobby.setGameIsStarted(true);
         testLobby.addPlayerToLobby(host);
         testLobby.addPlayerToLobby(player2);
@@ -349,7 +349,7 @@ public class LobbyServiceTest {
         //lobby setup
         testLobby.setPrivate(false);
         testLobby.setMaxPlayersAndBots(5);
-        testLobby.setCurrentNumPlayersAndBots(1);
+        testLobby.setCurrentNumPlayers(1);
         testLobby.setGameIsStarted(false);
         testLobby.addPlayerToLobby(host);
 
@@ -380,7 +380,7 @@ public class LobbyServiceTest {
 
         testLobby.setHostId(player2.getId());
         testLobby.setHostToken(player2.getToken());
-        testLobby.setCurrentNumPlayersAndBots(2);
+        testLobby.setCurrentNumPlayers(2);
 
         Mockito.doReturn(testLobby).when(lobbyRepository).save(testLobby);
         Mockito.doNothing().when(playerRepository).delete(Mockito.any());
@@ -389,7 +389,7 @@ public class LobbyServiceTest {
 
         assertEquals(player2.getId(), testLobby.getHostId());
         assertEquals(player2.getToken(), testLobby.getHostToken());
-        assertEquals(2, testLobby.getCurrentNumPlayersAndBots());
+        assertEquals(2, testLobby.getCurrentNumPlayers());
     }
 
     @Test

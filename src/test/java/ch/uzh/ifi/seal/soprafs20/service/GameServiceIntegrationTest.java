@@ -80,7 +80,7 @@ public class GameServiceIntegrationTest {
         lobby.setMaxPlayersAndBots(7);
         lobby.setVoiceChat(false);
         lobby.addPlayerToLobby(host);
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
 
         lobbyRepository.save(lobby);
         lobbyRepository.flush();
@@ -93,7 +93,7 @@ public class GameServiceIntegrationTest {
 
         assertTrue(lobby.isGameStarted());
         assertEquals(lobby.getLobbyId(), createdGame.getLobbyId());
-        assertEquals(GameState.PICKWORDSTATE, createdGame.getGameState());
+        assertEquals(GameState.PICK_WORD_STATE, createdGame.getGameState());
         assertEquals(lobby.getLobbyName(), createdGame.getLobbyName());
         assertTrue(createdGame.getPlayers().contains(host));
         assertFalse(createdGame.isSpecialGame());
@@ -120,7 +120,7 @@ public class GameServiceIntegrationTest {
         lobby.setMaxPlayersAndBots(7);
         lobby.setVoiceChat(false);
         lobby.addPlayerToLobby(host);
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
         lobby.setGameIsStarted(true);
 
         lobbyRepository.save(lobby);

@@ -74,7 +74,7 @@ public class GameRepositoryIntegrationTest {
 
         Game newGame = new Game();
         newGame.setLobbyId(3L);
-        newGame.setGameState(GameState.PICKWORDSTATE);
+        newGame.setGameState(GameState.PICK_WORD_STATE);
         newGame.setRoundsPlayed(0);
         newGame.setWords(reader.getRandomWords(13));
 

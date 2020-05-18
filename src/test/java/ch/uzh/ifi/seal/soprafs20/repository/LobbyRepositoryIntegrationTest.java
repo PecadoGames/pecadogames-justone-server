@@ -37,7 +37,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.addPlayerToLobby(player);
         lobby.setVoiceChat(false);
         lobby.setPrivate(true);
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
         lobby.setMaxPlayersAndBots(7);
 
         entityManager.persist(lobby);
@@ -53,7 +53,7 @@ public class LobbyRepositoryIntegrationTest {
         assertTrue(actualLobby.getPlayersInLobby().contains(player));
         assertFalse(lobby.isVoiceChat());
         assertTrue(lobby.isPrivate());
-        assertEquals(lobby.getCurrentNumPlayersAndBots(), actualLobby.getCurrentNumPlayersAndBots());
+        assertEquals(lobby.getCurrentNumPlayers(), actualLobby.getCurrentNumPlayers());
         assertEquals(lobby.getMaxPlayersAndBots(), actualLobby.getMaxPlayersAndBots());
     }
 
@@ -65,7 +65,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.setHostId(1L);
         lobby.setVoiceChat(false);
         lobby.setPrivate(true);
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
         lobby.setMaxPlayersAndBots(7);
 
         entityManager.persist(lobby);
@@ -92,7 +92,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.addPlayerToLobby(player);
         lobby.setVoiceChat(false);
         lobby.setPrivate(true);
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
         lobby.setMaxPlayersAndBots(7);
 
         entityManager.persist(lobby);
@@ -108,7 +108,7 @@ public class LobbyRepositoryIntegrationTest {
         assertTrue(actualLobby.getPlayersInLobby().contains(player));
         assertFalse(lobby.isVoiceChat());
         assertTrue(lobby.isPrivate());
-        assertEquals(lobby.getCurrentNumPlayersAndBots(), actualLobby.getCurrentNumPlayersAndBots());
+        assertEquals(lobby.getCurrentNumPlayers(), actualLobby.getCurrentNumPlayers());
         assertEquals(lobby.getMaxPlayersAndBots(), actualLobby.getMaxPlayersAndBots());
     }
 
@@ -129,7 +129,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.addPlayerToLobby(player);
         lobby.setVoiceChat(false);
         lobby.setPrivate(true);
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
         lobby.setMaxPlayersAndBots(7);
 
         entityManager.persist(lobby);

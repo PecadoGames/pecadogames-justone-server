@@ -64,7 +64,7 @@ public class LobbyControllerTest {
         lobby.setMaxPlayersAndBots(5);
         lobby.setVoiceChat(false);
         lobby.setHostId(1234);
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
 
         List<Lobby> allLobbies = Collections.singletonList(lobby);
 
@@ -78,7 +78,7 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].lobbyId", is(lobby.getLobbyId().intValue())))
                 .andExpect(jsonPath("$[0].lobbyName", is(lobby.getLobbyName())))
-                .andExpect(jsonPath("$[0].currentNumPlayersAndBots", is(lobby.getCurrentNumPlayersAndBots())))
+                .andExpect(jsonPath("$[0].currentNumPlayersAndBots", is(lobby.getCurrentNumPlayers())))
                 .andExpect(jsonPath("$[0].maxPlayersAndBots",is(lobby.getMaxPlayersAndBots())))
                 .andExpect(jsonPath("$[0].voiceChat", is(lobby.isVoiceChat())))
                 .andExpect(jsonPath(("$[0].hostId"), is(lobby.getHostId().intValue())));
@@ -367,7 +367,7 @@ public class LobbyControllerTest {
     @Test
     public void invitePlayerToLobby_success() throws Exception {
         Lobby lobby = new Lobby();
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
         lobby.setLobbyName("Flacko");
         lobby.setHostToken("hostToken");
         InvitePutDTO invitePutDTO = new InvitePutDTO();
@@ -480,7 +480,7 @@ public class LobbyControllerTest {
 
         GamePostDTO gamePostDTO = new GamePostDTO();
         Game game = new Game();
-        game.setGameState(GameState.PICKWORDSTATE);
+        game.setGameState(GameState.PICK_WORD_STATE);
         game.setStartTimeSeconds(60L);
 
 

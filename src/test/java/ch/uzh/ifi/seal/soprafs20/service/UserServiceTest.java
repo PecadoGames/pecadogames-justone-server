@@ -410,7 +410,7 @@ public class UserServiceTest {
     @Test
     public void handleLobbyInvite_accepted_success() {
         Lobby lobby = new Lobby();
-        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setCurrentNumPlayers(4);
         lobby.setMaxPlayersAndBots(5);
 
         User receiver = new User();
@@ -433,7 +433,7 @@ public class UserServiceTest {
     @Test
     public void handleLobbyInvite_notAccepted_throwsException() {
         Lobby lobby = new Lobby();
-        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setCurrentNumPlayers(4);
         lobby.setMaxPlayersAndBots(5);
 
         User receiver = new User();
@@ -448,13 +448,13 @@ public class UserServiceTest {
 
         userService.acceptOrDeclineLobbyInvite(lobby, lobbyAcceptancePutDTO);
 
-        assertEquals(4, lobby.getCurrentNumPlayersAndBots());
+        assertEquals(4, lobby.getCurrentNumPlayers());
     }
 
     @Test
     public void handleLobbyInvite_invalidToken_throwsException() {
         Lobby lobby = new Lobby();
-        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setCurrentNumPlayers(4);
         lobby.setMaxPlayersAndBots(5);
 
         User receiver = new User();
@@ -473,7 +473,7 @@ public class UserServiceTest {
     @Test
     public void handleLobbyInvite_invalidRequest_throwsException() {
         Lobby lobby = new Lobby();
-        lobby.setCurrentNumPlayersAndBots(4);
+        lobby.setCurrentNumPlayers(4);
         lobby.setMaxPlayersAndBots(5);
 
         User receiver = new User();
@@ -493,7 +493,7 @@ public class UserServiceTest {
         User userToInvite = new User();
 
         Lobby lobby = new Lobby();
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
         lobby.setMaxPlayersAndBots(5);
         lobby.setHostToken("testToken");
 
@@ -507,7 +507,7 @@ public class UserServiceTest {
         User userToInvite = new User();
 
         Lobby lobby = new Lobby();
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
         lobby.setMaxPlayersAndBots(5);
         lobby.setHostToken("anotherToken");
 
@@ -520,7 +520,7 @@ public class UserServiceTest {
         User userToInvite = new User();
 
         Lobby lobby = new Lobby();
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
         lobby.setMaxPlayersAndBots(5);
         lobby.setHostToken("testToken");
 
