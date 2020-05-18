@@ -99,7 +99,7 @@ public class GameController {
             return "No timer started yet";
         }
         if (game.getGameState().equals(GameState.END_GAME_STATE)) {
-            return "Timer is over";
+            return "0";
         }
         else {
 
