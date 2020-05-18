@@ -15,6 +15,10 @@ public class LobbyGetDTO {
 
     private Integer currentNumPlayersAndBots;
 
+    private Integer currentNumPlayers;
+
+    private Integer currentNumBots;
+
     private Integer maxPlayersAndBots;
 
     private boolean gameIsStarted;
@@ -65,8 +69,16 @@ public class LobbyGetDTO {
     }
 
     public void setCurrentNumPlayersAndBots(Integer currentNumPlayersAndBots) {
-        this.currentNumPlayersAndBots = currentNumPlayersAndBots;
+        this.currentNumPlayersAndBots = this.currentNumPlayers + this.currentNumBots;
     }
+
+    public Integer getCurrentNumPlayers() { return currentNumPlayers; }
+
+    public void setCurrentNumPlayers(Integer currentNumPlayers) { this.currentNumPlayers = currentNumPlayers; }
+
+    public Integer getCurrentNumBots() { return currentNumBots; }
+
+    public void setCurrentNumBots(Integer currentNumBots) { this.currentNumBots = currentNumBots; }
 
     public Integer getMaxPlayersAndBots() {
         return maxPlayersAndBots;

@@ -94,7 +94,7 @@ public class GameControllerTest {
         game.addPlayer(player2);
         game.setCurrentGuesser(player1);
         game.setCurrentWord("Erdbeermarmeladebrot");
-        game.setGameState(GameState.PICKWORDSTATE);
+        game.setGameState(GameState.PICK_WORD_STATE);
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
 
@@ -151,7 +151,7 @@ public class GameControllerTest {
         game.addPlayer(player1);
         game.setCurrentGuesser(player1);
         game.setCurrentWord("Erdbeermarmeladebrot");
-        game.setGameState(GameState.ENTERCLUESSTATE);
+        game.setGameState(GameState.ENTER_CLUES_STATE);
         game.setTimer(timer);
 
         CluePutDTO cluePutDTO = new CluePutDTO();
@@ -185,7 +185,7 @@ public class GameControllerTest {
         game.setLobbyId(1L);
         game.setRoundsPlayed(1);
         game.addPlayer(player1);
-        game.setGameState(GameState.PICKWORDSTATE);
+        game.setGameState(GameState.PICK_WORD_STATE);
 
         CluePutDTO cluePutDTO = new CluePutDTO();
         cluePutDTO.setMessage("Zopf");
@@ -223,7 +223,7 @@ public class GameControllerTest {
         game.setRoundsPlayed(1);
         game.addPlayer(player1);
         game.setCurrentGuesser(player1);
-        game.setGameState(GameState.PICKWORDSTATE);
+        game.setGameState(GameState.PICK_WORD_STATE);
         game.setTimer(timer);
         game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
@@ -253,7 +253,7 @@ public class GameControllerTest {
         game.setRoundsPlayed(1);
         game.addPlayer(player1);
         game.setCurrentGuesser(player1);
-        game.setGameState(GameState.NLPSTATE);
+        game.setGameState(GameState.TRANSITION_STATE);
         game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
@@ -277,7 +277,7 @@ public class GameControllerTest {
         game.setRoundsPlayed(1);
         game.addPlayer(player1);
         game.setCurrentGuesser(player1);
-        game.setGameState(GameState.ENTERGUESSSTATE);
+        game.setGameState(GameState.ENTER_GUESS_STATE);
         game.setTimer(timer);
         game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
@@ -310,7 +310,7 @@ public class GameControllerTest {
         game.setRoundsPlayed(1);
         game.addPlayer(player1);
         game.setCurrentGuesser(player2);
-        game.setGameState(GameState.VOTEONCLUESSTATE);
+        game.setGameState(GameState.VOTE_ON_CLUES_STATE);
         game.setTimer(timer);
         game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
@@ -347,7 +347,7 @@ public class GameControllerTest {
         game.setRoundsPlayed(1);
         game.addPlayer(player1);
         game.setCurrentGuesser(player2);
-        game.setGameState(GameState.ENTERGUESSSTATE);
+        game.setGameState(GameState.ENTER_GUESS_STATE);
         game.setTimer(timer);
         game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
@@ -381,7 +381,7 @@ public class GameControllerTest {
         game.setRoundsPlayed(1);
         game.addPlayer(player1);
         game.setCurrentGuesser(player1);
-        game.setGameState(GameState.VOTEONCLUESSTATE);
+        game.setGameState(GameState.VOTE_ON_CLUES_STATE);
         game.setTimer(timer);
         game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 

@@ -62,7 +62,8 @@ public class LobbyService {
         if(newLobby.getMaxPlayersAndBots() > 7 || newLobby.getMaxPlayersAndBots() < 3){
             newLobby.setMaxPlayersAndBots(7);
         }
-        newLobby.setCurrentNumPlayersAndBots(newLobby.getPlayersInLobby().size());
+        newLobby.setCurrentNumPlayers(newLobby.getPlayersInLobby().size());
+        newLobby.setCurrentNumBots(0);
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();
         return newLobby;
@@ -80,7 +81,7 @@ public class LobbyService {
         //change size of lobby
         if(receivedValues.getMaxNumberOfPlayersAndBots() != null){
             int newLobbySize = receivedValues.getMaxNumberOfPlayersAndBots();
-            if(newLobbySize >= 3 && newLobbySize <= 7 && newLobbySize >= lobby.getCurrentNumPlayersAndBots()){
+            if(newLobbySize >= 3 && newLobbySize <= 7 && newLobbySize >= lobby.getCurrentNumPlayers()){
                 lobby.setMaxPlayersAndBots(newLobbySize);
             }
         }
@@ -118,7 +119,7 @@ public class LobbyService {
         }
         checkIfLobbyIsFull(lobby);
         lobby.addPlayerToLobby(playerToAdd);
-        lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
+        lobby.setCurrentNumPlayers(lobby.getPlayersInLobby().size());
         lobbyRepository.save(lobby);
     }
 
@@ -140,18 +141,18 @@ public class LobbyService {
                 Player newHost = lobby.getPlayersInLobby().iterator().next();
                 lobby.setHostId(newHost.getId());
                 lobby.setHostToken(newHost.getToken());
-                lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
+                lobby.setCurrentNumPlayers(lobby.getPlayersInLobby().size());
                 lobbyRepository.saveAndFlush(lobby);
             }
         } else if(lobby.getPlayersInLobby().contains(playerToRemove)){
             lobby.getPlayersInLobby().remove(playerToRemove);
             deletePlayer(playerToRemove);
-            lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
+            lobby.setCurrentNumPlayers(lobby.getPlayersInLobby().size());
         }
     }
 
     private void checkIfLobbyIsFull(Lobby lobby) {
-        if(lobby.getCurrentNumPlayersAndBots() + 1 > lobby.getMaxPlayersAndBots()) {
+        if(lobby.getCurrentNumPlayers() + 1 > lobby.getMaxPlayersAndBots()) {
             throw new ConflictException("Failed to join lobby: Sorry, the lobby is already full");
         }
     }
@@ -161,7 +162,7 @@ public class LobbyService {
         if(!playerToKick.getId().equals(lobby.getHostId())){
             lobby.getPlayersInLobby().remove(playerToKick);
             deletePlayer(playerToKick);
-            lobby.setCurrentNumPlayersAndBots(lobby.getPlayersInLobby().size());
+            lobby.setCurrentNumPlayers(lobby.getPlayersInLobby().size());
         }
         return lobby.getPlayersInLobby();
     }

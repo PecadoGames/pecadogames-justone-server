@@ -163,7 +163,7 @@ public class LobbyServiceIntegrationTest {
         lobby.setPrivate(false);
         lobby.setMaxPlayersAndBots(7);
         lobby.setVoiceChat(false);
-        lobby.setCurrentNumPlayersAndBots(1);
+        lobby.setCurrentNumPlayers(1);
 
         lobbyRepository.save(lobby);
         lobbyRepository.flush();

@@ -51,7 +51,10 @@ public class Lobby implements Serializable {
 
     //current number of player(and bots) in lobby
     @Column(nullable = false)
-    private Integer currentNumPlayersAndBots;
+    private Integer currentNumPlayers;
+
+    @Column(nullable = false)
+    private Integer currentNumBots;
 
     //limit of players + bots in lobby
     @Column(nullable = false)
@@ -150,13 +153,15 @@ public class Lobby implements Serializable {
 
     public void replacePlayersInLobby(Set<Player> players){playersInLobby = players;}
 
-    public Integer getCurrentNumPlayersAndBots() {
-        return currentNumPlayersAndBots;
+    public Integer getCurrentNumPlayers() {
+        return currentNumPlayers;
     }
 
-    public void setCurrentNumPlayersAndBots(Integer currentNumPlayersAndBots) {
-        this.currentNumPlayersAndBots = currentNumPlayersAndBots;
-    }
+    public void setCurrentNumPlayers(Integer currentNumPlayersAndBots) { this.currentNumPlayers = currentNumPlayersAndBots; }
+
+    public Integer getCurrentNumBots() { return currentNumBots; }
+
+    public void setCurrentNumBots(Integer currentNumBots) { this.currentNumBots = currentNumBots; }
 
     public Integer getMaxPlayersAndBots() {
         return maxPlayersAndBots;

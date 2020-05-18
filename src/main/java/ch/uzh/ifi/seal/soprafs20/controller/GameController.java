@@ -45,7 +45,7 @@ public class GameController {
             throw new UnauthorizedException("You are not allowed to access this game instance!");
         }
         //if guesser requests game, eliminate current word from dto
-        if (game.getCurrentGuesser().getToken().equals(token) && !game.getGameState().equals(GameState.TRANSITIONSTATE)) {
+        if (game.getCurrentGuesser().getToken().equals(token) && !game.getGameState().equals(GameState.TRANSITION_STATE)) {
             gameGetDTO.setCurrentWord(null);
             gameGetDTO.getInvalidClues().clear();
         }
@@ -61,7 +61,7 @@ public class GameController {
         //If all clues were sent, sendClue returns true and the game moves on to the next state
         if (gameService.sendClue(currentGame, player, cluePutDTO)) {
             currentGame.getTimer().setCancel(true);
-            currentGame.setGameState(GameState.VOTEONCLUESSTATE);
+            currentGame.setGameState(GameState.VOTE_ON_CLUES_STATE);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), currentGame);
         }
     }
@@ -71,12 +71,12 @@ public class GameController {
     @ResponseBody
     public void pickWord(@PathVariable long lobbyId, @RequestParam("token") String token) {
         Game game = gameService.getGame(lobbyId);
-        if (!game.getGameState().equals(GameState.PICKWORDSTATE)) {
+        if (!game.getGameState().equals(GameState.PICK_WORD_STATE)) {
             throw new UnauthorizedException("Can't choose word in current state");
         }
         if (gameService.pickWord(token, game)) {
             game.getTimer().setCancel(true);
-            game.setGameState(GameState.ENTERCLUESSTATE);
+            game.setGameState(GameState.ENTER_CLUES_STATE);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
         }
     }
@@ -98,7 +98,7 @@ public class GameController {
         if (game.getStartTimeSeconds() == null) {
             return "No timer started yet";
         }
-        if (game.getGameState().equals(GameState.ENDGAMESTATE)) {
+        if (game.getGameState().equals(GameState.END_GAME_STATE)) {
             return "Timer is over";
         }
         else {
@@ -118,7 +118,7 @@ public class GameController {
         Game game = gameService.getGame(lobbyId);
         gameService.submitGuess(game, messagePutDTO,TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds());
         game.getTimer().setCancel(true);
-        game.setGameState(GameState.TRANSITIONSTATE);
+        game.setGameState(GameState.TRANSITION_STATE);
         gameService.updateScores(game);
         gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
     }
@@ -128,7 +128,7 @@ public class GameController {
     @ResponseBody
     public void vote(@PathVariable long lobbyId, @RequestBody VotePutDTO votePutDTO) {
         Game game = gameService.getGame(lobbyId);
-        if (!game.getGameState().equals(GameState.VOTEONCLUESSTATE)) {
+        if (!game.getGameState().equals(GameState.VOTE_ON_CLUES_STATE)) {
             throw new UnauthorizedException("Can't vote on clues in current state!");
         }
         Player player = playerService.getPlayerByToken(votePutDTO.getPlayerToken());
@@ -138,7 +138,7 @@ public class GameController {
         List<String> invalidWords = votePutDTO.getInvalidClues();
         if (gameService.vote(game, player, invalidWords)) {
             game.getTimer().setCancel(true);
-            game.setGameState(GameState.ENTERGUESSSTATE);
+            game.setGameState(GameState.ENTER_GUESS_STATE);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
         }
     }
