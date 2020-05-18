@@ -148,7 +148,7 @@ public class GameService{
         Clue clue = new Clue();
         clue.setPlayerId(player.getId());
         clue.setActualClue(cluePutDTO.getMessage());
-        clue.setTimeNeeded(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        clue.setTimeNeeded(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getTime());
         if (!game.isSpecialGame()) {
             player.addClue(clue);
             player.setClueIsSent(true);
@@ -278,6 +278,8 @@ public class GameService{
             User user = optionalUser.get();
             user.setScore(user.getScore() + game.getCurrentGuesser().getScore());
         }
+
+        game.setCurrentGuess(messagePutDTO.getMessage());
         game.setOverallScore(game.getOverallScore() + game.getCurrentGuesser().getScore());
         gameRepository.saveAndFlush(game);
     }
@@ -330,6 +332,7 @@ public class GameService{
         game.getEnteredClues().clear();
         game.getInvalidClues().clear();
         game.setGuessCorrect(false);
+        game.setCurrentGuess("");
         gameRepository.saveAndFlush(game);
         //ToDo: Update scores of player and overall score
     }
@@ -575,6 +578,8 @@ public class GameService{
         if(!player.isVoted()) {
             Clue clue = new Clue();
             for(String s : invalidWords) {
+                Clue clue = new Clue();
+                clue.setPlayerId(player.getId());
                 clue.setActualClue(s);
                 game.addInvalidClue(clue);
             }
