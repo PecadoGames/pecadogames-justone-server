@@ -162,7 +162,7 @@ public class User implements Serializable {
         return friendList;
     }
 
-    public void setFriendList(User user) {
+    public void addFriend(User user) {
         friendList.add(user);
     }
 

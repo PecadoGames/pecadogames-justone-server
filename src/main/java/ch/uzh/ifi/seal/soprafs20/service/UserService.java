@@ -158,8 +158,8 @@ public class UserService {
         User sender = getUser(friendPutDTO.getRequesterID());
         if (receiver.getFriendRequests().contains(sender)) {
             if (friendPutDTO.getAccepted()) {
-                receiver.setFriendList(sender);
-                sender.setFriendList(receiver);
+                receiver.addFriend(sender);
+                sender.addFriend(receiver);
             }
             receiver.getFriendRequests().remove(sender);
         }

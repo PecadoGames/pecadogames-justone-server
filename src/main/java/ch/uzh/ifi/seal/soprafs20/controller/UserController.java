@@ -41,12 +41,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public ResponseEntity<Object> createUser(@RequestBody UserPostDTO userPostDTO) {
-        User createdUser;
         // convert API user to internal representation
         User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
         // create user
-        createdUser = userService.createUser(userInput);
+        User createdUser = userService.createUser(userInput);
 
         // convert internal representation of user back to API
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")

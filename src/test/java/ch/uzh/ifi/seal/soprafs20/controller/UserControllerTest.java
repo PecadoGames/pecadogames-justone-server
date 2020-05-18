@@ -301,6 +301,28 @@ public class UserControllerTest {
     }
 
     @Test
+    public void getFriendRequests_invalidToken_unauthorized() throws Exception {
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setToken("testToken");
+
+        User user2 = new User();
+        user2.setId(2L);
+
+        user1.setFriendRequests(user2);
+
+        given(userService.getUser(Mockito.any())).willReturn(user1);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/users/" + user1.getId() + "/friendRequests")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "wrongToken");
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     public void sendFriendRequest_validInput_success() throws Exception {
         User user1 = new User();
         user1.setId(1L);
@@ -319,6 +341,30 @@ public class UserControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void givenFriends_whenGetFriends_thenReturnJsonArray() throws Exception {
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setUsername("BadBunny");
+        user1.setToken("token");
+
+        User user2 = new User();
+        user2.setId(2L);
+        user2.setUsername("SadBunny");
+
+        user1.addFriend(user2);
+
+        given(userService.getUser(Mockito.anyLong())).willReturn(user1);
+
+        MockHttpServletRequestBuilder getRequest = get("/users/{id}/friends", user1.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "token");
+
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].username", is(user1.getUsername())));
     }
 
     /**
