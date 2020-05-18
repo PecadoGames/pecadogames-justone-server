@@ -1,7 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.InternalTimer;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
@@ -144,8 +143,7 @@ public class GameControllerTest {
         player2.setId(2L);
         player2.setToken("token2");
 
-        Clue clue = new Clue();
-        clue.setActualClue("Zopf");
+        InternalTimer timer = new InternalTimer();
 
         Game game = new Game();
         game.setLobbyId(1L);
@@ -153,8 +151,8 @@ public class GameControllerTest {
         game.addPlayer(player1);
         game.setCurrentGuesser(player1);
         game.setCurrentWord("Erdbeermarmeladebrot");
-        game.getEnteredClues().add(clue);
         game.setGameState(GameState.ENTERCLUESSTATE);
+        game.setTimer(timer);
 
         CluePutDTO cluePutDTO = new CluePutDTO();
         cluePutDTO.setMessage("Zopf");
@@ -163,7 +161,7 @@ public class GameControllerTest {
 
         given(playerService.getPlayer(Mockito.any())).willReturn(player1);
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
-        given(playerService.getPlayer(Mockito.anyLong())).willReturn(player1);
+        given(gameService.sendClue(Mockito.any(), Mockito.any(), Mockito.any())).willReturn(true);
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/game/clue", game.getLobbyId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -230,7 +228,7 @@ public class GameControllerTest {
         game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
-        given(gameService.pickWord(Mockito.any())).willReturn(true);
+        given(gameService.pickWord(Mockito.any(), Mockito.any())).willReturn(true);
 
         MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game/word", game.getLobbyId())
                 .contentType(MediaType.APPLICATION_JSON)
