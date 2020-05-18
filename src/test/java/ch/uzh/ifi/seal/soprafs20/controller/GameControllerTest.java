@@ -20,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.util.ArrayList;
@@ -29,8 +30,7 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(GameController.class)
 public class GameControllerTest {
@@ -400,6 +400,112 @@ public class GameControllerTest {
                 .content(asJsonString(votePutDTO));
 
         mockMvc.perform(putRequest).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getTime_Authorized() throws Exception {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        InternalTimer timer = new InternalTimer();
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.setCurrentGuesser(player1);
+        game.setGameState(GameState.VOTE_ON_CLUES_STATE);
+        game.setTimer(timer);
+        game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game/timer?token=token1", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest).andExpect(status().isOk());
+
+    }
+
+    @Test
+    public void getTime_Unauthorized() throws Exception {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        InternalTimer timer = new InternalTimer();
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.setCurrentGuesser(player1);
+        game.setGameState(GameState.VOTE_ON_CLUES_STATE);
+        game.setTimer(timer);
+        game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game/timer?token=aaaa", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest).andExpect(status().isUnauthorized())
+        .andExpect(content().string("Not allowed to retrieve timer for this game!"));
+
+    }
+
+    @Test
+    public void getTime_EndgameState() throws Exception {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        InternalTimer timer = new InternalTimer();
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.setCurrentGuesser(player1);
+        game.setGameState(GameState.END_GAME_STATE);
+        game.setTimer(timer);
+        game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game/timer?token=token1", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(content().string("0"));
+    }
+
+    @Test
+    public void getTime_actualTime() throws Exception {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("token1");
+
+        InternalTimer timer = new InternalTimer();
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.setCurrentGuesser(player1);
+        game.setGameState(GameState.PICK_WORD_STATE);
+        game.setTimer(timer);
+        game.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        given(gameService.getMaxTime(game)).willReturn(10);
+        Thread.sleep(3000);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game/timer?token=token1", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(content().string("7"));
     }
 
     private String asJsonString(final Object object) {

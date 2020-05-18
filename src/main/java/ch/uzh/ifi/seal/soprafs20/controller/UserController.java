@@ -189,7 +189,7 @@ public class UserController {
     @GetMapping(path = "/users/scores")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<UserGetDTO> getUserScoreboard(@PathVariable long userId, @RequestParam("token") String token){
+    public List<UserGetDTO> getUserScoreboard(@RequestParam("token") String token){
         try{
             User user = userService.getUserByToken(token);
         } catch (NotFoundException e){

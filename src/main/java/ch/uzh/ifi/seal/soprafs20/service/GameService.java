@@ -148,6 +148,7 @@ public class GameService{
         Clue clue = new Clue();
         clue.setPlayerId(player.getId());
         clue.setActualClue(cluePutDTO.getMessage());
+        clue.setTimeNeeded(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
         if (!game.isSpecialGame()) {
             player.addClue(clue);
             player.setClueIsSent(true);
