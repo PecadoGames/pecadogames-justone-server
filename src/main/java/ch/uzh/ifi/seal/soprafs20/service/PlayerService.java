@@ -76,4 +76,8 @@ public class PlayerService {
     public void deletePlayer(Player player) {
         playerRepository.delete(player);
     }
+
+    public void save(Player player) {
+        playerRepository.saveAndFlush(player);
+    }
 }

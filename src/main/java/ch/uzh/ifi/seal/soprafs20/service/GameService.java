@@ -37,6 +37,8 @@ public class GameService{
     private final LobbyRepository lobbyRepository;
     private final UserRepository userRepository;
     private final ClueRepository clueRepository;
+    private final LobbyScoreRepository lobbyScoreRepository;
+    private final PlayerRepository playerRepository;
     private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 3;
     private static final int pickWordTime = 10;
@@ -48,11 +50,14 @@ public class GameService{
     private final Random rand = new Random();
 
     @Autowired
-    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository, UserRepository userRepository, ClueRepository clueRepository) {
+    public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository, UserRepository userRepository, LobbyScoreRepository lobbyScoreRepository,ClueRepository clueRepository, PlayerRepository playerRepository) {
+
         this.gameRepository = gameRepository;
         this.lobbyRepository = lobbyRepository;
         this.userRepository = userRepository;
         this.clueRepository = clueRepository;
+        this.lobbyScoreRepository = lobbyScoreRepository;
+        this.playerRepository = playerRepository;
     }
 
     public Game getGame(Long id) {
@@ -253,8 +258,18 @@ public class GameService{
         }
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
         if(game.isGuessCorrect()){
+            game.setGuessCorrect(true);
             int pastScore = game.getCurrentGuesser().getScore();
-            game.getCurrentGuesser().setScore(pastScore + (int)(2*(guessTime - time)));
+            if(game.isSpecialGame()){
+                game.getCurrentGuesser().setScore(pastScore + (int)((guessTime - time)*20));
+            } else {
+                game.getCurrentGuesser().setScore(pastScore + (int)((guessTime - time)*10));
+            }
+            Optional<User> optionalUser = userRepository.findById(game.getCurrentGuesser().getId());
+            if(optionalUser.isPresent()){
+                User user = optionalUser.get();
+                user.setScore(user.getScore() + game.getCurrentGuesser().getScore());
+            }
             System.out.println("Guess was correct");
         } else {
             System.out.println("Guess was not correct");
@@ -280,7 +295,7 @@ public class GameService{
         }
         game.getEnteredClues().clear();
         game.getInvalidClues().clear();
-        game.setGuessCorrect(false);
+
         game.setGameState(GameState.PICKWORDSTATE);
 
         //ToDo: Update scores of player and overall score
@@ -310,6 +325,7 @@ public class GameService{
 
         game.getEnteredClues().clear();
         game.getInvalidClues().clear();
+        game.setGuessCorrect(false);
         gameRepository.saveAndFlush(game);
         //ToDo: Update scores of player and overall score
     }
@@ -364,19 +380,24 @@ public class GameService{
             // in case of 3-player-logic, the size of clues is 2, otherwise 1 (or 0, if player did not send any clues)
             for(int i = 0; i < player.getClues().size(); i++) {
                 if (game.getEnteredClues().contains(player.getClue(i))) {
-                    int newScore = 40 * (((game.getPlayers().size()) - game.getCluesAsString().size()));
+                    int newScore = (int)(enterCluesTime - player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size()));
                     player.setScore(player.getScore() + newScore);
+                    Optional<User> optionalUser = userRepository.findById(player.getId());
+                    if(optionalUser.isPresent()){
+                        User user = optionalUser.get();
+                        user.setScore(player.getScore());
+                        userRepository.saveAndFlush(user);
+                    }
                 }
+                game.setOverallScore(game.getOverallScore() + player.getScore());
             }
-            game.setOverallScore(game.getOverallScore() + player.getScore());
         }
 
     }
 
     /**
      * Central timer logic for each game. Sets timer for each state,
-     * If state is complete before the timer ends, the game transitions
-     * into the next state with a new timer.
+     * If state is complete before the timer ends, the game transitions into the next state with a new timer.
      * Timer also takes care of all the logic set up for the next state if no user input was entered
      * TODO: Implement the game logic changes for each state if no input is received and the timer ends
      *
@@ -447,9 +468,19 @@ public class GameService{
                     game[0].getTimer().purge();
                     g.getTimer().cancel();
                     g.getTimer().purge();
+
+
                     Lobby currentLobby = getUpdatedLobby(game[0].getLobbyId());
                     currentLobby.setGameIsStarted(false);
                     lobbyRepository.saveAndFlush(currentLobby);
+
+                    LobbyScore lobbyScore = new LobbyScore();
+                    lobbyScore.setLobbyName(game[0].getLobbyName());
+                    lobbyScore.setScore(game[0].getOverallScore());
+                    lobbyScore.setPlayersIdInLobby(game[0].getPlayers());
+                    lobbyScore.setDate(new Date());
+                    lobbyScoreRepository.saveAndFlush(lobbyScore);
+
                     game[0].setPlayers(null);
                     gameRepository.delete(game[0]);
                     gameRepository.flush();
@@ -459,7 +490,7 @@ public class GameService{
                     game[0] = getUpdatedGame(game[0]);
                     System.out.println("Timer updated because of player, Word is: " + game[0].getCurrentWord() + ", new State: " + game[0].getGameState());
                     game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-                    game[0].getTimer().setCancel(false);//
+                    game[0].getTimer().setCancel(false);
                     gameRepository.saveAndFlush(game[0]);
                 }
             }
