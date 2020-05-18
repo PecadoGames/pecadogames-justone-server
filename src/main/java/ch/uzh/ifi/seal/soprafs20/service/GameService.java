@@ -256,24 +256,31 @@ public class GameService{
         if(!game.getGameState().equals(GameState.ENTERGUESSSTATE)) {
             throw new UnauthorizedException("Can't submit guess in current state!");
         }
+        int pastScore = 0;
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
         if(game.isGuessCorrect()){
-            game.setGuessCorrect(true);
-            int pastScore = game.getCurrentGuesser().getScore();
+            pastScore = game.getCurrentGuesser().getScore();
             if(game.isSpecialGame()){
-                game.getCurrentGuesser().setScore(pastScore + (int)((guessTime - time)*20));
+                game.getCurrentGuesser().setScore(pastScore + (int)((guessTime - time)*5));
             } else {
                 game.getCurrentGuesser().setScore(pastScore + (int)((guessTime - time)*10));
             }
-            Optional<User> optionalUser = userRepository.findById(game.getCurrentGuesser().getId());
-            if(optionalUser.isPresent()){
-                User user = optionalUser.get();
-                user.setScore(user.getScore() + game.getCurrentGuesser().getScore());
-            }
             System.out.println("Guess was correct");
         } else {
+            pastScore = game.getCurrentGuesser().getScore();
+            if(game.isSpecialGame()){
+                game.getCurrentGuesser().setScore(pastScore + (int)((guessTime - time)*5) - 30);
+            } else {
+                game.getCurrentGuesser().setScore(pastScore + (int)((guessTime - time)*10) - 60);
+            }
             System.out.println("Guess was not correct");
         }
+        Optional<User> optionalUser = userRepository.findById(game.getCurrentGuesser().getId());
+        if(optionalUser.isPresent()){
+            User user = optionalUser.get();
+            user.setScore(user.getScore() + game.getCurrentGuesser().getScore());
+        }
+        game.setOverallScore(game.getOverallScore() + game.getCurrentGuesser().getScore());
         gameRepository.saveAndFlush(game);
     }
 
@@ -378,16 +385,20 @@ public class GameService{
         game = getUpdatedGame(game);
         for (Player player : game.getPlayers()) {
             // in case of 3-player-logic, the size of clues is 2, otherwise 1 (or 0, if player did not send any clues)
+            int newScore = 0;
             for(int i = 0; i < player.getClues().size(); i++) {
-                if (game.getEnteredClues().contains(player.getClue(i))) {
-                    int newScore = (int)(enterCluesTime - player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size()));
-                    player.setScore(player.getScore() + newScore);
-                    Optional<User> optionalUser = userRepository.findById(player.getId());
-                    if(optionalUser.isPresent()){
-                        User user = optionalUser.get();
-                        user.setScore(player.getScore());
-                        userRepository.saveAndFlush(user);
-                    }
+                if (game.getEnteredClues().contains(player.getClue(i)) && game.isGuessCorrect()) {
+                    newScore = (int)(enterCluesTime - player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size()));
+
+                } else if(game.getEnteredClues().contains(player.getClue(i)) && !game.isGuessCorrect()){
+                    newScore = (int)(enterCluesTime - player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size())) - 15;
+                }
+                player.setScore(player.getScore() + newScore);
+                Optional<User> optionalUser = userRepository.findById(player.getId());
+                if(optionalUser.isPresent()) {
+                    User user = optionalUser.get();
+                    user.setScore(player.getScore());
+                    userRepository.saveAndFlush(user);
                 }
                 game.setOverallScore(game.getOverallScore() + player.getScore());
             }
@@ -482,6 +493,8 @@ public class GameService{
                     lobbyScoreRepository.saveAndFlush(lobbyScore);
 
                     game[0].setPlayers(null);
+                    game[0].setCurrentGuesser(null);
+                    gameRepository.saveAndFlush(game[0]);
                     gameRepository.delete(game[0]);
                     gameRepository.flush();
                 }
