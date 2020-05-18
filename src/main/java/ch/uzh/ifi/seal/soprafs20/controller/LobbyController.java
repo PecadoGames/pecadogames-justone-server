@@ -1,10 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.entity.*;
-import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.NotAcceptableException;
-import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.*;
@@ -254,6 +251,4 @@ public class LobbyController {
             throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
         }
     }
-
-
 }
