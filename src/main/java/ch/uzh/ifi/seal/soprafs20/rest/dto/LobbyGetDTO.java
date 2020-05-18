@@ -13,8 +13,6 @@ public class LobbyGetDTO {
 
     private boolean isPrivate;
 
-    private Integer currentNumPlayersAndBots;
-
     private Integer currentNumPlayers;
 
     private Integer currentNumBots;
@@ -22,6 +20,8 @@ public class LobbyGetDTO {
     private Integer maxPlayersAndBots;
 
     private boolean gameIsStarted;
+
+    private Integer currentNumPlayersAndBots;
 
 
     public String getLobbyName() {
@@ -64,14 +64,6 @@ public class LobbyGetDTO {
         this.lobbyId = lobbyId;
     }
 
-    public Integer getCurrentNumPlayersAndBots() {
-        return currentNumPlayersAndBots;
-    }
-
-    public void setCurrentNumPlayersAndBots(Integer currentNumPlayersAndBots) {
-        this.currentNumPlayersAndBots = this.currentNumPlayers + this.currentNumBots;
-    }
-
     public Integer getCurrentNumPlayers() { return currentNumPlayers; }
 
     public void setCurrentNumPlayers(Integer currentNumPlayers) { this.currentNumPlayers = currentNumPlayers; }
@@ -91,4 +83,12 @@ public class LobbyGetDTO {
     public boolean isGameIsStarted() { return gameIsStarted; }
 
     public void setGameIsStarted(boolean gameIsStarted) { this.gameIsStarted = gameIsStarted; }
+
+    public Integer getCurrentNumPlayersAndBots() {
+        return currentNumPlayersAndBots;
+    }
+
+    public void setCurrentNumPlayersAndBots(Integer currentNumPlayersAndBots) {
+        this.currentNumPlayersAndBots = this.currentNumPlayers + this.currentNumBots;
+    }
 }
