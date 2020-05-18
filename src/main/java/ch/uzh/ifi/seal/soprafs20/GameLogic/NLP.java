@@ -12,6 +12,8 @@ public class NLP {
         String clueStem = stemWord(clueToLower);
         String wordStem = stemWord(wordToLower);
 
+        if(clueToLower.length() > 30) { return false; }
+
         if(!(clue.matches("^[a-zA-Z]+$") || clue.matches("^[0-9]+$"))) { return false; }
 
         if(clueToLower.contains(wordToLower) || wordToLower.contains(clueToLower)) { return false; }

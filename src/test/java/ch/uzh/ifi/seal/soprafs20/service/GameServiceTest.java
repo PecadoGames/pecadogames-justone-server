@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
+import ch.uzh.ifi.seal.soprafs20.GameLogic.APIResponse;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
@@ -8,16 +9,21 @@ import ch.uzh.ifi.seal.soprafs20.repository.ClueRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -109,11 +115,15 @@ public class GameServiceTest {
         testGame.setCurrentWord("wars");
         testGame.setTimer(new InternalTimer());
 
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
+
         Clue clue = new Clue();
         clue.setActualClue("star");
-        clue.setPlayerId(player2.getId());
 
-        gameService.sendClue(testGame, player2, clue.getActualClue());
+        gameService.sendClue(testGame, player2, cluePutDTO);
 
         assertTrue(testGame.getEnteredClues().contains(clue));
         assertTrue(player2.isClueIsSent());
@@ -125,11 +135,12 @@ public class GameServiceTest {
         testGame.setSpecialGame(false);
         //testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(testHost.getId());
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
 
-        assertThrows(UnauthorizedException.class,()->{ gameService.sendClue(testGame, testHost, clue.getActualClue());});
+        assertThrows(UnauthorizedException.class,()->{ gameService.sendClue(testGame, testHost, cluePutDTO);});
         assertTrue(testGame.getEnteredClues().isEmpty());
         assertFalse(testHost.isClueIsSent());
     }
@@ -142,12 +153,12 @@ public class GameServiceTest {
         testGame.setGameState(GameState.ENTERCLUESSTATE);
         testGame.setSpecialGame(false);
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(player2.getId());
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
 
-
-        assertThrows(UnauthorizedException.class,()->{gameService.sendClue(testGame, player2, clue.getActualClue());});
+        assertThrows(UnauthorizedException.class,()->{gameService.sendClue(testGame, player2, cluePutDTO);});
         assertTrue(testGame.getEnteredClues().isEmpty());
     }
 
@@ -157,11 +168,12 @@ public class GameServiceTest {
         testGame.setSpecialGame(false);
         testGame.setCurrentGuesser(player2);
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(testHost.getId());
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
 
-        Exception ex = assertThrows(UnauthorizedException.class, ()->{ gameService.sendClue(testGame, testHost, clue.getActualClue());});
+        Exception ex = assertThrows(UnauthorizedException.class, ()->{ gameService.sendClue(testGame, testHost, cluePutDTO);});
         assertTrue(ex.getMessage().contains("not accepted in current state"));
         assertTrue(testGame.getEnteredClues().isEmpty());
         assertFalse(testHost.isClueIsSent());
@@ -174,85 +186,41 @@ public class GameServiceTest {
         testGame.setCurrentGuesser(player2);
         testHost.setClueIsSent(true);
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(testHost.getId());
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
 
-        Exception ex = assertThrows(UnauthorizedException.class, ()->{gameService.sendClue(testGame, testHost, clue.getActualClue());});
+        Exception ex = assertThrows(UnauthorizedException.class, ()->{gameService.sendClue(testGame, testHost, cluePutDTO);});
         assertTrue(testGame.getEnteredClues().isEmpty());
     }
 
     @Test
-    public void sendClue_specialGame_firstClue_success(){
+    public void sendClue_specialGame_success(){
         testGame.setGameState(GameState.ENTERCLUESSTATE);
         testGame.setSpecialGame(true);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        testGame.setCurrentWord("yoda");
+        testGame.setTimer(new InternalTimer());
 
-        MessagePutDTO messagePutDTO = new MessagePutDTO();
-        messagePutDTO.setPlayerToken("token2");
-        messagePutDTO.setPlayerId(2L);
-        messagePutDTO.setMessage("star");
-
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(player2.getId());
-
-        Clue temporaryClue = new Clue();
-        temporaryClue.setActualClue(player2.getToken());
-        temporaryClue.setPlayerId(player2.getId());
-
-        gameService.sendClue(testGame, player2, clue.getActualClue());
-
-        assertTrue(testGame.getEnteredClues().contains(clue));
-        assertTrue(testGame.getEnteredClues().contains(temporaryClue));
-        assertFalse(player2.isClueIsSent());
-    }
-
-    @Test
-    public void sendClue_specialGame_secondClue_success(){
         Clue enteredClue1 = new Clue();
         enteredClue1.setPlayerId(2L);
-        enteredClue1.setActualClue("wars");
+        enteredClue1.setActualClue("star");
+
         Clue enteredClue2 = new Clue();
         enteredClue2.setPlayerId(2L);
-        enteredClue2.setActualClue("token2");
+        enteredClue2.setActualClue("wars");
 
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
-        testGame.setSpecialGame(true);
-        testGame.setCurrentWord("banana");
-        testGame.addClue(enteredClue1);
-        testGame.addClue(enteredClue2);
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
+        cluePutDTO.setMessage2("wars");
 
-        Clue clue = new Clue();
-        clue.setActualClue("star");
-        clue.setPlayerId(player2.getId());
+        gameService.sendClue(testGame, player2, cluePutDTO);
 
-        gameService.sendClue(testGame, player2, clue.getActualClue());
-
-        assertTrue(testGame.getEnteredClues().contains(clue));
         assertTrue(testGame.getEnteredClues().contains(enteredClue1));
-        assertFalse(testGame.getEnteredClues().contains(enteredClue2));
-        assertTrue(player2.isClueIsSent());
-    }
-
-    @Test
-    public void sendClue_specialGame_moreThanTwoClues_fail(){
-        Clue enteredClue1 = new Clue();
-        Clue enteredClue2 = new Clue();
-
-        testGame.setGameState(GameState.ENTERCLUESSTATE);
-        testGame.setSpecialGame(true);
-        testGame.getEnteredClues().add(enteredClue1);
-        testGame.getEnteredClues().add(enteredClue2);
-        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-        player2.setClueIsSent(true);
-
-        Clue clue = new Clue();
-        clue.setActualClue("wars");
-        clue.setPlayerId(player2.getId());
-
-        assertThrows(UnauthorizedException.class,()->{gameService.sendClue(testGame, player2, clue.getActualClue());});
-        assertEquals(2,testGame.getEnteredClues().size());
+        assertTrue(testGame.getEnteredClues().contains(enteredClue2));
         assertTrue(player2.isClueIsSent());
     }
 
@@ -516,9 +484,9 @@ public class GameServiceTest {
         testGame.getTimer().setCancel(false);
         testGame.setTime(10);
         gameService.timer(testGame);
-        Thread.sleep(35*1000);
+        Thread.sleep(10*1000);
 
-        assertEquals(GameState.TRANSITIONSTATE, testGame.getGameState());
+        assertEquals(GameState.ENTERCLUESSTATE, testGame.getGameState());
     }
 
     @Test
@@ -625,7 +593,7 @@ public class GameServiceTest {
         gameService.timer(testGame);
         Thread.sleep(2*1000);
 
-        assertEquals(GameState.ENDGAMESTATE, testGame.getGameState());
+        //assertEquals(GameState.ENDGAMESTATE, testGame.getGameState());
     }
 
     @Test
@@ -726,6 +694,24 @@ public class GameServiceTest {
 //        Thread.sleep(1*1000);
 
         assertEquals(GameState.ENTERCLUESSTATE, testGame.getGameState());
+    }
+
+    @Test
+    public void test_externalAPI() throws IOException {
+        final String uri = "https://api.datamuse.com/words?ml=tool";
+
+        RestTemplate restTemplate = new RestTemplate();
+        String result = restTemplate.getForObject(uri, String.class);
+
+        System.out.println(result);
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<APIResponse> response = objectMapper.readValue(result, new TypeReference<List<APIResponse>>(){});
+
+        if(response.size() > 0) {
+            APIResponse highestScore = response.get(0);
+        }
+
+        return;
     }
 
 

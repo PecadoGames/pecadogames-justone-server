@@ -85,6 +85,7 @@ public interface DTOMapper {
     PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
 
     @Mapping(source = "actualClue", target = "actualClue")
+    @Mapping(source = "playerId", target = "playerId")
     ClueGetDTO convertEntityToClueGetDTO(Clue clue);
 
     @Mapping(source = "lobbyId",target = "lobbyId")

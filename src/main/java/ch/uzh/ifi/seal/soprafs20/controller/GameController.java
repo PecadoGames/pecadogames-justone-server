@@ -5,6 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
+import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GameGetDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.VotePutDTO;
@@ -49,7 +50,7 @@ public class GameController {
         //if guesser requests game, eliminate current word from dto
         if (game.getCurrentGuesser().getToken().equals(token) && !game.getGameState().equals(GameState.TRANSITIONSTATE)) {
             gameGetDTO.setCurrentWord(null);
-            gameGetDTO.setInvalidClues(null);
+            gameGetDTO.getInvalidClues().clear();
         }
         return gameGetDTO;
     }
@@ -57,11 +58,11 @@ public class GameController {
     @PutMapping(path = "lobbies/{lobbyId}/game/clue", consumes = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void sendClue(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
+    public void sendClue(@PathVariable long lobbyId, @RequestBody CluePutDTO cluePutDTO) {
         Game currentGame = gameService.getGame(lobbyId);
-        Player player = playerService.getPlayer(messagePutDTO.getPlayerId());
+        Player player = playerService.getPlayer(cluePutDTO.getPlayerId());
         //If all clues were sent, sendClue returns true and the game moves on to the next state
-        if (gameService.sendClue(currentGame, player, messagePutDTO.getMessage())) {
+        if (gameService.sendClue(currentGame, player, cluePutDTO)) {
             currentGame.getTimer().setCancel(true);
             currentGame.setGameState(GameState.VOTEONCLUESSTATE);
             gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), currentGame);
