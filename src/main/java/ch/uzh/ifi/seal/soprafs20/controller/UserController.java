@@ -3,6 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
@@ -166,7 +167,15 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<InviteGetDTO> getLobbyInvites(@PathVariable long userId, @RequestParam("token") String token){
-        User user = userService.getUser(userId);
+        User user;
+        try{
+            user = userService.getUserByToken(token);
+        } catch (NotFoundException e){
+            throw new NotFoundException("Can't access users lobby invites!");
+        }
+        if(!user.getId().equals(userId)){
+            throw new NotFoundException("Can't access users lobby invites!");
+        }
         Set<Lobby> invites = user.getLobbyInvites();
         List<InviteGetDTO> lobbies = new ArrayList<>();
         for(Lobby lobby : invites){
@@ -175,6 +184,25 @@ public class UserController {
             lobbies.add(inviteGetDTO);
         }
         return lobbies;
+    }
+
+    @GetMapping(path = "/users/scores")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<UserGetDTO> getUserScoreboard(@PathVariable long userId, @RequestParam("token") String token){
+        try{
+            User user = userService.getUserByToken(token);
+        } catch (NotFoundException e){
+            throw new NotFoundException("Cant access user leader board!");
+        }
+        List<User> users;
+        users = userService.getUsersByScore();
+        List<UserGetDTO> userGetDTOs = new ArrayList<>();
+        for(User u: users){
+            userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(u));
+        }
+        return userGetDTOs;
+
     }
 
     private String asJsonString(final Object object) {

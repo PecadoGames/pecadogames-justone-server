@@ -232,4 +232,8 @@ public class UserService {
     public void save(User user) {
         userRepository.saveAndFlush(user);
     }
+
+    public List<User> getUsersByScore() {
+        return this.userRepository.findAllByOrderByScore();
+    }
 }

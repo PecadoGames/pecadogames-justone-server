@@ -29,14 +29,17 @@ public class LobbyController {
     private final ChatService chatService;
     private final MessageService messageService;
     private final GameService gameService;
+    private final LobbyScoreService lobbyScoreService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService, ChatService chatService, MessageService messageService, GameService gameService){
+    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService,
+                    LobbyScoreService lobbyScoreService, ChatService chatService, MessageService messageService, GameService gameService){
         this.lobbyService = lobbyService;
         this.userService = userService;
         this.playerService = playerService;
         this.chatService = chatService;
         this.messageService = messageService;
         this.gameService = gameService;
+        this.lobbyScoreService = lobbyScoreService;
     }
 
 
@@ -220,6 +223,25 @@ public class LobbyController {
         Player playerToBeRemoved = playerService.getPlayer(joinLeavePutDTO.getPlayerId());
         lobbyService.removePlayerFromLobby(playerToBeRemoved, lobby);
         playerService.deletePlayer(playerToBeRemoved);
+    }
+
+    @GetMapping(path = "lobbies/scores",produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<LobbyScoreGetDTO> getLobbyScores(@RequestParam("token") String token){
+        try {
+            User user = userService.getUserByToken(token);
+        } catch (NotFoundException e){
+            throw new NotAcceptableException("Cant get lobby scores as " + e.getMessage().toLowerCase());
+        }
+        List<LobbyScore> lobbyScores;
+
+        lobbyScores = lobbyScoreService.getLobbyScoresByDate();
+        List<LobbyScoreGetDTO> lobbyScoreGetDTOs = new ArrayList<>();
+        for(LobbyScore lb: lobbyScores){
+            lobbyScoreGetDTOs.add(DTOMapper.INSTANCE.convertEntityToLobbyScoreGetDTO(lb));
+        }
+        return lobbyScoreGetDTOs;
     }
 
 
