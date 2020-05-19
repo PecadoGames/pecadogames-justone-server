@@ -346,7 +346,7 @@ public class GameServiceTest {
         testGame.addPlayer(player3);
         testGame.setSpecialGame(true);
 
-        assertTrue(gameService.allSent(testGame, 4));
+        assertTrue(gameService.allSent(testGame, 2));
     }
 
     @Test
@@ -355,7 +355,7 @@ public class GameServiceTest {
         testGame.addPlayer(player3);
         testGame.setSpecialGame(true);
 
-        assertFalse(gameService.allSent(testGame, 3));
+        assertFalse(gameService.allSent(testGame, 1));
     }
 
     @Test
