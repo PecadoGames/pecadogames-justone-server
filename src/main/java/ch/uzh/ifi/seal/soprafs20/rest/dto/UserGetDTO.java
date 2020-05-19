@@ -5,7 +5,7 @@ import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class UserGetDTO {
 
@@ -13,9 +13,10 @@ public class UserGetDTO {
     private String username;
     private UserStatus status;
     private AvatarColor avatarColor;
-    private Date creationDate;
     @JsonFormat(pattern="dd.MM.yyyy")
-    private Date birthday;
+    private LocalDate creationDate;
+    @JsonFormat(pattern="dd.MM.yyyy")
+    private LocalDate birthday;
     private String token;
     private int score;
 
@@ -48,20 +49,20 @@ public class UserGetDTO {
 
     public void setAvatarColor(AvatarColor color) { this.avatarColor = color; }
 
-    public void setBirthday(Date birthday){
+    public void setBirthday(LocalDate birthday){
         this.birthday = birthday;
     }
 
-    public Date getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
     }
 
     @JsonProperty("creation_date")
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 

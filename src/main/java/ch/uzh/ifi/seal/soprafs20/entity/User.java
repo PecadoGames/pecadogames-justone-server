@@ -14,7 +14,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -51,10 +51,11 @@ public class User implements Serializable {
     private String password;
 
     @Column(nullable = false)
-    private Date creationDate;
+    @JsonFormat(pattern = "dd.MM.yyyy")
+    private LocalDate creationDate;
 
     @JsonFormat(pattern = "dd.MM.yyyy")
-    private Date birthday;
+    private LocalDate birthday;
 
     @Column
     private AvatarColor avatarColor;
@@ -125,20 +126,20 @@ public class User implements Serializable {
     }
 
     public void setCreationDate() {
-        this.creationDate = new Date();
+        this.creationDate = LocalDate.now();
     }
 
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
     @JsonFormat(pattern = "dd.MM.yyyy")
     @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-    public void setBirthday(Date birthday) throws JsonParseException {
+    public void setBirthday(LocalDate birthday) throws JsonParseException {
         this.birthday = birthday;
     }
 
-    public Date getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
