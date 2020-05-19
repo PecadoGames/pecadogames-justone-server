@@ -234,6 +234,6 @@ public class UserService {
     }
 
     public List<User> getUsersByScore() {
-        return this.userRepository.findAllByOrderByScore();
+        return this.userRepository.findAllByOrderByScoreDesc();
     }
 }

@@ -200,7 +200,6 @@ public class UserController {
         for(User u: users){
             userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(u));
         }
-        Collections.reverse(userGetDTOs);
         return userGetDTOs;
 
     }
