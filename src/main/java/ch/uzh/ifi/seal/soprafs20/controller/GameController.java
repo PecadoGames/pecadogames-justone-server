@@ -117,9 +117,9 @@ public class GameController {
     public void sendGuess(@PathVariable long lobbyId, @RequestBody MessagePutDTO messagePutDTO) {
         Game game = gameService.getGame(lobbyId);
         gameService.submitGuess(game, messagePutDTO,TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds());
+        gameService.updateScores(game);
         game.getTimer().setCancel(true);
         game.setGameState(GameState.TRANSITION_STATE);
-        gameService.updateScores(game);
         gameService.setStartTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()), game);
     }
 
