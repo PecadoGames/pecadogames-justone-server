@@ -67,7 +67,9 @@ public interface DTOMapper {
 
     @AfterMapping
     default void setCurrentNumPlayerAndBots(Lobby lobby, @MappingTarget LobbyGetDTO lobbyGetDTO) {
-        lobbyGetDTO.setCurrentNumPlayersAndBots(lobbyGetDTO.getCurrentNumPlayers() + lobbyGetDTO.getCurrentNumBots());
+        if(lobbyGetDTO.getCurrentNumPlayers()!= null && lobbyGetDTO.getCurrentNumBots() != null) {
+            lobbyGetDTO.setCurrentNumPlayersAndBots(lobbyGetDTO.getCurrentNumPlayers() + lobbyGetDTO.getCurrentNumBots());
+        }
     }
 
     @Mapping(source = "lobbyName", target = "lobbyName")
