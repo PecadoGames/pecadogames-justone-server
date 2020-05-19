@@ -8,8 +8,8 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -20,8 +20,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -49,18 +50,11 @@ public class UserControllerTest {
 
     @Test
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
-        Calendar calndr = Calendar.getInstance();
-        String tmZ = calndr.getTimeZone().getDisplayName();
-
         // given
         User user = new User();
-        SimpleDateFormat sF = new SimpleDateFormat( "dd.MM.yyyy");
-        sF.setTimeZone(TimeZone.getTimeZone(tmZ));
-
-        Date birthday = sF.parse( "20.05.2010 ");
         user.setUsername("firstname@lastname");
         user.setStatus(UserStatus.OFFLINE);
-        user.setBirthday(birthday);
+        user.setBirthday(LocalDate.of(2010, 5, 20));
         user.setCreationDate();
         user.setToken("1");
 
@@ -71,19 +65,12 @@ public class UserControllerTest {
 
         // when
         MockHttpServletRequestBuilder getRequest = get("/users").contentType(MediaType.APPLICATION_JSON);
-        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-
-        format.setTimeZone(TimeZone.getTimeZone(tmZ));
 
         // then
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].username", is(user.getUsername())))
                 .andExpect(jsonPath("$[0].logged_in", is(user.getStatus() == UserStatus.ONLINE)))
-                .andExpect(jsonPath("$[0].creation_date", is(
-                        user.getCreationDate().toInstant().toString().replace("Z", "+0000"))))
-                .andExpect(jsonPath(("$[0].birthday"), is(
-                        format.format(user.getBirthday()))))
                 .andExpect(jsonPath("$[0].token", is(user.getToken())));
     }
 
@@ -253,7 +240,7 @@ public class UserControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = "{\"token\" : \"1\", \"birthday\" : \"123\"}";
 
-        assertThrows(InvalidFormatException.class,() ->{UserPutDTO userPutDTO = objectMapper.readValue(json,UserPutDTO.class);});
+        assertThrows(InvalidDefinitionException.class,() ->{UserPutDTO userPutDTO = objectMapper.readValue(json,UserPutDTO.class);});
     }
 
 

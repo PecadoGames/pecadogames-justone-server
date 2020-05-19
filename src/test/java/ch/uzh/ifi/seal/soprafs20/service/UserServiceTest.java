@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -177,7 +177,7 @@ public class UserServiceTest {
     public void updateUser_validInput_success() throws Exception {
         UserPutDTO userPutDTO = new UserPutDTO();
         userPutDTO.setUsername("changedUsername");
-        userPutDTO.setBirthday(new SimpleDateFormat( "dd.MM.yyyy" ).parse( "20.05.2010" ));
+        userPutDTO.setBirthday(LocalDate.now());
         userPutDTO.setToken("testToken");
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
@@ -202,7 +202,7 @@ public class UserServiceTest {
     @Test
     public void updateUser_validBirthday_success() throws JsonParseException, ParseException {
         UserPutDTO userPutDTO = new UserPutDTO();
-        userPutDTO.setBirthday(new SimpleDateFormat( "dd.MM.yyyy" ).parse( "20.05.2010" ));
+        userPutDTO.setBirthday(LocalDate.now());
         userPutDTO.setToken("testToken");
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
