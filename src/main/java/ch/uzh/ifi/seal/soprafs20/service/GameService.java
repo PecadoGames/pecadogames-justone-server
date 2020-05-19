@@ -601,7 +601,6 @@ public class GameService{
         return allSent(game, counter);
     }
 
-
     public void vote(Game game) {
         for (Player p: game.getPlayers()){
             if(!game.getCurrentGuesser().equals(p) && !p.isVoted()){

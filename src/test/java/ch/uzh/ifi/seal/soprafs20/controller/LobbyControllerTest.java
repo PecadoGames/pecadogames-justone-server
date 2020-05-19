@@ -66,6 +66,7 @@ public class LobbyControllerTest {
         lobby.setMaxPlayersAndBots(5);
         lobby.setVoiceChat(false);
         lobby.setHostId(1234);
+        lobby.setCurrentNumBots(0);
         lobby.setCurrentNumPlayers(1);
 
         List<Lobby> allLobbies = Collections.singletonList(lobby);
@@ -256,6 +257,8 @@ public class LobbyControllerTest {
         lobby.setMaxPlayersAndBots(5);
         lobby.setVoiceChat(false);
         lobby.setHostId(1234);
+        lobby.setCurrentNumBots(0);
+        lobby.setCurrentNumPlayers(1);
 
         User testUser = new User();
         testUser.setId(1L);
