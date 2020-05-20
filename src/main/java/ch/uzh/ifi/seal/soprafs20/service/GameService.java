@@ -258,16 +258,27 @@ public class GameService{
         if(!game.getGameState().equals(GameState.ENTER_GUESS_STATE)) {
             throw new UnauthorizedException("Can't submit guess in current state!");
         }
-        int pastScore = game.getCurrentGuesser().getScore();
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
+        game.setCurrentGuess(messagePutDTO.getMessage());
+        guesserScore(game, time);
+        gameRepository.saveAndFlush(game);
+    }
+
+    private Game guesserScore(Game game, long time){
+        int pastScore = game.getCurrentGuesser().getScore();
+        int score = 0;
         if(game.isGuessCorrect()){
             if(game.isSpecialGame()){
-                game.getCurrentGuesser().setScore(pastScore + (int)((guessTime - time)*10));
+                score = (int)((guessTime - time)*10);
+
             } else {
-                game.getCurrentGuesser().setScore(pastScore + (int)((guessTime - time)*5));
+                score = (int) ((guessTime - time)*5);
             }
+            game.setOverallScore(game.getOverallScore() + score);
+            game.getCurrentGuesser().setScore(pastScore + score);
             System.out.println("Guess was correct");
-        } else {
+        }
+        else {
             if(game.isSpecialGame() && pastScore > 60){
                 game.getCurrentGuesser().setScore(pastScore - 60);
             } else {
@@ -275,9 +286,20 @@ public class GameService{
             }
             if(!game.isSpecialGame() && pastScore > 30){
                 game.getCurrentGuesser().setScore(pastScore - 30);
+
             } else {
                 game.getCurrentGuesser().setScore(0);
+            }
 
+            if(game.getOverallScore() < 60 && game.isSpecialGame()){
+                game.setOverallScore(0);
+            } else {
+                game.setOverallScore(game.getOverallScore() - 60);
+            }
+            if(game.getOverallScore() < 30 && !game.isSpecialGame()){
+                game.setOverallScore(0);
+            } else {
+                game.setOverallScore(game.getOverallScore() - 30);
             }
             System.out.println("Guess was not correct");
         }
@@ -286,10 +308,7 @@ public class GameService{
             User user = optionalUser.get();
             user.setScore(user.getScore() + game.getCurrentGuesser().getScore());
         }
-
-        game.setCurrentGuess(messagePutDTO.getMessage());
-        game.setOverallScore(game.getOverallScore() + game.getCurrentGuesser().getScore());
-        gameRepository.saveAndFlush(game);
+        return game;
     }
 
 
