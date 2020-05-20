@@ -189,6 +189,9 @@ public class GameService{
                 p.setClueIsSent(true);
             }
         }
+        if(game.getEnteredClues().size() > 0) {
+            checkClues(game);
+        }
         return true;
     }
 
@@ -655,7 +658,9 @@ public class GameService{
         else if(!game.getInvalidClues().contains(clue)) {
             game.addClue(clue);
         }
+        gameRepository.saveAndFlush(game);
     }
+
 }
 
 
