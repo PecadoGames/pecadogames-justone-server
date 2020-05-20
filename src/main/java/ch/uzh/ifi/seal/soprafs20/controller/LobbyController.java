@@ -163,7 +163,7 @@ public class LobbyController {
     @GetMapping(path = "/lobbies/{lobbyId}/chat", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public String getChatMessages(@PathVariable long lobbyId,@RequestParam String token) {
+    public String getChatMessages(@PathVariable long lobbyId,@RequestParam("token") String token) {
         boolean found = false;
         Lobby lobby = lobbyService.getLobby(lobbyId);
         for (Player player : lobby.getPlayersInLobby()){
@@ -172,8 +172,9 @@ public class LobbyController {
                 break;
             }
         }
-        if(!found)
+        if(!found) {
             throw new UnauthorizedException("This player is not allowed to access this chat history!");
+        }
         Chat chat = chatService.getChat(lobbyId);
         return asJsonString(chat);
     }

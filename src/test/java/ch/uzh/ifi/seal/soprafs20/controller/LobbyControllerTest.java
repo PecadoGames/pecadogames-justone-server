@@ -189,8 +189,6 @@ public class LobbyControllerTest {
                 .andExpect(header().exists("Location"));
     }
 
-
-
     @Test
     public void updateExistingLobby_existingLobby() throws Exception {
         Lobby lobby = new Lobby();
@@ -273,6 +271,7 @@ public class LobbyControllerTest {
 
         given(lobbyService.getLobby(Mockito.any())).willReturn(lobby);
         given(userService.getUser(Mockito.any())).willReturn(testUser);
+        given(userService.acceptOrDeclineLobbyInvite(Mockito.any(), Mockito.any())).willReturn(true);
 
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/acceptances", "1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -280,6 +279,41 @@ public class LobbyControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void kickPlayer_validInput_success() throws Exception {
+        Player host = new Player();
+        host.setId(1L);
+        host.setToken("testToken");
+
+        Player playerToKick = new Player();
+        playerToKick.setId(2L);
+        playerToKick.setToken("kickToken");
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setMaxPlayersAndBots(5);
+        lobby.setVoiceChat(false);
+        lobby.setHostId(1L);
+        lobby.setCurrentNumBots(0);
+        lobby.setCurrentNumPlayers(2);
+        lobby.addPlayerToLobby(host);
+        lobby.addPlayerToLobby(playerToKick);
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setPlayerToKickId(playerToKick.getId());
+
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
+        given(playerService.getPlayer(Mockito.anyLong())).willReturn(playerToKick);
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/kick", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isNoContent());
     }
 
     @Test
@@ -336,12 +370,34 @@ public class LobbyControllerTest {
 
     @Test
     public void getChat_invalidLobbyId_throwsException() throws Exception {
-        given(chatService.getChat(Mockito.any())).willThrow(new NotFoundException("message"));
 
-        MockHttpServletRequestBuilder getRequest = get("/lobbies/1/chat").contentType(MediaType.APPLICATION_JSON);
+        given(lobbyService.getLobby(Mockito.anyLong())).willThrow(new NotFoundException("ex"));
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/1/chat")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "anyToken");
 
         mockMvc.perform(getRequest)
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getChat_playerNotInLobby_throwsException() throws Exception {
+        Player player = new Player();
+        player.setToken("wrongToken");
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.addPlayerToLobby(player);
+
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/1/chat")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "anyToken");
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -476,6 +532,61 @@ public class LobbyControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void joinLobby_lobbyIsPrivate_throwsException() throws Exception {
+        User joiner = new User();
+        joiner.setId(1L);
+        joiner.setToken("joinToken");
+
+        JoinLeavePutDTO joinLeavePutDTO = new JoinLeavePutDTO();
+        joinLeavePutDTO.setPlayerId(joiner.getId());
+        joinLeavePutDTO.setPlayerToken(joiner.getToken());
+
+        Lobby lobby = new Lobby();
+        lobby.setPrivate(true);
+
+        given(userService.getUser(Mockito.anyLong())).willReturn(joiner);
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/joins","1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(joinLeavePutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void leaveLobby_validInput_success() throws Exception {
+        Player playerToRemove = new Player();
+        Player player2 = new Player();
+        playerToRemove.setToken("token1");
+        playerToRemove.setId(1L);
+        player2.setToken("token2");
+        player2.setId(2L);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setHostId(1L);
+        lobby.addPlayerToLobby(playerToRemove);
+        lobby.addPlayerToLobby(player2);
+
+        JoinLeavePutDTO joinLeavePutDTO = new JoinLeavePutDTO();
+        joinLeavePutDTO.setPlayerId(playerToRemove.getId());
+        joinLeavePutDTO.setPlayerToken(playerToRemove.getToken());
+
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
+        given(playerService.getPlayer(Mockito.anyLong())).willReturn(playerToRemove);
+
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/rageQuits","1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(joinLeavePutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isOk());
     }
 
     @Test
