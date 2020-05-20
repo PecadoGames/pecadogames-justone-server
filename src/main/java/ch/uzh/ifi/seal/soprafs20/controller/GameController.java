@@ -49,6 +49,9 @@ public class GameController {
             gameGetDTO.setCurrentWord(null);
             gameGetDTO.getInvalidClues().clear();
         }
+        if(!game.getGameState().equals(GameState.ENTER_CLUES_STATE)) {
+            gameGetDTO.getInvalidClues().clear();
+        }
         return gameGetDTO;
     }
 

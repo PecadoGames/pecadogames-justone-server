@@ -340,6 +340,7 @@ public class GameService{
         System.out.println("Game clues as string: "+ game.getCluesAsString());
         for (Clue clue : game.getEnteredClues()) {
             if (!nlp.checkClue(clue.getActualClue(), game.getCurrentWord())) {
+                clue.setPlayerId(-1L);
                 invalidClues.add(clue);
             }
         }
@@ -625,7 +626,7 @@ public class GameService{
                     actualInvalidClues.add(clue);
                 }
             }
-            if(clue.getPlayerId().equals(0L)) {
+            if(clue.getPlayerId().equals(0L) || clue.getPlayerId().equals(-1L)) {
                 if(!actualInvalidClues.contains(clue)) {
                     actualInvalidClues.add(clue);
                 }
