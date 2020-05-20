@@ -624,6 +624,11 @@ public class GameService{
                     actualInvalidClues.add(clue);
                 }
             }
+            if(clue.getPlayerId().equals(0L)) {
+                if(!actualInvalidClues.contains(clue)) {
+                    actualInvalidClues.add(clue);
+                }
+            }
         }
         //Remove duplicates from list of invalid clues to return to client
         game.setInvalidClues(actualInvalidClues);
@@ -634,6 +639,7 @@ public class GameService{
         // if the same clue is sent twice, remove it from list of entered clues
         if(game.getEnteredClues().contains(clue)) {
             game.getEnteredClues().remove(clue);
+            clue.setPlayerId(0L);
             game.addInvalidClue(clue);
         }
         //only add the clue to list of entered clues if the same clue wasn't sent before
