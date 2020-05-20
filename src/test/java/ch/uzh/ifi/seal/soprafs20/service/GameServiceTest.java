@@ -1,6 +1,5 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
-import ch.uzh.ifi.seal.soprafs20.GameLogic.APIResponse;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
@@ -13,17 +12,13 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -772,27 +767,6 @@ public class GameServiceTest {
 //        Thread.sleep(1*1000);
 
         assertEquals(GameState.ENTER_CLUES_STATE, testGame.getGameState());
-    }
-
-    @Test
-    public void test_externalAPI() throws IOException {
-        final String uri = "https://api.datamuse.com/words?ml=tool";
-
-        RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(uri, String.class);
-
-        System.out.println(result);
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<APIResponse> response = objectMapper.readValue(result, new TypeReference<List<APIResponse>>(){});
-
-        if(response.size() > 0) {
-            APIResponse highestScore = response.get(0);
-        }
-    }
-
-    @Test
-    public void invalidClues_afterNLP_andCheckVotes() {
-
     }
 
 
