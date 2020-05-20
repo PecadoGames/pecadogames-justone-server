@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.User;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
@@ -352,6 +353,124 @@ public class UserControllerTest {
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].username", is(user2.getUsername())));
+    }
+
+    @Test
+    public void getFriends_unauthorized_throwsException() throws Exception {
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setUsername("BadBunny");
+        user1.setToken("token");
+
+        User user2 = new User();
+        user2.setId(2L);
+        user2.setUsername("SadBunny");
+
+        user1.addFriend(user2);
+
+        given(userService.getUser(Mockito.anyLong())).willReturn(user1);
+
+        MockHttpServletRequestBuilder getRequest = get("/users/{id}/friends", user1.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "wrongToken");
+
+        mockMvc.perform(getRequest).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void handleFriendRequest_accept_success() throws Exception {
+        User sender = new User();
+        sender.setId(1L);
+
+        User accepter = new User();
+        accepter.setId(2L);
+        accepter.setToken("receiverToken");
+        accepter.setFriendRequests(sender);
+
+        FriendPutDTO friendPutDTO = new FriendPutDTO();
+        friendPutDTO.setAccepted(true);
+        friendPutDTO.setRequesterID(sender.getId());
+        friendPutDTO.setAccepterToken(accepter.getToken());
+
+        given(userService.getUser(Mockito.anyLong())).willReturn(accepter);
+
+        MockHttpServletRequestBuilder putRequest = put("/users/{id}/friends", accepter.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(friendPutDTO));
+
+        mockMvc.perform(putRequest).andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void getLobbyInvites_validInput_success() throws Exception {
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("lobbyName");
+        lobby.setPrivateKey("privateKey");
+
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("username");
+        user.setToken("userToken");
+        user.setLobbyInvites(lobby);
+
+        given(userService.getUserByToken(Mockito.any())).willReturn(user);
+        given(userService.getUser(Mockito.any())).willReturn(user);
+
+        MockHttpServletRequestBuilder getRequest = get("/users/{userId}/invitations", user.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", user.getToken());
+
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].lobbyName", is(lobby.getLobbyName())))
+                .andExpect(jsonPath("$[0].lobbyId", is(lobby.getLobbyId().intValue())))
+                .andExpect(jsonPath("$[0].privateKey", is(lobby.getPrivateKey())))
+                .andExpect(jsonPath("$[0].hostName", is(user.getUsername())));
+    }
+
+    @Test
+    public void getLobbyInvites_userNotFound_throwsException() throws Exception {
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("lobbyName");
+        lobby.setPrivateKey("privateKey");
+
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("username");
+        user.setToken("userToken");
+        user.setLobbyInvites(lobby);
+
+        given(userService.getUserByToken(Mockito.any())).willThrow(new NotFoundException("ex"));
+
+        MockHttpServletRequestBuilder getRequest = get("/users/{userId}/invitations", user.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "wrongToken");
+
+        mockMvc.perform(getRequest).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getLobbyInvites_wrongUserId_throwsException() throws Exception {
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("lobbyName");
+        lobby.setPrivateKey("privateKey");
+
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("username");
+        user.setToken("userToken");
+        user.setLobbyInvites(lobby);
+
+        given(userService.getUserByToken(Mockito.any())).willReturn(user);
+
+        MockHttpServletRequestBuilder getRequest = get("/users/{userId}/invitations", "2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", user.getToken());
+
+        mockMvc.perform(getRequest).andExpect(status().isUnauthorized());
     }
 
     /**

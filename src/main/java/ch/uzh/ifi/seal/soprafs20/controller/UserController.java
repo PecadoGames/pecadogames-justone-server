@@ -173,7 +173,7 @@ public class UserController {
             throw new NotFoundException("Can't access users lobby invites!");
         }
         if(!user.getId().equals(userId)){
-            throw new NotFoundException("Can't access users lobby invites!");
+            throw new UnauthorizedException("Can't access users lobby invites!");
         }
         Set<Lobby> invites = user.getLobbyInvites();
         List<InviteGetDTO> lobbies = new ArrayList<>();
