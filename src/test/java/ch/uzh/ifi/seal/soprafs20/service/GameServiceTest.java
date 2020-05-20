@@ -379,6 +379,9 @@ public class GameServiceTest {
         assertFalse(testGame.getEnteredClues().contains(clue1));
         assertFalse(testGame.getEnteredClues().contains(clue3));
         assertTrue(testGame.getEnteredClues().contains(clue2));
+        assertTrue(testGame.getInvalidClues().contains(clue1));
+
+        gameService.checkVotes(testGame, 2);
     }
 
     @Test
@@ -753,8 +756,11 @@ public class GameServiceTest {
         if(response.size() > 0) {
             APIResponse highestScore = response.get(0);
         }
+    }
 
-        return;
+    @Test
+    public void invalidClues_afterNLP_andCheckVotes() {
+
     }
 
 

@@ -626,9 +626,14 @@ public class GameService{
                     actualInvalidClues.add(clue);
                 }
             }
-            if(clue.getPlayerId().equals(0L) || clue.getPlayerId().equals(-1L)) {
-                if(!actualInvalidClues.contains(clue)) {
-                    actualInvalidClues.add(clue);
+        }
+        //Iterate over invalidClues to preserve clues voted out from NLP
+        iterator = game.getInvalidClues().iterator();
+        while(iterator.hasNext()) {
+            Clue invalidClue = iterator.next();
+            if(invalidClue.getPlayerId().equals(-1L) || invalidClue.getPlayerId().equals(0L)) {
+                if(!actualInvalidClues.contains(invalidClue)) {
+                    actualInvalidClues.add(invalidClue);
                 }
             }
         }
@@ -642,7 +647,9 @@ public class GameService{
         if(game.getEnteredClues().contains(clue)) {
             game.getEnteredClues().remove(clue);
             clue.setPlayerId(0L);
-            game.addInvalidClue(clue);
+            if(!game.getInvalidClues().contains(clue)) {
+                game.addInvalidClue(clue);
+            }
         }
         //only add the clue to list of entered clues if the same clue wasn't sent before
         else if(!game.getInvalidClues().contains(clue)) {
