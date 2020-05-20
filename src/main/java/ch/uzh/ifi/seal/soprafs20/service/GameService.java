@@ -336,14 +336,15 @@ public class GameService{
 
     public void checkClues(Game game) {
         NLP nlp = new NLP();
-        List<Clue> cluesToRemove = new ArrayList<>();
+        List<Clue> invalidClues = new ArrayList<>();
         System.out.println("Game clues as string: "+ game.getCluesAsString());
         for (Clue clue : game.getEnteredClues()) {
             if (!nlp.checkClue(clue.getActualClue(), game.getCurrentWord())) {
-                cluesToRemove.add(clue);
+                invalidClues.add(clue);
             }
         }
-        game.getEnteredClues().removeAll(cluesToRemove);
+        game.getEnteredClues().removeAll(invalidClues);
+        game.setInvalidClues(invalidClues);
         gameRepository.saveAndFlush(game);
     }
 
