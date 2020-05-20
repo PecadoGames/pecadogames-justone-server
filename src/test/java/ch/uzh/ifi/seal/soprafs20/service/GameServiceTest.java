@@ -441,6 +441,49 @@ public class GameServiceTest {
     }
 
     @Test
+    public void checkInvalidClues_afterCheckVotes_oneOfTwoEliminated() {
+        Clue clue1 = new Clue();
+        clue1.setPlayerId(1L);
+        clue1.setActualClue("Apple");
+        Clue clue2 = new Clue();
+        clue2.setPlayerId(2L);
+        clue2.setActualClue("Banana");
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+        testGame.addInvalidClue(clue2);
+        testGame.addInvalidClue(clue2);
+        testGame.addInvalidClue(clue1);
+
+        gameService.checkVotes(testGame, 2);
+
+        assertEquals(1, testGame.getInvalidClues().size());
+        assertTrue(testGame.getInvalidClues().contains(clue2));
+        assertFalse(testGame.getInvalidClues().contains(clue1));
+    }
+
+    @Test
+    public void checkInvalidClues_afterCheckVotes_twoOfTwoEliminated() {
+        Clue clue1 = new Clue();
+        clue1.setPlayerId(1L);
+        clue1.setActualClue("Apple");
+        Clue clue2 = new Clue();
+        clue2.setPlayerId(2L);
+        clue2.setActualClue("Banana");
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
+        testGame.addInvalidClue(clue2);
+        testGame.addInvalidClue(clue2);
+        testGame.addInvalidClue(clue1);
+        testGame.addInvalidClue(clue1);
+
+        gameService.checkVotes(testGame, 2);
+
+        assertEquals(1, testGame.getInvalidClues().size());
+        assertTrue(testGame.getInvalidClues().contains(clue2));
+        assertFalse(testGame.getInvalidClues().contains(clue1));
+    }
+
+    @Test
     public void test_MathCeil() {
         int amountOfGuessers = 3;
         int threshold = (int)Math.ceil((float)3/2);

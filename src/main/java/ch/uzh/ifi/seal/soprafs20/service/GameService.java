@@ -577,7 +577,6 @@ public class GameService{
 
     public boolean vote(Game game, Player player, List<String> invalidWords) {
         if(!player.isVoted()) {
-
             for(String s : invalidWords) {
                 Clue clue = new Clue();
                 clue.setPlayerId(player.getId());
@@ -614,18 +613,20 @@ public class GameService{
     }
 
     public void checkVotes(Game game, int threshold) {
+        List<Clue> actualInvalidClues = new ArrayList<>();
         Iterator<Clue> iterator = game.getEnteredClues().iterator();
         while(iterator.hasNext()) {
             Clue clue = iterator.next();
             int occurrences = Collections.frequency(game.getInvalidClues(), clue);
             if(occurrences >=  threshold) {
                 iterator.remove();
+                if(!actualInvalidClues.contains(clue)) {
+                    actualInvalidClues.add(clue);
+                }
             }
         }
         //Remove duplicates from list of invalid clues to return to client
-        Set<Clue> set = new LinkedHashSet<>(game.getInvalidClues());
-        game.getInvalidClues().clear();
-        game.getInvalidClues().addAll(set);
+        game.setInvalidClues(actualInvalidClues);
         gameRepository.saveAndFlush(game);
     }
 
