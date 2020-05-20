@@ -429,14 +429,14 @@ public class GameServiceTest {
         clue2.setPlayerId(2L);
         clue2.setActualClue("banana");
 
-        testGame.addClueAsString(clue1.getActualClue());
-        testGame.addClueAsString(clue2.getActualClue());
+        testGame.addClue(clue1);
+        testGame.addClue(clue2);
         testGame.addInvalidClue(clue1);
         testGame.addInvalidClue(clue2);
 
         gameService.checkVotes(testGame, 2);
 
-        //assertEquals(1, testGame.getInvalidClues().size());
+        assertEquals(1, testGame.getInvalidClues().size());
         assertTrue(testGame.getInvalidClues().contains(clue1));
     }
 
@@ -478,9 +478,9 @@ public class GameServiceTest {
 
         gameService.checkVotes(testGame, 2);
 
-        assertEquals(1, testGame.getInvalidClues().size());
+        assertEquals(2, testGame.getInvalidClues().size());
         assertTrue(testGame.getInvalidClues().contains(clue2));
-        assertFalse(testGame.getInvalidClues().contains(clue1));
+        assertTrue(testGame.getInvalidClues().contains(clue1));
     }
 
     @Test
