@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
+import ch.uzh.ifi.seal.soprafs20.entity.Clue;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
 import ch.uzh.ifi.seal.soprafs20.entity.InternalTimer;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
@@ -52,6 +53,10 @@ public class GameControllerTest {
         player2.setId(2L);
         player2.setToken("token2");
 
+        Clue invalidClue = new Clue();
+        invalidClue.setPlayerId(1L);
+        invalidClue.setActualClue("anyClue");
+
         Game game = new Game();
         game.setLobbyId(1L);
         game.setRoundsPlayed(1);
@@ -61,6 +66,8 @@ public class GameControllerTest {
         game.setCurrentWord("Erdbeermarmeladebrot");
         game.setCurrentGuess("Bananenbrot");
         game.setGameState(GameState.ENTER_GUESS_STATE);
+        game.addInvalidClue(invalidClue);
+        game.addClue(invalidClue);
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
 
@@ -74,7 +81,9 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.roundsPlayed", is(game.getRoundsPlayed())))
                 .andExpect(jsonPath("$.players", hasSize(2)))
                 .andExpect(jsonPath("$.currentWord", is(game.getCurrentWord())))
-                .andExpect(jsonPath("$.currentGuess", is(game.getCurrentGuess())));
+                .andExpect(jsonPath("$.currentGuess", is(game.getCurrentGuess())))
+                .andExpect(jsonPath("$.enteredClues", hasSize(1)))
+                .andExpect(jsonPath("$.invalidClues", hasSize(1)));
     }
 
     @Test
