@@ -130,6 +130,38 @@ public class GameServiceTest {
     }
 
     @Test
+    public void sendClue_normalGame_duplicateClue() {
+        Player player3 = new Player();
+        player3.setId(3L);
+        player3.setToken("token3");
+
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setSpecialGame(false);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        testGame.setCurrentWord("wars");
+        testGame.setTimer(new InternalTimer());
+        testGame.addPlayer(player3);
+
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
+
+        Clue clue = new Clue();
+        clue.setActualClue("star");
+
+        gameService.sendClue(testGame, player2, cluePutDTO);
+
+        cluePutDTO.setPlayerToken(player3.getToken());
+        cluePutDTO.setPlayerToken(player3.getToken());
+
+        gameService.sendClue(testGame, player3, cluePutDTO);
+
+        assertFalse(testGame.getEnteredClues().contains(clue));
+        assertTrue(testGame.getInvalidClues().contains(clue));
+    }
+
+    @Test
     public void sendClue_normalGame_fail_unauthorizedUser(){
         testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(false);

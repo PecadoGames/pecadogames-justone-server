@@ -348,7 +348,7 @@ public class GameService{
             }
         }
         game.getEnteredClues().removeAll(invalidClues);
-        game.setInvalidClues(invalidClues);
+        game.addInvalidClues(invalidClues);
         gameRepository.saveAndFlush(game);
     }
 
