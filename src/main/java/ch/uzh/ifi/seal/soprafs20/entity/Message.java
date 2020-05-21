@@ -69,7 +69,7 @@ public class Message implements Serializable {
 
     @JsonFormat(pattern="hh:mm:ss")
     public void setCreationDate() {
-        this.creationDate = LocalTime.now();
+        this.creationDate = LocalTime.now().plusHours(2L);
     }
 
     @Override
