@@ -6,10 +6,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalTime;
 import java.util.Objects;
-import java.util.TimeZone;
 
 @Entity
 @Table(name = "MESSAGE")
@@ -34,7 +32,7 @@ public class Message implements Serializable {
 
     @Column(nullable = false)
     @JsonFormat(pattern="hh:mm:ss")
-    private Date creationDate;
+    private LocalTime creationDate;
 
     public Long getMessageId() {
         return messageId;
@@ -64,16 +62,14 @@ public class Message implements Serializable {
         this.text = text;
     }
 
-    public Date getCreationDate() {
+    @JsonFormat(pattern="hh:mm:ss")
+    public LocalTime getCreationDate() {
         return creationDate;
     }
 
     @JsonFormat(pattern="hh:mm:ss")
     public void setCreationDate() {
-        TimeZone time_zone_default = TimeZone.getTimeZone("Europe/Rome");
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeZone(time_zone_default);
-        this.creationDate = cal.getTime();
+        this.creationDate = LocalTime.now();
     }
 
     @Override

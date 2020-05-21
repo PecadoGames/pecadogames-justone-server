@@ -110,5 +110,15 @@ public interface DTOMapper {
     @Mapping(source = "currentGuess", target = "currentGuess")
     GameGetDTO convertEntityToGameGetDTO(Game game);
 
+    @Mapping(source = "messageId", target = "messageId")
+    @Mapping(source = "authorId", target = "authorId")
+    @Mapping(source = "authorUsername", target = "authorUsername")
+    @Mapping(source = "text", target = "text")
+    @Mapping(source = "creationDate", target = "creationDate")
+    MessageGetDTO convertEntityToMessageGetDTO(Message message);
+
+    @Mapping(source = "lobbyId", target = "lobbyId")
+    ChatGetDTO convertEntityToChatGetDTO(Chat chat);
+
     LobbyScoreGetDTO convertEntityToLobbyScoreGetDTO(LobbyScore lb);
 }
