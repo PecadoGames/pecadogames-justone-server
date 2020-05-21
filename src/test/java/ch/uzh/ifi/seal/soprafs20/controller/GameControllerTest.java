@@ -1,16 +1,14 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
-import ch.uzh.ifi.seal.soprafs20.entity.Clue;
-import ch.uzh.ifi.seal.soprafs20.entity.Game;
-import ch.uzh.ifi.seal.soprafs20.entity.InternalTimer;
-import ch.uzh.ifi.seal.soprafs20.entity.Player;
+import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.BadRequestException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.VotePutDTO;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
+import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
 import ch.uzh.ifi.seal.soprafs20.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +39,8 @@ public class GameControllerTest {
     private PlayerService playerService;
     @MockBean
     private GameService gameService;
+    @MockBean
+    private LobbyService lobbyService;
 
 
     @Test
@@ -57,6 +57,9 @@ public class GameControllerTest {
         invalidClue.setPlayerId(1L);
         invalidClue.setActualClue("anyClue");
 
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumBots(0);
+
         Game game = new Game();
         game.setLobbyId(1L);
         game.setRoundsPlayed(1);
@@ -70,6 +73,7 @@ public class GameControllerTest {
         game.addClue(invalidClue);
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
 
         MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game", game.getLobbyId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -87,6 +91,56 @@ public class GameControllerTest {
     }
 
     @Test
+    public void givenGameWithBots_whenGetGame_returnBotsInJson() throws Exception {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setUsername("username1");
+        player1.setToken("token1");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setUsername("username2");
+        player2.setToken("token2");
+
+        Clue invalidClue = new Clue();
+        invalidClue.setPlayerId(1L);
+        invalidClue.setActualClue("anyClue");
+
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumBots(2);
+
+        Game game = new Game();
+        game.setLobbyId(1L);
+        game.setRoundsPlayed(1);
+        game.addPlayer(player1);
+        game.addPlayer(player2);
+        game.setCurrentGuesser(player1);
+        game.setCurrentWord("Erdbeermarmeladebrot");
+        game.setCurrentGuess("Bananenbrot");
+        game.setGameState(GameState.ENTER_GUESS_STATE);
+        game.addInvalidClue(invalidClue);
+        game.addClue(invalidClue);
+
+        given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
+
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game", game.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", player2.getToken());
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lobbyId", is(game.getLobbyId().intValue())))
+                .andExpect(jsonPath("$.roundsPlayed", is(game.getRoundsPlayed())))
+                .andExpect(jsonPath("$.players", hasSize(4)))
+                .andExpect(jsonPath("$.players[3].username", is("bot")))
+                .andExpect(jsonPath("$.currentWord", is(game.getCurrentWord())))
+                .andExpect(jsonPath("$.currentGuess", is(game.getCurrentGuess())))
+                .andExpect(jsonPath("$.enteredClues", hasSize(1)))
+                .andExpect(jsonPath("$.invalidClues", hasSize(1)));
+    }
+
+    @Test
     public void getGame_guesserToken_returnJson() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
@@ -95,6 +149,9 @@ public class GameControllerTest {
         Player player2 = new Player();
         player2.setId(2L);
         player2.setToken("token2");
+
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumBots(0);
 
         Game game = new Game();
         game.setLobbyId(1L);
@@ -106,6 +163,7 @@ public class GameControllerTest {
         game.setGameState(GameState.PICK_WORD_STATE);
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
 
         MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game", game.getLobbyId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -125,6 +183,9 @@ public class GameControllerTest {
         player1.setId(1L);
         player1.setToken("token1");
 
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumBots(0);
+
         Game game = new Game();
         game.setLobbyId(1L);
         game.setRoundsPlayed(1);
@@ -133,6 +194,7 @@ public class GameControllerTest {
         game.setCurrentWord("Erdbeermarmeladebrot");
 
         given(gameService.getGame(Mockito.anyLong())).willReturn(game);
+        given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
 
         MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}/game", game.getLobbyId())
                 .contentType(MediaType.APPLICATION_JSON)

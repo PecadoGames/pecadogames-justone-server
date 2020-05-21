@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -328,14 +327,12 @@ public class LobbyControllerTest {
         message1.setAuthorId(1L);
         message1.setMessageId(2L);
         message1.setCreationDate();
-        LocalTime creationDate = message1.getCreationDate();
         message1.setText("Hello world");
 
         Message message2 = new Message();
         message2.setAuthorId(1L);
         message2.setMessageId(4L);
         message2.setCreationDate();
-        LocalTime creationDate2 = message1.getCreationDate();
         message2.setText("Hello world");
 
         Chat chat = new Chat();
@@ -357,11 +354,9 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$.messages[0].messageId", is(message1.getMessageId().intValue())))
                 .andExpect(jsonPath("$.messages[0].authorId", is(message1.getAuthorId().intValue())))
                 .andExpect(jsonPath("$.messages[0].text", is(message1.getText())))
-                .andExpect(jsonPath("$.messages[0].creationDate", is(creationDate.minusNanos(creationDate.getNano()).toString())))
                 .andExpect(jsonPath("$.messages[1].messageId", is(message2.getMessageId().intValue())))
                 .andExpect(jsonPath("$.messages[1].authorId", is(message2.getAuthorId().intValue())))
-                .andExpect(jsonPath("$.messages[1].text", is(message2.getText())))
-                .andExpect(jsonPath("$.messages[1].creationDate", is(creationDate2.minusNanos(creationDate2.getNano()).toString())));
+                .andExpect(jsonPath("$.messages[1].text", is(message2.getText())));
     }
 
     @Test

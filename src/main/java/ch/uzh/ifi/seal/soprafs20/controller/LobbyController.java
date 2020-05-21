@@ -187,7 +187,7 @@ public class LobbyController {
         message = messageService.createMessage(message);
         User author  = userService.getUser(messagePutDTO.getPlayerId());
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        if(messagePutDTO.getMessage().length() < 50) {
+        if(messagePutDTO.getMessage().length() <= 51) {
             chatService.addChatMessage(lobby, author.getToken(), message);
         }
     }

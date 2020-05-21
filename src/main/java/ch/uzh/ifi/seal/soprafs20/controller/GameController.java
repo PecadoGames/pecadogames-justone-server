@@ -1,7 +1,9 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
+import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.entity.Game;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
@@ -10,6 +12,7 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.VotePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.GameService;
+import ch.uzh.ifi.seal.soprafs20.service.LobbyService;
 import ch.uzh.ifi.seal.soprafs20.service.PlayerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +25,13 @@ import java.util.concurrent.TimeUnit;
 public class GameController {
     private final PlayerService playerService;
     private final GameService gameService;
+    private final LobbyService lobbyService;
 
 
-    GameController(PlayerService playerService, GameService gameService) {
+    GameController(PlayerService playerService, GameService gameService, LobbyService lobbyService) {
         this.playerService = playerService;
         this.gameService = gameService;
+        this.lobbyService = lobbyService;
     }
 
     @GetMapping(path = "lobbies/{lobbyId}/game", produces = "application/json")
@@ -34,8 +39,17 @@ public class GameController {
     @ResponseBody
     public GameGetDTO getGame(@PathVariable Long lobbyId, @RequestParam("token") String token) {
         Game game = gameService.getGame(lobbyId);
+        Lobby lobby = lobbyService.getLobby(lobbyId);
 
         GameGetDTO gameGetDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
+
+        for(int i = 0; i<lobby.getCurrentNumBots(); i++) {
+            Player botAsPlayer = new Player();
+            botAsPlayer.setId(0L);
+            botAsPlayer.setUsername("bot");
+            botAsPlayer.setAvatarColor(AvatarColor.PURPLE);
+            gameGetDTO.addPlayer(botAsPlayer);
+        }
 
         List<String> tokens = new ArrayList<>();
         for (Player player : game.getPlayers()) {
@@ -49,6 +63,7 @@ public class GameController {
             gameGetDTO.setCurrentWord(null);
             gameGetDTO.getInvalidClues().clear();
         }
+        //only return invalid clues if the current state is ENTER_GUESS_STATE
         if(!game.getGameState().equals(GameState.ENTER_GUESS_STATE)) {
             gameGetDTO.getInvalidClues().clear();
         }

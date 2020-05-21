@@ -36,6 +36,11 @@ public class GameGetDTO {
         Collections.sort(this.players, Comparator.comparingLong(PlayerGetDTO::getID));
     }
 
+    public void addPlayer(Player player) {
+        PlayerGetDTO playerGetDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(player);
+        this.players.add(playerGetDTO);
+    }
+
     public PlayerGetDTO getCurrentGuesser() { return currentGuesser; }
 
     public void setCurrentGuesser(Player player) {
