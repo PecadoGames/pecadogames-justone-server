@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
+import ch.uzh.ifi.seal.soprafs20.GameLogic.APIResponse;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.NLP;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
@@ -12,11 +13,15 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +50,7 @@ public class GameService{
     private static final int transitionTime = 5;
     private static final int endTime = 10;
     private final Random rand = new Random();
+    NLP nlp = new NLP();
 
     @Autowired
     public GameService(GameRepository gameRepository, LobbyRepository lobbyRepository, UserRepository userRepository, LobbyScoreRepository lobbyScoreRepository, ClueRepository clueRepository, PlayerRepository playerRepository) {
@@ -137,7 +143,7 @@ public class GameService{
      * @param player
      * @param cluePutDTO
      */
-    public boolean sendClue(Game game, Player player, CluePutDTO cluePutDTO){
+    public boolean sendClue(Game game, Player player, CluePutDTO cluePutDTO) {
         if(!game.getGameState().equals(GameState.ENTER_CLUES_STATE))
             throw new UnauthorizedException("Clues are not accepted in current state!");
 
@@ -169,6 +175,7 @@ public class GameService{
         }
         System.out.println("Counter = " + counter);
         if(allSent(game, counter)) {
+            generateCluesForBots(game);
             checkClues(game);
             gameRepository.saveAndFlush(game);
             return true;
@@ -192,6 +199,7 @@ public class GameService{
         if(game.getEnteredClues().size() > 0) {
             checkClues(game);
         }
+        generateCluesForBots(game);
         return true;
     }
 
@@ -356,7 +364,6 @@ public class GameService{
     }
 
     public void checkClues(Game game) {
-        NLP nlp = new NLP();
         List<Clue> invalidClues = new ArrayList<>();
         System.out.println("Game clues as string: "+ game.getCluesAsString());
         for (Clue clue : game.getEnteredClues()) {
@@ -603,6 +610,51 @@ public class GameService{
     public void setTimer(Game game) {
         game.setTimer(new InternalTimer());
         game.getTimer().setCancel(false);
+    }
+
+    public void generateCluesForBots(Game game) {
+        Lobby lobby;
+        Optional<Lobby> foundLobby = lobbyRepository.findByLobbyId(game.getLobbyId());
+        if(foundLobby.isPresent()) {
+            lobby = foundLobby.get();
+        }
+        else { return; }
+        String uri = "";
+        //The api call is a bit different if the current word consists of two separate words
+        String[] split = game.getCurrentWord().split(" ");
+        if(split.length == 1) {
+            uri = String.format("https://api.datamuse.com/words?ml=%s", split[0]);
+        }
+        else if(split.length == 2) {
+            uri = String.format("https://api.datamuse.com/words?ml=%s+%s", split[0], split[1]);
+        }
+        else { return; }
+        RestTemplate restTemplate = new RestTemplate();
+        String result = restTemplate.getForObject(uri, String.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            List<APIResponse> response = objectMapper.readValue(result, new TypeReference<List<APIResponse>>(){});
+            Iterator<APIResponse> iterator = response.iterator();
+            for(int i = 0; i < lobby.getCurrentNumBots(); i++) {
+                while(iterator.hasNext()) {
+                    APIResponse apiResponse = iterator.next();
+                    String potentialClue = apiResponse.getWord();
+                    if(nlp.checkClue(potentialClue, game.getCurrentWord())) {
+                        Clue clueFromBot = new Clue();
+                        clueFromBot.setPlayerId(0L);
+                        clueFromBot.setActualClue(potentialClue);
+                        if(!game.getEnteredClues().contains(clueFromBot)) {
+                            game.getEnteredClues().add(clueFromBot);
+                            break;
+                        }
+                    }
+                }
+            }
+            gameRepository.saveAndFlush(game);
+        } catch (JsonProcessingException ex) {
+            ex.getMessage();
+        }
     }
 
     public boolean vote(Game game, Player player, List<String> invalidWords) {

@@ -12,6 +12,7 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -249,6 +250,35 @@ public class GameServiceTest {
         assertTrue(testGame.getEnteredClues().contains(enteredClue1));
         assertTrue(testGame.getEnteredClues().contains(enteredClue2));
         assertTrue(player2.isClueIsSent());
+    }
+
+    @Test
+    public void sendClue_allCluesSent_generateCluesForBots() {
+        Lobby lobby = new Lobby();
+        lobby.setCurrentNumBots(1);
+        lobby.setLobbyId(testGame.getLobbyId());
+
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setSpecialGame(false);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+        testGame.setCurrentWord("tool");
+        testGame.setTimer(new InternalTimer());
+
+        CluePutDTO cluePutDTO = new CluePutDTO();
+        cluePutDTO.setPlayerId(player2.getId());
+        cluePutDTO.setPlayerToken(player2.getToken());
+        cluePutDTO.setMessage("star");
+
+        Clue clue = new Clue();
+        clue.setActualClue("star");
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.sendClue(testGame, player2, cluePutDTO);
+
+        assertTrue(testGame.getEnteredClues().contains(clue));
+        assertTrue(player2.isClueIsSent());
+        assertEquals(2, testGame.getEnteredClues().size());
     }
 
     @Test
@@ -726,8 +756,6 @@ public class GameServiceTest {
 
     @Test
     public void userPickedWord() throws InterruptedException {
-
-
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -769,7 +797,211 @@ public class GameServiceTest {
         assertEquals(GameState.ENTER_CLUES_STATE, testGame.getGameState());
     }
 
+    @Test
+    public void generateCluesForBots_firstClue() throws JsonProcessingException {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+        player1.setClueIsSent(true);
 
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("tesToken2");
+        player2.setClueIsSent(true);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(1);
+
+        Clue clue = new Clue();
+        clue.setActualClue("instrument");
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setCurrentWord("tool");
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(true);
+        testGame.setTime(3);
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.generateCluesForBots(testGame);
+
+        assertTrue(testGame.getEnteredClues().contains(clue));
+    }
+
+    @Test
+    public void generateCluesForBots_clueAlreadyEntered_getSecondResponse() throws JsonProcessingException {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+        player1.setClueIsSent(true);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("tesToken2");
+        player2.setClueIsSent(true);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(1);
+
+        Clue clue = new Clue();
+        clue.setActualClue("instrument");
+        Clue clue1 = new Clue();
+        clue1.setActualClue("prick");
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setCurrentWord("tool");
+        testGame.addClue(clue);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(true);
+        testGame.setTime(3);
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.generateCluesForBots(testGame);
+
+        assertTrue(testGame.getEnteredClues().contains(clue1));
+    }
+
+    @Test
+    public void generateCluesForBots_twoBotsInGame_firstClues() throws JsonProcessingException {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+        player1.setClueIsSent(true);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("tesToken2");
+        player2.setClueIsSent(true);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(2);
+
+        Clue clue = new Clue();
+        clue.setActualClue("instrument");
+        Clue clue1 = new Clue();
+        clue1.setActualClue("prick");
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setCurrentWord("tool");
+        testGame.addClue(clue);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(true);
+        testGame.setTime(3);
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.generateCluesForBots(testGame);
+
+        assertTrue(testGame.getEnteredClues().contains(clue1));
+        assertTrue(testGame.getEnteredClues().contains(clue));
+    }
+
+    @Test
+    public void generateCluesForBots_firstWordInvalid() throws JsonProcessingException {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+        player1.setClueIsSent(true);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("tesToken2");
+        player2.setClueIsSent(true);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(1);
+
+        Clue clue = new Clue();
+        clue.setActualClue("canada");
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setCurrentWord("australia");
+        testGame.addClue(clue);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(true);
+        testGame.setTime(3);
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.generateCluesForBots(testGame);
+
+        assertTrue(testGame.getEnteredClues().contains(clue));
+    }
+
+    @Test
+    public void generateCluesForBots_currentWordIsTwoWords() throws JsonProcessingException {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+        player1.setClueIsSent(true);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setToken("tesToken2");
+        player2.setClueIsSent(true);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(1);
+
+        Clue clue = new Clue();
+        clue.setActualClue("plants");
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentGuesser(player1);
+        testGame.setCurrentWord("nuclear power");
+        testGame.addClue(clue);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(true);
+        testGame.setTime(3);
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.generateCluesForBots(testGame);
+
+        assertTrue(testGame.getEnteredClues().contains(clue));
+    }
 
 
 }
