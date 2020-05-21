@@ -25,7 +25,7 @@ public class LobbyScoreService {
     }
 
     public List<LobbyScore> getLobbyScoresByScore() {
-        return this.lobbyScoreRepository.findAllByOrderByScore();
+        return this.lobbyScoreRepository.findAllByOrderByScoreDesc();
     }
 
     public List<LobbyScore> getLobbyScoresByDate() {

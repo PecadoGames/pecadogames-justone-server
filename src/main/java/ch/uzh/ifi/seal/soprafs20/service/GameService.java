@@ -272,7 +272,7 @@ public class GameService{
         gameRepository.saveAndFlush(game);
     }
 
-    private Game guesserScore(Game game, long time){
+    private void guesserScore(Game game, long time){
         int pastScore = game.getCurrentGuesser().getScore();
         int score = 0;
         if(game.isGuessCorrect()){
@@ -287,35 +287,25 @@ public class GameService{
             System.out.println("Guess was correct");
         }
         else {
-            if(game.isSpecialGame() && pastScore > 60){
+            if(game.isSpecialGame()){
                 score = -60;
-                game.getCurrentGuesser().setScore(pastScore + score);
             }
-            else if(!game.isSpecialGame() && pastScore > 30){
+            if(!game.isSpecialGame()){
                 score = -30;
-                game.getCurrentGuesser().setScore(pastScore + score);
             }
-            else {
-                game.getCurrentGuesser().setScore(0);
-            }
-
-            if(game.getOverallScore() > 60 && game.isSpecialGame()){
-                game.setOverallScore(game.getOverallScore() - 60);
-            }
-            else if(game.getOverallScore() > 30 && !game.isSpecialGame()){
-                game.setOverallScore(game.getOverallScore() - 30);
-            }
-            else {
-                game.setOverallScore(0);
+            game.getCurrentGuesser().setScore(Math.max(pastScore+score,0));
+            if(game.getCurrentGuesser().getScore() <= 0){
+                game.setOverallScore(Math.max(game.getOverallScore() - pastScore,0));
+            } else {
+                game.setOverallScore(Math.max(game.getOverallScore() + score, 0));
             }
             System.out.println("Guess was not correct");
         }
         Optional<User> optionalUser = userRepository.findById(game.getCurrentGuesser().getId());
         if(optionalUser.isPresent()){
             User user = optionalUser.get();
-            user.setScore(user.getScore() + score);
+            user.setScore(Math.max(user.getScore() + score,0));
         }
-        return game;
     }
 
 
@@ -409,31 +399,38 @@ public class GameService{
         game = getUpdatedGame(game);
         for (Player player : game.getPlayers()) {
             // in case of 3-player-logic, the size of clues is 2, otherwise 1 (or 0, if player did not send any clues)
-            int newScore = 0;
             for(int i = 0; i < player.getClues().size(); i++) {
-                if(!game.isSpecialGame()) {
-                    if (game.getEnteredClues().contains(player.getClue(i)) && game.isGuessCorrect()) {
+                if(game.getEnteredClues().contains(player.getClue(i))) {
+                    int newScore = 0;
+                    if (!game.isSpecialGame() && game.isGuessCorrect()){
                         newScore = (int) ((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size())));
                     }
-                    else if (game.getEnteredClues().contains(player.getClue(i)) && !game.isGuessCorrect()) {
-                        newScore = (int) ((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size())) - 30);
+                    if (!game.isSpecialGame() && !game.isGuessCorrect()) {
+                        newScore = - 15;
                     }
-                } else {
-                    if(game.getEnteredClues().contains(player.getClue(i)) && game.isGuessCorrect()){
+
+                    if (game.isSpecialGame() && game.isGuessCorrect()) {
                         newScore = (int) ((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size() * 2) - game.getEnteredClues().size())));
                     }
-                    else if (game.getEnteredClues().contains(player.getClue(i)) && !game.isGuessCorrect()) {
-                        newScore = (int) ((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size() * 2) - game.getEnteredClues().size())) - 15);
+
+                    if (game.isSpecialGame() && !game.isGuessCorrect()) {
+                        newScore = - 30;
+                    }
+                    player.setScore(Math.max(player.getScore() + newScore, 0));
+                    if (player.getScore() <= 0) {
+                        game.setOverallScore(Math.max(game.getOverallScore() - player.getScore(), 0));
+                    }
+                    else {
+                        game.setOverallScore(Math.max(game.getOverallScore() + newScore, 0));
+                    }
+                    Optional<User> optionalUser = userRepository.findById(player.getId());
+                    if (optionalUser.isPresent()) {
+                        User user = optionalUser.get();
+                        user.setScore(Math.max(user.getScore() + newScore, 0));
+                        userRepository.saveAndFlush(user);
                     }
                 }
-                player.setScore(player.getScore() + newScore);
-                Optional<User> optionalUser = userRepository.findById(player.getId());
-                if(optionalUser.isPresent()) {
-                    User user = optionalUser.get();
-                    user.setScore(user.getScore() + newScore);
-                    userRepository.saveAndFlush(user);
-                }
-                game.setOverallScore(game.getOverallScore() + newScore);
+
             }
         }
 
@@ -490,6 +487,7 @@ public class GameService{
                     game[0].setGuessCorrect(false);
                     game[0].setGameState(getNextState(game[0]));
                     updateScores(game[0]);
+                    guesserScore(game[0],guessTime);
 
                     System.out.println("Timer ran out, next state: " + game[0].getGameState());
                     game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
@@ -527,6 +525,11 @@ public class GameService{
                     lobbyScore.setPlayersIdInLobby(game[0].getPlayers());
                     lobbyScore.setDate(new Date());
                     lobbyScoreRepository.saveAndFlush(lobbyScore);
+
+                    for(Player p: game[0].getPlayers()){
+                        p.setScore(0);
+                    }
+                    playerRepository.saveAll(game[0].getPlayers());
 
                     game[0].setPlayers(null);
                     game[0].setCurrentGuesser(null);

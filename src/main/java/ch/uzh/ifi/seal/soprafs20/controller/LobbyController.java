@@ -234,7 +234,7 @@ public class LobbyController {
         }
         List<LobbyScore> lobbyScores;
 
-        lobbyScores = lobbyScoreService.getLobbyScoresByDate();
+        lobbyScores = lobbyScoreService.getLobbyScoresByScore();
         List<LobbyScoreGetDTO> lobbyScoreGetDTOs = new ArrayList<>();
         for(LobbyScore lb: lobbyScores){
             lobbyScoreGetDTOs.add(DTOMapper.INSTANCE.convertEntityToLobbyScoreGetDTO(lb));

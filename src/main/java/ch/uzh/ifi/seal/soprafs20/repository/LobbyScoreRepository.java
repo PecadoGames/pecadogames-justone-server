@@ -11,7 +11,7 @@ import java.util.List;
 @Repository("lobbyScoreRepository")
 
 public interface LobbyScoreRepository extends JpaRepository<LobbyScore, Long> {
-    public List<LobbyScore> findAllByOrderByScore();
+    public List<LobbyScore> findAllByOrderByScoreDesc();
     public List<LobbyScore> findAllByOrderByDate();
 
 }
