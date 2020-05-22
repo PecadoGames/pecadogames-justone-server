@@ -263,9 +263,14 @@ public class GameService{
         if (!game.getCurrentGuesser().getToken().equals(messagePutDTO.getPlayerToken())) {
             throw new UnauthorizedException("User is not allowed to submit a guess!");
         }
+        if(game.getCurrentGuesser().isGuessIsSent()) {
+            throw new UnauthorizedException("This player already submitted his guess!");
+        }
         if(!game.getGameState().equals(GameState.ENTER_GUESS_STATE)) {
             throw new UnauthorizedException("Can't submit guess in current state!");
         }
+
+        game.getCurrentGuesser().setGuessIsSent(true);
         game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
         game.setCurrentGuess(messagePutDTO.getMessage());
         guesserScore(game, time);
@@ -324,6 +329,7 @@ public class GameService{
             p.setVoted(false);
             p.getClues().clear();
         }
+        game.getCurrentGuesser().setGuessIsSent(false);
         game.getEnteredClues().clear();
         game.getInvalidClues().clear();
         game.setGameState(GameState.PICK_WORD_STATE);
@@ -333,7 +339,6 @@ public class GameService{
 
     public void startNewRound(Game game) {
         game.setRoundsPlayed(game.getRoundsPlayed() + 1);
-
 
         int index = game.getPlayers().indexOf(game.getCurrentGuesser());
         Player currentGuesser = game.getPlayers().get((index + 1) % game.getPlayers().size());
@@ -345,6 +350,7 @@ public class GameService{
             p.getClues().clear();
         }
 
+        game.getCurrentGuesser().setGuessIsSent(false);
         game.getEnteredClues().clear();
         game.getInvalidClues().clear();
         game.setGuessCorrect(false);

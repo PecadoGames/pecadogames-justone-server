@@ -34,6 +34,9 @@ public class Player {
     private boolean clueIsSent;
 
     @Column
+    private boolean guessIsSent;
+
+    @Column
     private int score;
 
     @Column
@@ -84,6 +87,10 @@ public class Player {
     public void setClueIsSent(boolean clueIsSent) {
         this.clueIsSent = clueIsSent;
     }
+
+    public boolean isGuessIsSent() { return guessIsSent; }
+
+    public void setGuessIsSent(boolean guessIsSent) { this.guessIsSent = guessIsSent; }
 
     public int getScore() {
         return score;
