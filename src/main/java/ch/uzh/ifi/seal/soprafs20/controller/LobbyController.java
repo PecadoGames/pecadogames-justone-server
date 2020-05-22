@@ -137,7 +137,7 @@ public class LobbyController {
         for(int i = 0; i<2; i++) {
             Player botAsPlayer = new Player();
             botAsPlayer.setId(0L);
-            botAsPlayer.setUsername("bot");
+            botAsPlayer.setUsername("bot!");
             botAsPlayer.setAvatarColor(AvatarColor.BOT);
             botAsPlayer.setScore(-1);
             lobbyGetDTO.addPlayersInLobby(botAsPlayer);
