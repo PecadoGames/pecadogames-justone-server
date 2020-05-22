@@ -191,11 +191,13 @@ public class GameService{
      */
     public boolean sendClue(Game game){
         //if a user did not send a clue, fill his clue with empty string
-        if (!game.isSpecialGame()) {
-            for(Player p : game.getPlayers()){
+
+        for(Player p : game.getPlayers()){
+            if(!game.getCurrentGuesser().equals(p)) {
                 p.setClueIsSent(true);
             }
         }
+
         if(game.getEnteredClues().size() > 0) {
             checkClues(game);
         }

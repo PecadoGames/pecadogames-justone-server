@@ -4,10 +4,7 @@ import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
-import ch.uzh.ifi.seal.soprafs20.repository.ClueRepository;
-import ch.uzh.ifi.seal.soprafs20.repository.GameRepository;
-import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
-import ch.uzh.ifi.seal.soprafs20.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs20.repository.*;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.CluePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.GamePostDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.MessagePutDTO;
@@ -39,6 +36,9 @@ public class GameServiceTest {
 
     @Mock
     private ClueRepository clueRepository;
+
+    @Mock
+    private LobbyScoreRepository lobbyScoreRepository;
 
     @InjectMocks
     private GameService gameService;
@@ -589,10 +589,169 @@ public class GameServiceTest {
         testGame.getTimer().setCancel(false);
         testGame.setTime(10);
         gameService.timer(testGame);
-        Thread.sleep(10*1000);
+        Thread.sleep(1000);
 
         assertEquals(GameState.ENTER_CLUES_STATE, testGame.getGameState());
     }
+
+    @Test
+    public void requestLessTransitionEnterClue_Vote() throws InterruptedException {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player1.setToken("tesToken2");
+
+        Clue clue = new Clue();
+        clue.setPlayerId(player1.getId());
+        clue.setClueId(1L);
+        clue.setActualClue("Letal");
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentWord("Banana");
+        testGame.setCurrentGuesser(player2);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(0);
+        testGame.addClue(clue);
+        WordReader reader = new WordReader();
+        testGame.setWords(reader.getRandomWords(13));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(false);
+        testGame.setTime(10);
+        gameService.timer(testGame);
+        Thread.sleep(1000);
+
+        assertEquals(GameState.VOTE_ON_CLUES_STATE, testGame.getGameState());
+        assertTrue(player1.isClueIsSent());
+    }
+
+    @Test
+    public void requestLessTransitionVote_EnterGuess() throws InterruptedException {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player1.setToken("tesToken2");
+
+        Clue clue = new Clue();
+        clue.setPlayerId(player1.getId());
+        clue.setClueId(1L);
+        clue.setActualClue("Letal");
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.VOTE_ON_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentWord("Banana");
+        testGame.setCurrentGuesser(player2);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(0);
+        testGame.addClue(clue);
+        WordReader reader = new WordReader();
+        testGame.setWords(reader.getRandomWords(13));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(false);
+        testGame.setTime(15);
+        gameService.timer(testGame);
+        Thread.sleep(1000);
+
+        assertEquals(GameState.ENTER_GUESS_STATE, testGame.getGameState());
+    }
+
+    @Test
+    public void requestLessTransitionEnterGuess_Transition() throws InterruptedException {
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player1.setToken("tesToken2");
+
+        Clue clue = new Clue();
+        clue.setPlayerId(player1.getId());
+        clue.setClueId(1L);
+        clue.setActualClue("Letal");
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_GUESS_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentWord("Banana");
+        testGame.setCurrentGuesser(player2);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(0);
+        testGame.addClue(clue);
+        WordReader reader = new WordReader();
+        testGame.setWords(reader.getRandomWords(13));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(false);
+        testGame.setTime(15);
+        gameService.timer(testGame);
+        Thread.sleep(1000);
+
+        assertEquals(GameState.TRANSITION_STATE, testGame.getGameState());
+    }
+
+    @Test
+    public void requestLessTransitionTransition_EndGame() throws InterruptedException {
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(1L);
+        lobby.setLobbyName("Badbunny");
+        lobby.setHostId(1L);
+        lobby.setHostToken("testToken");
+
+
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setToken("testToken");
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player1.setToken("tesToken2");
+
+        Clue clue = new Clue();
+        clue.setPlayerId(player1.getId());
+        clue.setClueId(1L);
+        clue.setActualClue("Letal");
+
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.END_GAME_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player1);
+        testGame.addPlayer(player2);
+        testGame.setCurrentWord("Banana");
+        testGame.setCurrentGuesser(player2);
+        testGame.setRoundsPlayed(1);
+        testGame.setStartTimeSeconds(0);
+        testGame.addClue(clue);
+        WordReader reader = new WordReader();
+        testGame.setWords(reader.getRandomWords(13));
+        testGame.setTimer(new InternalTimer());
+        testGame.getTimer().setCancel(false);
+
+        Mockito.when(lobbyRepository.findByLobbyId(1L)).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.timer(testGame);
+        Thread.sleep(1000);
+
+        assertEquals(GameState.END_GAME_STATE, testGame.getGameState());
+    }
+
 
     @Test
     public void requestLessStartNewRound() throws InterruptedException {
@@ -638,8 +797,7 @@ public class GameServiceTest {
         testGame.setTime(5);
 
         Mockito.when(userRepository.findById(player1.getId())).thenReturn(java.util.Optional.of(user1));
-        Mockito.when(userRepository.findById(player2.getId())).thenReturn(java.util.Optional.of(user2
-        ));
+        Mockito.when(userRepository.findById(player2.getId())).thenReturn(java.util.Optional.of(user2));
 
 
         gameService.timer(testGame);
@@ -1005,5 +1163,284 @@ public class GameServiceTest {
         assertTrue(testGame.getEnteredClues().contains(clue));
     }
 
+    @Test
+    public void updateClueScores_NormalGame_GuessCorrect() {
+
+
+        Player player3 = new Player();
+        player3.setId(3L);
+        player3.setToken("tesToken3");
+        player3.setClueIsSent(true);
+
+        Player player4 = new Player();
+        player4.setId(4L);
+        player4.setToken("tesToken4");
+        player4.setClueIsSent(true);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(1);
+
+        Clue clue3 = new Clue();
+        clue3.setActualClue("plants");
+        clue3.setClueId(1L);
+        clue3.setPlayerId(player3.getId());
+        clue3.setTimeNeeded(10L);
+
+
+        Clue clue4 = new Clue();
+        clue4.setActualClue("zombies");
+        clue4.setClueId(1L);
+        clue4.setPlayerId(player4.getId());
+        clue4.setTimeNeeded(20L);
+
+
+        player3.getClues().add(clue3);
+        player4.getClues().add(clue4);
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player3);
+        testGame.addPlayer(player4);
+        testGame.setCurrentGuesser(testHost);
+        testGame.setCurrentWord("nuclear power");
+        testGame.addClue(clue3);
+        testGame.addClue(clue4);
+        testGame.setRoundsPlayed(1);
+        testGame.setTimer(new InternalTimer());
+        testGame.setGuessCorrect(true);
+
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.updateScores(testGame);
+
+        assertEquals(20,player3.getScore());
+        assertEquals(40,player4.getScore());
+        assertEquals(60, testGame.getOverallScore());
+    }
+
+    @Test
+    public void updateClueScores_NormalGame_GuessWrong() {
+
+        Player player3 = new Player();
+        player3.setId(3L);
+        player3.setToken("tesToken3");
+        player3.setClueIsSent(true);
+        player3.setScore(60);
+
+        Player player4 = new Player();
+        player4.setId(4L);
+        player4.setToken("tesToken4");
+        player4.setClueIsSent(true);
+        player4.setScore(50);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(1);
+
+        Clue clue3 = new Clue();
+        clue3.setActualClue("plants");
+        clue3.setClueId(1L);
+        clue3.setPlayerId(player3.getId());
+        clue3.setTimeNeeded(10L);
+
+
+        Clue clue4 = new Clue();
+        clue4.setActualClue("zombies");
+        clue4.setClueId(1L);
+        clue4.setPlayerId(player4.getId());
+        clue4.setTimeNeeded(20L);
+
+
+        player3.getClues().add(clue3);
+        player4.getClues().add(clue4);
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player3);
+        testGame.addPlayer(player4);
+        testGame.setCurrentGuesser(testHost);
+        testGame.setCurrentWord("nuclear power");
+        testGame.addClue(clue3);
+        testGame.addClue(clue4);
+        testGame.setRoundsPlayed(1);
+        testGame.setTimer(new InternalTimer());
+        testGame.setOverallScore(110);
+        testGame.setGuessCorrect(false);
+
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.updateScores(testGame);
+
+        assertEquals(45,player3.getScore());
+        assertEquals(35,player4.getScore());
+        assertEquals(player3.getScore() + player4.getScore(), testGame.getOverallScore());
+    }
+
+    @Test
+    public void updateClueScores_SpecialGame_GuessWrong() {
+
+        Player player3 = new Player();
+        player3.setId(3L);
+        player3.setToken("tesToken3");
+        player3.setClueIsSent(true);
+        player3.setScore(60);
+
+        Player player4 = new Player();
+        player4.setId(4L);
+        player4.setToken("tesToken4");
+        player4.setClueIsSent(true);
+        player4.setScore(50);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(1);
+
+        Clue clue3 = new Clue();
+        clue3.setActualClue("plants");
+        clue3.setClueId(1L);
+        clue3.setPlayerId(player3.getId());
+        clue3.setTimeNeeded(10L);
+
+
+        Clue clue4 = new Clue();
+        clue4.setActualClue("zombies");
+        clue4.setClueId(1L);
+        clue4.setPlayerId(player4.getId());
+        clue4.setTimeNeeded(20L);
+
+
+        player3.getClues().add(clue3);
+        player4.getClues().add(clue4);
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player3);
+        testGame.addPlayer(player4);
+        testGame.setCurrentGuesser(testHost);
+        testGame.setCurrentWord("nuclear power");
+        testGame.addClue(clue3);
+        testGame.addClue(clue4);
+        testGame.setRoundsPlayed(1);
+        testGame.setTimer(new InternalTimer());
+        testGame.setOverallScore(110);
+        testGame.setSpecialGame(true);
+        testGame.setGuessCorrect(false);
+
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.updateScores(testGame);
+
+        assertEquals(30,player3.getScore());
+        assertEquals(20,player4.getScore());
+        assertEquals(player3.getScore() + player4.getScore(), testGame.getOverallScore());
+    }
+
+    @Test
+    public void updateClueScores_SpecialGame_GuessCorrect() {
+
+
+        Player player3 = new Player();
+        player3.setId(3L);
+        player3.setToken("tesToken3");
+        player3.setClueIsSent(true);
+
+        Player player4 = new Player();
+        player4.setId(4L);
+        player4.setToken("tesToken4");
+        player4.setClueIsSent(true);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(1);
+
+        Clue clue3 = new Clue();
+        clue3.setActualClue("plants");
+        clue3.setClueId(1L);
+        clue3.setPlayerId(player3.getId());
+        clue3.setTimeNeeded(10L);
+
+
+        Clue clue4 = new Clue();
+        clue4.setActualClue("zombies");
+        clue4.setClueId(1L);
+        clue4.setPlayerId(player4.getId());
+        clue4.setTimeNeeded(20L);
+
+
+        player3.getClues().add(clue3);
+        player4.getClues().add(clue4);
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player3);
+        testGame.addPlayer(player4);
+        testGame.setCurrentGuesser(testHost);
+        testGame.setCurrentWord("nuclear power");
+        testGame.addClue(clue3);
+        testGame.addClue(clue4);
+        testGame.setRoundsPlayed(1);
+        testGame.setTimer(new InternalTimer());
+        testGame.setSpecialGame(true);
+        testGame.setGuessCorrect(true);
+
+        User user4 = new User();
+        user4.setId(player4.getId());
+        user4.setScore(player4.getScore());
+
+        Mockito.when(userRepository.findById(player3.getId())).thenReturn(java.util.Optional.of(user4));
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.anyLong())).thenReturn(java.util.Optional.of(lobby));
+
+        gameService.updateScores(testGame);
+
+        assertEquals(60,player3.getScore());
+        assertEquals(120,player4.getScore());
+        assertEquals(player3.getScore() + player4.getScore(), testGame.getOverallScore());
+    }
+
+    @Test
+    public void getTime_PickWord(){
+        testGame.setGameState(GameState.PICK_WORD_STATE);
+        int time = gameService.getMaxTime(testGame);
+        assertEquals(10,time);
+    }
+    @Test
+    public void getTime_EnterClue(){
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        int time = gameService.getMaxTime(testGame);
+        assertEquals(30,time);
+    }
+    @Test
+    public void getTime_Vote(){
+        testGame.setGameState(GameState.VOTE_ON_CLUES_STATE);
+        int time = gameService.getMaxTime(testGame);
+        assertEquals(15,time);
+    }
+    @Test
+    public void getTime_Guess(){
+        testGame.setGameState(GameState.ENTER_GUESS_STATE);
+        int time = gameService.getMaxTime(testGame);
+        assertEquals(30,time);
+    }
+
+    @Test
+    public void getTime_Transition(){
+        testGame.setGameState(GameState.TRANSITION_STATE);
+        int time = gameService.getMaxTime(testGame);
+        assertEquals(5,time);
+    }
+    @Test
+    public void getTime_End(){
+        testGame.setGameState(GameState.END_GAME_STATE);
+        int time = gameService.getMaxTime(testGame);
+        assertEquals(10,time);
+    }
 
 }
