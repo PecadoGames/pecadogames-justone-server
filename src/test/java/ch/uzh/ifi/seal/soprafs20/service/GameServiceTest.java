@@ -64,6 +64,8 @@ public class GameServiceTest {
         testLobby.setLobbyId(1L);
         testLobby.setHostToken("hostToken");
         testLobby.addPlayerToLobby(testHost);
+        testLobby.setPrivate(false);
+        testLobby.setCurrentNumPlayers(1);
 
         testGame = new Game();
         testGame.setLobbyId(1L);
@@ -71,7 +73,6 @@ public class GameServiceTest {
         testGame.addPlayer(player2);
         testGame.addPlayer(testHost);
         testGame.setCurrentGuesser(testHost);
-        testLobby.setPrivate(false);
 
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testGame));
         Mockito.when(gameRepository.save(Mockito.any())).thenReturn(testGame);
@@ -90,6 +91,7 @@ public class GameServiceTest {
 
     @Test
     public void create_Game_validInput_success() {
+        testLobby.setCurrentNumBots(0);
         GamePostDTO gamePostDTO = new GamePostDTO();
         gamePostDTO.setHostId(testHost.getId());
         gamePostDTO.setHostToken(testHost.getToken());
