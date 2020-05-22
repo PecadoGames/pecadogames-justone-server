@@ -403,20 +403,26 @@ public class GameService{
 
     public void updateScores(Game game){
         game = getUpdatedGame(game);
+        int counter = 0;
+        for(Clue clue: game.getEnteredClues()){
+            if(!(clue.getPlayerId()==0L)){
+                counter++;
+            }
+        }
         for (Player player : game.getPlayers()) {
             // in case of 3-player-logic, the size of clues is 2, otherwise 1 (or 0, if player did not send any clues)
             for(int i = 0; i < player.getClues().size(); i++) {
                 if(game.getEnteredClues().contains(player.getClue(i))) {
                     int newScore = 0;
                     if (!game.isSpecialGame() && game.isGuessCorrect()){
-                        newScore = (int) ((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - game.getEnteredClues().size())));
+                        newScore = (int) ((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size()) - counter)));
                     }
                     if (!game.isSpecialGame() && !game.isGuessCorrect()) {
                         newScore = - 15;
                     }
 
                     if (game.isSpecialGame() && game.isGuessCorrect()) {
-                        newScore = (int) ((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size() * 2) - game.getEnteredClues().size())));
+                        newScore = (int) ((player.getClue(i).getTimeNeeded()) * (((game.getPlayers().size() * 2) - counter)));
                     }
 
                     if (game.isSpecialGame() && !game.isGuessCorrect()) {
