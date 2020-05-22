@@ -166,6 +166,9 @@ public class LobbyService {
     }
 
     public Set<Player> kickPlayers(Lobby lobby,Player playerToKick){
+        if(playerToKick.getId() == 0L) {
+            lobby.setCurrentNumBots(lobby.getCurrentNumBots() - 1);
+        }
         //remove user from lobby but dont remove lobby leader
         if(!playerToKick.getId().equals(lobby.getHostId())){
             lobby.getPlayersInLobby().remove(playerToKick);

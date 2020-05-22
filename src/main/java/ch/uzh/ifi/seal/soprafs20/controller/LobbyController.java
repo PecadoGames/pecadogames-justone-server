@@ -123,7 +123,13 @@ public class LobbyController {
     @ResponseBody
     public void kickPlayer(@PathVariable long lobbyId, @RequestBody LobbyPutDTO lobbyPutDTO){
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        Player playerToKick = playerService.getPlayer(lobbyPutDTO.getPlayerToKickId());
+        Player playerToKick = new Player();
+        if(lobbyPutDTO.getPlayerToKickId() == 0L) {
+            playerToKick.setId(0L);
+        }
+        else {
+            playerToKick = playerService.getPlayer(lobbyPutDTO.getPlayerToKickId());
+        }
         lobbyService.kickPlayers(lobby,playerToKick);
     }
 
@@ -134,7 +140,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
 
         LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
-        for(int i = 0; i<2; i++) {
+        for(int i = 0; i<lobby.getCurrentNumBots(); i++) {
             Player botAsPlayer = new Player();
             botAsPlayer.setId(0L);
             botAsPlayer.setUsername("bot!");
