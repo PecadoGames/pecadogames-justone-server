@@ -133,7 +133,7 @@ public class GameControllerTest {
                 .andExpect(jsonPath("$.lobbyId", is(game.getLobbyId().intValue())))
                 .andExpect(jsonPath("$.roundsPlayed", is(game.getRoundsPlayed())))
                 .andExpect(jsonPath("$.players", hasSize(4)))
-                .andExpect(jsonPath("$.players[3].username", is("bot")))
+                .andExpect(jsonPath("$.players[3].username", is("bot!")))
                 .andExpect(jsonPath("$.currentWord", is(game.getCurrentWord())))
                 .andExpect(jsonPath("$.currentGuess", is(game.getCurrentGuess())))
                 .andExpect(jsonPath("$.enteredClues", hasSize(1)))
