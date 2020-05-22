@@ -119,7 +119,7 @@ public class GameService{
         }
 
         //if there are only 3 players, the special rule set has to be applied
-        newGame.setSpecialGame(newGame.getPlayers().size() == 3);
+        newGame.setSpecialGame((lobby.getCurrentNumBots() + lobby.getCurrentNumPlayers()) == 3);
 
         //assign first guesser
         Player currentGuesser = newGame.getPlayers().get(rand.nextInt(newGame.getPlayers().size()));
@@ -640,12 +640,12 @@ public class GameService{
         else { return; }
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject(uri, String.class);
-
+        int amountOfClues = (game.isSpecialGame() ? lobby.getCurrentNumBots()*2 : lobby.getCurrentNumBots());
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             List<APIResponse> response = objectMapper.readValue(result, new TypeReference<List<APIResponse>>(){});
             Iterator<APIResponse> iterator = response.iterator();
-            for(int i = 0; i < lobby.getCurrentNumBots(); i++) {
+            for(int i = 0; i < amountOfClues; i++) {
                 while(iterator.hasNext()) {
                     APIResponse apiResponse = iterator.next();
                     String potentialClue = apiResponse.getWord();
