@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.controller;
 
+import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.*;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
@@ -122,17 +123,27 @@ public class LobbyController {
     @ResponseBody
     public void kickPlayer(@PathVariable long lobbyId, @RequestBody LobbyPutDTO lobbyPutDTO){
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        Player playerTokick = playerService.getPlayer(lobbyPutDTO.getPlayerToKickId());
-        lobbyService.kickPlayers(lobby,playerTokick);
+        Player playerToKick = playerService.getPlayer(lobbyPutDTO.getPlayerToKickId());
+        lobbyService.kickPlayers(lobby,playerToKick);
     }
 
     @GetMapping(path = "/lobbies/{lobbyId}", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public String getLobby(@PathVariable long lobbyId) {
+    public LobbyGetDTO getLobby(@PathVariable long lobbyId) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
-        String json = asJsonString(lobby);
-        return asJsonString(lobby);
+
+        LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
+        for(int i = 0; i<2; i++) {
+            Player botAsPlayer = new Player();
+            botAsPlayer.setId(0L);
+            botAsPlayer.setUsername("bot");
+            botAsPlayer.setAvatarColor(AvatarColor.PURPLE);
+            botAsPlayer.setScore(-1);
+            lobbyGetDTO.addPlayersInLobby(botAsPlayer);
+        }
+
+        return lobbyGetDTO;
     }
 
     @PutMapping(path = "/lobbies/{lobbyId}/invitations", consumes = "application/json")

@@ -1,5 +1,11 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
+import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class LobbyGetDTO {
     private String lobbyName;
 
@@ -13,6 +19,8 @@ public class LobbyGetDTO {
 
     private boolean isPrivate;
 
+    private String privateKey;
+
     private Integer currentNumPlayers;
 
     private Integer currentNumBots;
@@ -22,6 +30,8 @@ public class LobbyGetDTO {
     private boolean gameIsStarted;
 
     private Integer currentNumPlayersAndBots;
+
+    List<PlayerGetDTO> playersInLobby = new ArrayList<>();
 
 
     public String getLobbyName() {
@@ -54,6 +64,26 @@ public class LobbyGetDTO {
 
     public void setPrivate(boolean aPrivate) {
         isPrivate = aPrivate;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    public void setHostId(Long hostId) {
+        this.hostId = hostId;
+    }
+
+    public long getLobbyScore() {
+        return lobbyScore;
+    }
+
+    public void setLobbyScore(long lobbyScore) {
+        this.lobbyScore = lobbyScore;
     }
 
     public Long getLobbyId() {
@@ -94,4 +124,20 @@ public class LobbyGetDTO {
         this.currentNumPlayersAndBots = this.currentNumPlayers + this.currentNumBots;
     }
 
+    public List<PlayerGetDTO> getPlayersInLobby() {
+        return playersInLobby;
+    }
+
+    public void setPlayersInLobby(List<Player> players) {
+        this.playersInLobby.clear();
+        for(Player player : players) {
+            PlayerGetDTO playerGetDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(player);
+            this.playersInLobby.add(playerGetDTO);
+        }
+    }
+
+    public void addPlayersInLobby(Player player) {
+        PlayerGetDTO playerGetDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(player);
+        this.playersInLobby.add(playerGetDTO);
+    }
 }
