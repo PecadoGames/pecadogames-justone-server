@@ -43,7 +43,7 @@ public class GameController {
 
         GameGetDTO gameGetDTO = DTOMapper.INSTANCE.convertEntityToGameGetDTO(game);
 
-        for(int i = 0; i<lobby.getCurrentNumBots(); i++) {
+        for(int i = 0; i<2; i++) {
             Player botAsPlayer = new Player();
             botAsPlayer.setId(0L);
             botAsPlayer.setUsername("bot");
