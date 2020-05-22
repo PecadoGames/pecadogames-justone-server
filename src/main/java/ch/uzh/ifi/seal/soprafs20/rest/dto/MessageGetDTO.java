@@ -17,9 +17,7 @@ public class MessageGetDTO {
     @JsonFormat(pattern="hh:mm:ss")
     private LocalTime creationDate;
 
-    public Long getMessageId() {
-        return messageId;
-    }
+    public Long getMessageId() { return messageId; }
 
     public void setMessageId(Long messageId) {
         this.messageId = messageId;

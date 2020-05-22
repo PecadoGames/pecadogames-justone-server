@@ -85,6 +85,14 @@ public class LobbyService {
                 lobby.setMaxPlayersAndBots(newLobbySize);
             }
         }
+        if(receivedValues.getNumberOfBots() != null) {
+            if((lobby.getCurrentNumPlayers() + lobby.getCurrentNumBots()) < lobby.getMaxPlayersAndBots()) {
+                lobby.setCurrentNumBots(receivedValues.getNumberOfBots());
+            }
+            else {
+                throw new ConflictException("There are no more players or bots allowed in this lobby!");
+            }
+        }
         return lobby;
     }
 

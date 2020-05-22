@@ -1,10 +1,9 @@
 package ch.uzh.ifi.seal.soprafs20.rest.dto;
 
-import java.util.ArrayList;
-
 public class LobbyPutDTO {
 
     private Integer maxNumberOfPlayersAndBots;
+    private Integer numberOfBots;
     private Long playerToKickId;
     private String hostToken;
 
@@ -15,6 +14,10 @@ public class LobbyPutDTO {
     public void setMaxNumberOfPlayersAndBots(Integer maxNumberOfPlayersAndBots) {
         this.maxNumberOfPlayersAndBots = maxNumberOfPlayersAndBots;
     }
+
+    public Integer getNumberOfBots() { return numberOfBots; }
+
+    public void setNumberOfBots(Integer numberOfBots) { this.numberOfBots = numberOfBots; }
 
     public Long getPlayerToKickId() {
         return playerToKickId;
