@@ -99,6 +99,7 @@ public class LobbyControllerTest {
         lobby.setHostId(1L);
         lobby.addPlayerToLobby(player1);
         lobby.addPlayerToLobby(player2);
+        lobby.setGameIsStarted(true);
 
         given(lobbyService.getLobby(Mockito.anyLong())).willReturn(lobby);
 
@@ -110,7 +111,8 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$.lobbyId", is(lobby.getLobbyId().intValue())))
                 .andExpect(jsonPath("$.lobbyName", is(lobby.getLobbyName())))
                 .andExpect(jsonPath("$.hostId", is(player1.getId().intValue())))
-                .andExpect(jsonPath("$.playersInLobby", hasSize(2)))
+                .andExpect(jsonPath("$.playersInLobby", hasSize(4)))
+                .andExpect(jsonPath("$.gameStarted", is(true)))
                 .andExpect(jsonPath("$.playersInLobby[0].username", is(player1.getUsername())))
                 .andExpect(jsonPath("$.playersInLobby[1].username", is(player2.getUsername())));
     }

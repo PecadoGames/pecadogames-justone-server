@@ -27,7 +27,7 @@ public class LobbyGetDTO {
 
     private Integer maxPlayersAndBots;
 
-    private boolean gameIsStarted;
+    private boolean gameStarted;
 
     private Integer currentNumPlayersAndBots;
 
@@ -112,9 +112,9 @@ public class LobbyGetDTO {
         this.maxPlayersAndBots = maxPlayersAndBots;
     }
 
-    public boolean isGameIsStarted() { return gameIsStarted; }
+    public boolean isGameStarted() { return gameStarted; }
 
-    public void setGameIsStarted(boolean gameIsStarted) { this.gameIsStarted = gameIsStarted; }
+    public void setGameStarted(boolean gameStarted) { this.gameStarted = gameStarted; }
 
     public Integer getCurrentNumPlayersAndBots() {
         return currentNumPlayersAndBots;
