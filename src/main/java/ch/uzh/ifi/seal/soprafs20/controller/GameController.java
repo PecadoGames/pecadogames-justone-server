@@ -47,7 +47,7 @@ public class GameController {
             Player botAsPlayer = new Player();
             botAsPlayer.setId(0L);
             botAsPlayer.setUsername("bot");
-            botAsPlayer.setAvatarColor(AvatarColor.PURPLE);
+            botAsPlayer.setAvatarColor(AvatarColor.BOT);
             botAsPlayer.setScore(-1);
             gameGetDTO.addPlayer(botAsPlayer);
         }

@@ -215,7 +215,7 @@ public class UserService {
 
     private AvatarColor getRandomColor() {
         List<AvatarColor> values = List.of(AvatarColor.values());
-        int size = values.size();
+        int size = values.size() -1;
 
         return values.get(random.nextInt(size));
     }
