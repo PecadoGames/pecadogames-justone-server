@@ -1,21 +1,16 @@
 package ch.uzh.ifi.seal.soprafs20.GameLogic;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WordReader {
-    private String wordsAsString;
-    private List<String> words = new ArrayList<>();
-    private final Logger log = LoggerFactory.getLogger(WordReader.class);
+    private final List<String> words = new ArrayList<>();
 
     //ToDo: Catch exceptions
     public WordReader() {
-        TextFile words = new TextFile();
-        wordsAsString = words.getWords();
+        TextFile wordsFile = new TextFile();
+        String wordsAsString = wordsFile.getWords();
         String[] wordsInList = wordsAsString.split("\n");
         for(String string : wordsInList) {
             if(!string.isEmpty()) {

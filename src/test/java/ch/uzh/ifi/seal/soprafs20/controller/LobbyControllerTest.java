@@ -587,6 +587,8 @@ public class LobbyControllerTest {
     public void createGame_validInput_success() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
+        lobby.setCurrentNumPlayers(2);
+        lobby.setCurrentNumBots(2);
 
         GamePostDTO gamePostDTO = new GamePostDTO();
         Game game = new Game();

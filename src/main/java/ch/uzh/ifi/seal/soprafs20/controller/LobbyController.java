@@ -97,9 +97,10 @@ public class LobbyController {
     @ResponseBody
     public ResponseEntity<Object> createGame(@PathVariable long lobbyId, @RequestBody GamePostDTO gamePostDTO) {
         Lobby lobby = lobbyService.getLobby(lobbyId);
-//        if(lobby.getCurrentNumPlayersAndBots() < 3 || lobby.getCurrentNumPlayersAndBots() > 7){
-//            throw new ConflictException("Invalid amount of players to start the game");
-//        }
+        int numberOfPlayersAndBots = lobby.getCurrentNumBots() + lobby.getCurrentNumPlayers();
+        if(numberOfPlayersAndBots < 3 || numberOfPlayersAndBots > 7){
+            throw new ConflictException("Invalid amount of players to start the game");
+        }
         Game createdGame = gameService.createGame(lobby, gamePostDTO);
         gameService.setTimer(createdGame);
         System.out.println("Game is starting!");
@@ -107,7 +108,6 @@ public class LobbyController {
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
                 .build().toUri();
-        ResponseEntity<Object> responseEntity = ResponseEntity.created(location).build();
         return ResponseEntity.created(location).build();
     }
 

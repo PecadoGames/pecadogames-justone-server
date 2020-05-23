@@ -841,7 +841,7 @@ public class GameServiceTest {
         testGame.addPlayer(player1);
         testGame.addPlayer(player2);
         testGame.setCurrentGuesser(player1);
-        testGame.setRoundsPlayed(3);
+        testGame.setRoundsPlayed(13);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
 
 
