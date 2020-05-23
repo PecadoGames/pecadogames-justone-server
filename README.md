@@ -4,7 +4,7 @@
 This project is the server-side implementation of the *Pecado Games Just One* Web Application. See [Pecado Games](https://github.com/PecadoGames) for the whole project. The goal of this project is to provide an online version of [Just One](https://justone-the-game.com)(Game of the Year 2019) with its core functionality and of course some additional features.
 
 ### Technologies
-This application was built with:
+This application is built with:
   - [Spring Boot](https://spring.io/projects/spring-boot) - Backend application
   - [JPA](https://www.oracle.com/java/technologies/persistence-jsp.html) / [Hibernate](https://hibernate.org) - Database management
   
