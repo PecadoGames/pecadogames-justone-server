@@ -1,7 +1,7 @@
 # Pecado Games - SoPra 2020
 
 ## Introduction
-This project is the server-side implementation of the *Pecado Games Just One* Web Application. See [Pecado Games](https://github.com/PecadoGames) for the whole project.
+This project is the server-side implementation of the *Pecado Games Just One* Web Application. See [Pecado Games](https://github.com/PecadoGames) for the whole project. The goal of this project is to provide an online version of [Just One](https://justone-the-game.com)(Game of the Year 2019) with its core functionality and of course some additional features.
 
 ## Setup this Template with your IDE of choice
 
