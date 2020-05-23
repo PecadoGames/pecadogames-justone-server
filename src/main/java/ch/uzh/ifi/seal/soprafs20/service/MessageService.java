@@ -23,8 +23,7 @@ public class MessageService {
 
     public Message createMessage(Message newMessage) {
         newMessage.setCreationDate();
-        newMessage = messageRepository.save(newMessage);
-        messageRepository.flush();
+        newMessage = messageRepository.saveAndFlush(newMessage);
 
         return newMessage;
     }

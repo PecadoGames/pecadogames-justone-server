@@ -17,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-
 public class LobbyServiceTest {
 
     @Mock
@@ -34,7 +33,6 @@ public class LobbyServiceTest {
     @BeforeEach
     public void setup(){
         MockitoAnnotations.initMocks(this);
-
         //given
         testLobby = new Lobby();
         testLobby.setLobbyName("BadBunny");
@@ -180,7 +178,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void removePlayerFromLobby_success(){
+    public void kickPlayerFromLobby_success(){
         //second user
         Player player2 = new Player();
         player2.setToken("123");
@@ -198,6 +196,11 @@ public class LobbyServiceTest {
         assertEquals(1,testLobby.getPlayersInLobby().size());
         assertFalse(testLobby.getPlayersInLobby().contains(player2));
         assertEquals(1, testLobby.getCurrentNumPlayers());
+    }
+
+    @Test
+    public void removePlayerFromLobby_newHost_success() {
+
     }
 
     @Test
@@ -360,7 +363,6 @@ public class LobbyServiceTest {
 
     @Test
     public void leaveLobby_success_newHostIsChosen(){
-
         //second user
         Player player2 = new Player();
         player2.setToken("123");
@@ -376,8 +378,6 @@ public class LobbyServiceTest {
         testLobby.addPlayerToLobby(host);
         testLobby.addPlayerToLobby(player2);
         testLobby.addPlayerToLobby(player3);
-
-
         testLobby.setHostId(player2.getId());
         testLobby.setHostToken(player2.getToken());
         testLobby.setCurrentNumPlayers(2);
@@ -385,10 +385,9 @@ public class LobbyServiceTest {
         Mockito.doReturn(testLobby).when(lobbyRepository).save(testLobby);
         Mockito.doNothing().when(playerRepository).delete(Mockito.any());
 
-        lobbyService.removePlayerFromLobby(host,testLobby);
+        lobbyService.removePlayerFromLobby(player2, testLobby);
 
-        assertEquals(player2.getId(), testLobby.getHostId());
-        assertEquals(player2.getToken(), testLobby.getHostToken());
+        assertNotEquals(player2.getId(), testLobby.getHostId());
         assertEquals(2, testLobby.getCurrentNumPlayers());
     }
 
