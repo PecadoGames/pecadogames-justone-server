@@ -165,7 +165,7 @@ public class GameService{
             gameRepository.saveAndFlush(game);
         }
         else {
-            sendClueSpecial(game, player, cluePutDTO);//handle double clue input from player
+            sendClueSpecial(game, player, cluePutDTO);
         }
         int counter = 0;
         for (Player playerInGame : game.getPlayers()){
@@ -637,7 +637,7 @@ public class GameService{
         }
         else { return; }
         String uri = "";
-        //The api call is a bit different if the current word consists of two separate words
+        // The api call is a bit different if the current word consists of two separate words
         String[] split = game.getCurrentWord().split(" ");
         if(split.length == 1) {
             uri = String.format("https://api.datamuse.com/words?ml=%s", split[0]);
@@ -648,12 +648,13 @@ public class GameService{
         else { return; }
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject(uri, String.class);
-        int amountOfClues = (game.isSpecialGame() ? lobby.getCurrentNumBots()*2 : lobby.getCurrentNumBots());
+        // In the case of a game with 3 players, a bot submits two clues instead of one
+        //int amountOfClues = (game.isSpecialGame() ? lobby.getCurrentNumBots()*2 : lobby.getCurrentNumBots());
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             List<APIResponse> response = objectMapper.readValue(result, new TypeReference<List<APIResponse>>(){});
             Iterator<APIResponse> iterator = response.iterator();
-            for(int i = 0; i < amountOfClues; i++) {
+            for(int i = 0; i < lobby.getCurrentNumBots(); i++) {
                 while(iterator.hasNext()) {
                     APIResponse apiResponse = iterator.next();
                     String potentialClue = apiResponse.getWord();
