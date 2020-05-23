@@ -71,8 +71,7 @@ public class UserControllerTest {
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].username", is(user.getUsername())))
-                .andExpect(jsonPath("$[0].logged_in", is(user.getStatus() == UserStatus.ONLINE)))
-                .andExpect(jsonPath("$[0].token", is(user.getToken())));
+                .andExpect(jsonPath("$[0].logged_in", is(user.getStatus() == UserStatus.ONLINE)));
     }
 
     @Test
@@ -473,12 +472,6 @@ public class UserControllerTest {
         mockMvc.perform(getRequest).andExpect(status().isUnauthorized());
     }
 
-    /**
-     * Helper Method to convert userPostDTO into a JSON string such that the input can be processed
-     * Input will look like this: {"name": "Test User", username": "testUsername"}
-     * @param object
-     * @return string
-     */
     private String asJsonString(final Object object) {
         try {
             return new ObjectMapper().writeValueAsString(object);
