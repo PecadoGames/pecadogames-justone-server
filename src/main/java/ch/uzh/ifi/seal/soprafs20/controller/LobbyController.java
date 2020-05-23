@@ -205,6 +205,12 @@ public class LobbyController {
         message = messageService.createMessage(message);
         User author  = userService.getUser(messagePutDTO.getPlayerId());
         Lobby lobby = lobbyService.getLobby(lobbyId);
+        if(lobby.isGameStarted()) {
+            Game game = gameService.getGame(lobbyId);
+            if(game.getCurrentWord().toLowerCase().equals(message.getText().toLowerCase())) {
+                message.setText("I'm a cheetah!");
+            }
+        }
         if(messagePutDTO.getMessage().length() <= 51) {
             chatService.addChatMessage(lobby, author.getToken(), message);
         }
