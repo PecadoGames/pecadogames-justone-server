@@ -205,7 +205,7 @@ public class UserService {
     }
 
     public void checkUsername(String username) {
-        if (username.contains(" ") || username.isEmpty() || username.isBlank() || username.length() > 20 || username.trim().isEmpty() || !username.matches("[a-zA-Z_0-9]*")) {
+        if (username.contains(" ") || username.isEmpty() || username.isBlank() || username.length() > 10 || username.trim().isEmpty() || !username.matches("[a-zA-Z_0-9]*")) {
             throw new NotAcceptableException("This is an invalid username. Please choose a username with a maximum length of 20 characters consisting of letters, digits and underscores..");
         }
     }
