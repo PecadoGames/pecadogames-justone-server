@@ -83,7 +83,10 @@ The following are the top 3 features we would like to implement in the future:
   * For the chat functionality as well as for providing clues in the game, it would be nice to
     have a component to filter out bad/inappropriate words.
   * This could either be done with an internal dictionary or with an external API. Any other suggestions are welcome!
-* 
+* Non-real clues filter
+  * For the functionality of providing clues, we would like to filter out clues that aren't real words
+  (i.e. are not found in a dictionary or aren't named entities.)
+  * This could also be done via internal dictionary or external API.
 
 ### Authors & Acknowledgements
 #### Backend Developers
@@ -117,3 +120,6 @@ SOFTWARE.
 
 #### Apache OpenNLP
 - [Apache Licence](https://github.com/PecadoGames/pecadogames-justone-server/blob/master/LICENSE)
+
+#### DataMuse API
+- [Link](http://www.datamuse.com/api/) to DataMuse API
