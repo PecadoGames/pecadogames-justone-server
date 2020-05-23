@@ -217,17 +217,13 @@ public class UserService {
         return values.get(random.nextInt(size));
     }
 
-    private void checkAvatarColor(AvatarColor enteredColor) {
+    public void checkAvatarColor(AvatarColor enteredColor) {
         for (AvatarColor color : AvatarColor.values()) {
             if (color.equals(enteredColor)) {
                 return;
             }
         }
         throw new NotAcceptableException("This is an invalid color. Please choose from the following colors: " + Arrays.toString(AvatarColor.values()));
-    }
-
-    public void save(User user) {
-        userRepository.saveAndFlush(user);
     }
 
     public List<User> getUsersByScore() {

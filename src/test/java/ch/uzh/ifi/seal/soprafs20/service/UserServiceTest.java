@@ -1,5 +1,6 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
+import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
 import ch.uzh.ifi.seal.soprafs20.entity.Player;
@@ -537,6 +538,13 @@ public class UserServiceTest {
 
         assertThrows(NoContentException.class, () -> userService.isAlreadyLoggedIn(createdUser));
 
+    }
+
+    @Test
+    public void checkAvatarColor_validInput_success() {
+        AvatarColor someColor = AvatarColor.BLUE;
+
+        assertDoesNotThrow(() -> userService.checkAvatarColor(someColor));
     }
 
 }

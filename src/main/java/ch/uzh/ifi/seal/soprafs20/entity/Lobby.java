@@ -162,6 +162,14 @@ public class Lobby implements Serializable {
         this.gameIsStarted = gameIsStarted;
     }
 
+    public void addInvitedUser(User receiver) {
+        this.invitedUsers.add(receiver);
+    }
+
+    public Set<User> getInvitedUsers() {
+        return invitedUsers;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
@@ -173,13 +181,5 @@ public class Lobby implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(getLobbyId());
-    }
-
-    public void addInvitedUser(User receiver) {
-        this.invitedUsers.add(receiver);
-    }
-
-    public Set<User> getInvitedUsers() {
-        return invitedUsers;
     }
 }

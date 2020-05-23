@@ -6,8 +6,6 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.PlayerRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +15,6 @@ import java.util.Optional;
 @Service
 @Transactional
 public class PlayerService {
-
-    private final Logger log = LoggerFactory.getLogger(PlayerService.class);
 
     private final PlayerRepository playerRepository;
 
@@ -62,8 +58,6 @@ public class PlayerService {
         player = playerRepository.save(player);
         playerRepository.flush();
 
-        log.debug("Converted user with id {} to player", user.getId());
-
         return player;
     }
 
@@ -75,9 +69,5 @@ public class PlayerService {
 
     public void deletePlayer(Player player) {
         playerRepository.delete(player);
-    }
-
-    public void save(Player player) {
-        playerRepository.saveAndFlush(player);
     }
 }

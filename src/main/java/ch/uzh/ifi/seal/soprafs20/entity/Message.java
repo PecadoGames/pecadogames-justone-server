@@ -72,6 +72,7 @@ public class Message implements Serializable {
         this.creationDate = LocalTime.now().plusHours(2L);
     }
 
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
