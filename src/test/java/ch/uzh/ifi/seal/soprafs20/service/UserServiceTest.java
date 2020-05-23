@@ -44,7 +44,7 @@ public class UserServiceTest {
         // given
         testUser = new User();
         testUser.setId(1L);
-        testUser.setUsername("testUsername");
+        testUser.setUsername("testname");
         testUser.setPassword("test");
         testUser.setToken("testToken");
 
@@ -177,7 +177,7 @@ public class UserServiceTest {
     @Test
     public void updateUser_validInput_success() throws Exception {
         UserPutDTO userPutDTO = new UserPutDTO();
-        userPutDTO.setUsername("changedUsername");
+        userPutDTO.setUsername("changed");
         userPutDTO.setBirthday(LocalDate.now());
         userPutDTO.setToken("testToken");
 
@@ -191,7 +191,7 @@ public class UserServiceTest {
     @Test
     public void updateUser_validNewUsername_success() throws JsonParseException {
         UserPutDTO userPutDTO = new UserPutDTO();
-        userPutDTO.setUsername("changedUsername");
+        userPutDTO.setUsername("changed");
         userPutDTO.setToken("testToken");
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
@@ -219,7 +219,7 @@ public class UserServiceTest {
         userPutDTO.setToken("wrongToken");
 
         assertThrows(UnauthorizedException.class, () -> userService.updateUser(testUser, userPutDTO));
-        assertEquals(testUser.getUsername(), "testUsername");
+        assertEquals(testUser.getUsername(), "testname");
     }
 
     @Test
@@ -233,7 +233,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(user);
 
         assertThrows(ConflictException.class, () -> userService.updateUser(testUser, userPutDTO));
-        assertEquals(testUser.getUsername(), "testUsername");
+        assertEquals(testUser.getUsername(), "testname");
     }
 
     @Test
@@ -243,7 +243,7 @@ public class UserServiceTest {
         userPutDTO.setToken("testToken");
 
         assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO));
-        assertEquals(testUser.getUsername(), "testUsername");
+        assertEquals(testUser.getUsername(), "testname");
     }
 
     @Test
@@ -253,7 +253,7 @@ public class UserServiceTest {
         userPutDTO.setToken("testToken");
 
         assertThrows(NotAcceptableException.class, () -> userService.updateUser(testUser, userPutDTO));
-        assertEquals(testUser.getUsername(), "testUsername");
+        assertEquals(testUser.getUsername(), "testname");
     }
 
     @Test

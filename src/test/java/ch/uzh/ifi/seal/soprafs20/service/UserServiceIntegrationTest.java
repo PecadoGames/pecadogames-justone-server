@@ -38,7 +38,7 @@ public class UserServiceIntegrationTest {
         assertNull(userRepository.findByUsername("testUsername"));
 
         User testUser = new User();
-        testUser.setUsername("testUsername");
+        testUser.setUsername("testname");
         testUser.setPassword("test");
 
         // when
@@ -56,7 +56,7 @@ public class UserServiceIntegrationTest {
         assertNull(userRepository.findByUsername("testUsername"));
 
         User testUser = new User();
-        testUser.setUsername("testUsername");
+        testUser.setUsername("testname");
         testUser.setPassword("test");
         User createdUser = userService.createUser(testUser);
 
@@ -64,7 +64,7 @@ public class UserServiceIntegrationTest {
         User testUser2 = new User();
 
         // change the name but forget about the username
-        testUser2.setUsername("testUsername");
+        testUser2.setUsername("testname");
         testUser2.setPassword("test");
 
         // check that an error is thrown
