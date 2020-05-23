@@ -11,22 +11,18 @@ import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.LobbyRepository;
 import ch.uzh.ifi.seal.soprafs20.repository.PlayerRepository;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyPutDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 
 @Service
 @Transactional
 public class LobbyService {
-    private final Logger log = LoggerFactory.getLogger(LobbyService.class);
 
     private final LobbyRepository lobbyRepository;
     private final PlayerRepository playerRepository;
@@ -70,9 +66,11 @@ public class LobbyService {
     }
 
     /**
-     * @param lobby
-     * @param receivedValues
-     * @return
+     * Method to update a given lobby
+     *
+     * @param lobby The lobby to be updated
+     * @param receivedValues The values to update the lobby (i.e. max. numbers of players, number of bots)
+     * @return The updated lobby
      */
     public Lobby updateLobby(Lobby lobby, LobbyPutDTO receivedValues){
         if(!lobby.getHostToken().equals(receivedValues.getHostToken())){
@@ -165,7 +163,7 @@ public class LobbyService {
         }
     }
 
-    public Set<Player> kickPlayers(Lobby lobby,Player playerToKick){
+    public void kickPlayers(Lobby lobby, Player playerToKick){
         if(playerToKick.getId() == 0L) {
             lobby.setCurrentNumBots(lobby.getCurrentNumBots() - 1);
         }
@@ -175,7 +173,6 @@ public class LobbyService {
             deletePlayer(playerToKick);
             lobby.setCurrentNumPlayers(lobby.getPlayersInLobby().size());
         }
-        return lobby.getPlayersInLobby();
     }
 
     public void removeLobbyInviteFromAllUsers(Lobby lobby){

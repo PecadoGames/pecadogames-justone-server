@@ -187,10 +187,7 @@ public class UserService {
         }
         receiver.getLobbyInvites().remove(lobby);
         userRepository.saveAndFlush(receiver);
-        if (lobbyAcceptancePutDTO.isAccepted()) {
-            return true;
-        }
-        return false;
+        return lobbyAcceptancePutDTO.isAccepted();
     }
 
     private void checkIfUserExists(User userToBeCreated) {

@@ -16,8 +16,6 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +39,6 @@ public class GameService{
     private final ClueRepository clueRepository;
     private final LobbyScoreRepository lobbyScoreRepository;
     private final PlayerRepository playerRepository;
-    private final Logger log = LoggerFactory.getLogger(GameService.class);
     private static final int ROUNDS = 3;
     private static final int pickWordTime = 10;
     private static final int enterCluesTime = 30;
@@ -93,9 +90,8 @@ public class GameService{
     /**
      * creates new Game instance, sets current guesser and chooses first word
      *
-     * @param lobby
-     * @param gamePostDTO
-     * @return
+     * @param lobby Lobby for which the game is created
+     * @return the created game
      */
     public Game createGame(Lobby lobby, GamePostDTO gamePostDTO) {
         if (!lobby.getHostToken().equals(gamePostDTO.getHostToken())) {
@@ -138,11 +134,6 @@ public class GameService{
         return newGame;
     }
 
-    /**
-     * @param game
-     * @param player
-     * @param cluePutDTO
-     */
     public boolean sendClue(Game game, Player player, CluePutDTO cluePutDTO) {
         if(!game.getGameState().equals(GameState.ENTER_CLUES_STATE))
             throw new UnauthorizedException("Clues are not accepted in current state!");
@@ -186,10 +177,8 @@ public class GameService{
 
     /**
      * Overloaded sendClue method for the case that the timer runs out and not every player sent a clue
-     * @param game
-     * @return
      */
-    public boolean sendClue(Game game){
+    public void sendClue(Game game){
         //if a user did not send a clue, fill his clue with empty string
 
         for(Player p : game.getPlayers()){
@@ -202,7 +191,6 @@ public class GameService{
             checkClues(game);
         }
         generateCluesForBots(game);
-        return true;
     }
 
     public boolean pickWord(String token, Game game) {
@@ -216,23 +204,16 @@ public class GameService{
     }
 
     /**
-     * Overloaded pickword method for the case that the timer runs out and the guesser did not send a guess
-     * @param game
-     * @return
+     * Overloaded pickWord method for the case that the timer runs out and the guesser did not send a guess
      */
-    public boolean pickWord(Game game) {
+    public void pickWord(Game game) {
         game.setCurrentWord(chooseWordAtRandom(game.getWords()));
         System.out.println("Picked a word!");
-        return true;
     }
 
 
     /**
-     * method adds clue and token of player to clues. When a player enters their second clue, their token is replaced with it
-     *
-     * @param game
-     * @param player
-     * @param cluePutDTO
+     * method to send clues in case of a special game (i.e. 3 players)
      */
     private void sendClueSpecial(Game game, Player player, CluePutDTO cluePutDTO) {
         Clue firstClue = new Clue();
@@ -335,8 +316,6 @@ public class GameService{
         game.getEnteredClues().clear();
         game.getInvalidClues().clear();
         game.setGameState(GameState.PICK_WORD_STATE);
-
-        //ToDo: Update scores of player and overall score
     }
 
     public void startNewRound(Game game) {
@@ -358,12 +337,10 @@ public class GameService{
         game.setGuessCorrect(false);
         game.setCurrentGuess("");
         gameRepository.saveAndFlush(game);
-        //ToDo: Update scores of player and overall score
     }
 
     public void checkClues(Game game) {
         List<Clue> invalidClues = new ArrayList<>();
-        System.out.println("Game clues as string: "+ game.getCluesAsString());
         for (Clue clue : game.getEnteredClues()) {
             if (!nlp.checkClue(clue.getActualClue(), game.getCurrentWord())) {
                 clue.setPlayerId(-1L);
@@ -376,10 +353,9 @@ public class GameService{
     }
 
     /**
-     *
-     * @param game
-     * @param counter
-     * @return true if all clues of each player are received, false if no
+     * Helper function to determine if all clues or votes have been sent
+
+     * @return true if all clues/votes of each player are received, false if no
      */
     public boolean allSent(Game game, int counter) {
         return counter == game.getPlayers().size() - 1;
@@ -394,7 +370,7 @@ public class GameService{
     /**
      * Helper function that returns a random word from list and deletes it from list
      *
-     * @param words
+     * @param words The list of words
      * @return random word from list
      */
     public String chooseWordAtRandom(List<String> words) {
@@ -577,9 +553,7 @@ public class GameService{
     }
 
     /**
-     * Helper function to get current cancel boolean of game stored in database
-     * @param game
-     * @return
+     * Helper function to get current timer cancel boolean
      */
     public boolean getCancel(Game game){
         Optional<Game> updated = gameRepository.findByLobbyId(game.getLobbyId());
@@ -593,8 +567,8 @@ public class GameService{
     }
 
     /**
+     * Helper method to return the next game state
      *
-     * @param game
      * @return the next state that the game will enter
      */
     public GameState getNextState(Game game){
@@ -635,7 +609,7 @@ public class GameService{
             lobby = foundLobby.get();
         }
         else { return; }
-        String uri = "";
+        String uri;
         // The api call is a bit different if the current word consists of two separate words
         String[] split = game.getCurrentWord().split(" ");
         if(split.length == 1) {
@@ -651,7 +625,8 @@ public class GameService{
         int amountOfClues = (game.isSpecialGame() ? lobby.getCurrentNumBots()*2 : lobby.getCurrentNumBots());
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            List<APIResponse> response = objectMapper.readValue(result, new TypeReference<List<APIResponse>>(){});
+            List<APIResponse> response = objectMapper.readValue(result, new TypeReference<>() {
+            });
             Iterator<APIResponse> iterator = response.iterator();
             for(int i = 0; i < amountOfClues; i++) {
                 while(iterator.hasNext()) {
@@ -661,7 +636,6 @@ public class GameService{
                         Clue clueFromBot = new Clue();
                         clueFromBot.setPlayerId(0L);
                         clueFromBot.setActualClue(potentialClue);
-                        clueRepository.saveAndFlush(clueFromBot);
                         if(!game.getEnteredClues().contains(clueFromBot)) {
                             game.getEnteredClues().add(clueFromBot);
                             clueRepository.saveAndFlush(clueFromBot);
@@ -713,6 +687,7 @@ public class GameService{
     }
 
     public void checkVotes(Game game, int threshold) {
+        // If there is only one real player and the rest are bots, voting is not necessary since bots can not vote
         if(game.getPlayers().size() < 2) {
             return;
         }

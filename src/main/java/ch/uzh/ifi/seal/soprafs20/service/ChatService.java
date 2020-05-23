@@ -1,11 +1,12 @@
 package ch.uzh.ifi.seal.soprafs20.service;
 
-import ch.uzh.ifi.seal.soprafs20.entity.*;
+import ch.uzh.ifi.seal.soprafs20.entity.Chat;
+import ch.uzh.ifi.seal.soprafs20.entity.Lobby;
+import ch.uzh.ifi.seal.soprafs20.entity.Message;
+import ch.uzh.ifi.seal.soprafs20.entity.Player;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.repository.ChatRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,6 @@ import java.util.Optional;
 @Service
 @Transactional
 public class ChatService {
-    private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final ChatRepository chatRepository;
 
@@ -36,7 +36,7 @@ public class ChatService {
     public void createChat(Long lobbyId) {
         Chat chat = new Chat();
         chat.setLobbyId(lobbyId);
-        chat = chatRepository.save(chat);
+        chatRepository.save(chat);
         chatRepository.flush();
     }
 

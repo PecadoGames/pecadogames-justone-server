@@ -182,8 +182,4 @@ public class Lobby implements Serializable {
     public Set<User> getInvitedUsers() {
         return invitedUsers;
     }
-
-    public void setInvitedUsers(Set<User> invitedUsers) {
-        this.invitedUsers = invitedUsers;
-    }
 }

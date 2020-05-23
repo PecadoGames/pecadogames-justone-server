@@ -49,10 +49,6 @@ public interface DTOMapper {
     @Mapping(source = "id", target = "id")
     RequestGetDTO convertEntityToRequestGetDTO(User user);
 
-    @Mapping(source = "token", target = "token")
-    @Mapping(source = "senderID", target = "id")
-    User convertRequestPutDTOtoEntity(RequestPutDTO requestPutDTO);
-
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "voiceChat", target = "voiceChat")
     @Mapping(source = "hostId", target = "hostId")

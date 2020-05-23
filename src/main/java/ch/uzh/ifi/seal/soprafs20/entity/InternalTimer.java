@@ -17,7 +17,6 @@ public class InternalTimer extends Timer  {
     @Column
     private  boolean isRunning;
 
-
     @Column
     private volatile boolean isCancel;
 
@@ -36,8 +35,6 @@ public class InternalTimer extends Timer  {
     public void setLobbyId(Long lobbyId) {
         this.lobbyId = lobbyId;
     }
-
-
 
     public boolean isRunning() {
         return isRunning;

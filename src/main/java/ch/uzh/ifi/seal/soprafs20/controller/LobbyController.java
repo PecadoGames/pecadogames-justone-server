@@ -2,12 +2,13 @@ package ch.uzh.ifi.seal.soprafs20.controller;
 
 import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
-import ch.uzh.ifi.seal.soprafs20.exceptions.*;
+import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotAcceptableException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
+import ch.uzh.ifi.seal.soprafs20.exceptions.UnauthorizedException;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.*;
 import ch.uzh.ifi.seal.soprafs20.rest.mapper.DTOMapper;
 import ch.uzh.ifi.seal.soprafs20.service.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +43,8 @@ public class LobbyController {
 
 
     /**
+     * Create a lobby given the LobbyPostDTO from client
      *
-     * @param lobbyPostDTO
      * @return - header with location of lobby if the lobby is set to public
      *         - if the lobby is private, returns header with lobby location and privateKey in body
      */
@@ -159,7 +160,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         User host = userService.getUser(invitePutDTO.getUserId());
         User userToInvite = userService.getUser(invitePutDTO.getUserToInviteId());
-        userToInvite = userService.addLobbyInvite(userToInvite,lobby,host);
+        userService.addLobbyInvite(userToInvite,lobby,host);
     }
 
     @PutMapping(path = "/lobbies/{lobbyId}/acceptances", consumes = "application/json")
@@ -245,7 +246,7 @@ public class LobbyController {
     @ResponseBody
     public List<LobbyScoreGetDTO> getLobbyScores(@RequestParam("token") String token){
         try {
-            User user = userService.getUserByToken(token);
+            userService.getUserByToken(token);
         } catch (NotFoundException e){
             throw new NotFoundException("Cant get lobby scores as " + e.getMessage().toLowerCase());
         }
@@ -260,13 +261,4 @@ public class LobbyController {
     }
 
 
-
-    private String asJsonString(final Object object) {
-        try {
-            return new ObjectMapper().writeValueAsString(object);
-        }
-        catch (JsonProcessingException e) {
-            throw new BadRequestException(String.format("The request body could not be created.%s", e.toString()));
-        }
-    }
 }

@@ -24,7 +24,7 @@ public class Player {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = true, unique = true)
+    @Column(unique = true)
     private String token;
 
     @Column
@@ -45,7 +45,7 @@ public class Player {
     @OneToMany(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<Clue> clues = new ArrayList<Clue>();
+    private List<Clue> clues = new ArrayList<>();
 
 
     public Long getId() {

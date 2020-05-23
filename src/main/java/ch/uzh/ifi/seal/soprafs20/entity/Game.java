@@ -48,17 +48,10 @@ public class Game {
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<Clue> enteredClues = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Fetch(value = FetchMode.SUBSELECT)
-    private List<String> cluesAsString = new ArrayList<>();
-
     @OneToMany(fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<Clue> invalidClues = new ArrayList<>();
-
-    @OneToMany
-    private List<Clue> duplicateClues = new ArrayList<>();
 
     @Column
     private GameState gameState;
@@ -75,8 +68,6 @@ public class Game {
     @Column
     private long time;
 
-    @Column
-    private volatile boolean cancelled;
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     private InternalTimer timer;
@@ -130,23 +121,6 @@ public class Game {
     public void addClue(Clue clue){
         clue.setActualClue(clue.getActualClue().toLowerCase());
         this.enteredClues.add(clue);
-    }
-
-    public void removeClue(Clue clue) {
-        clue.setActualClue(clue.getActualClue().toLowerCase());
-        this.enteredClues.remove(clue);
-    }
-
-    public List<String> getCluesAsString() {
-        return cluesAsString;
-    }
-
-    public void setCluesAsString(List<String> cluesAsString) {
-        this.cluesAsString = cluesAsString;
-    }
-
-    public void addClueAsString(String clueAsString) {
-        cluesAsString.add(clueAsString);
     }
 
     public List<String> getWords() {
@@ -252,6 +226,7 @@ public class Game {
             this.invalidClues.add(invalidClue);
         }
     }
+
 
     @Override
     public boolean equals(Object o) {
