@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs20.GameLogic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class APIResponse {
@@ -11,15 +12,11 @@ public class APIResponse {
     Long score;
 
     @JsonIgnore
-    List tags;
+    List<String> tags = new ArrayList<>();
 
-    public List getTags() {
-        return tags;
-    }
+    public List<String> getTags() { return tags; }
 
-    public void setTags(List tags) {
-        this.tags = tags;
-    }
+    public void setTags(List<String> tags) { this.tags = tags; }
 
     public String getWord() {
         return word;

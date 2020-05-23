@@ -1,5 +1,5 @@
 package ch.uzh.ifi.seal.soprafs20.entity;
-import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
+import ch.uzh.ifi.seal.soprafs20.GameLogic.GameState;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;

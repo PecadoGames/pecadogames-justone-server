@@ -3,7 +3,7 @@ package ch.uzh.ifi.seal.soprafs20.service;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.APIResponse;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.NLP;
 import ch.uzh.ifi.seal.soprafs20.GameLogic.WordReader;
-import ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates.GameState;
+import ch.uzh.ifi.seal.soprafs20.GameLogic.GameState;
 import ch.uzh.ifi.seal.soprafs20.entity.*;
 import ch.uzh.ifi.seal.soprafs20.exceptions.ConflictException;
 import ch.uzh.ifi.seal.soprafs20.exceptions.NotFoundException;
@@ -39,7 +39,7 @@ public class GameService{
     private final ClueRepository clueRepository;
     private final LobbyScoreRepository lobbyScoreRepository;
     private final PlayerRepository playerRepository;
-    private static final int ROUNDS = 3;
+    private static final int ROUNDS = 13;
     private static final int pickWordTime = 10;
     private static final int enterCluesTime = 30;
     private static final int voteTime = 15;

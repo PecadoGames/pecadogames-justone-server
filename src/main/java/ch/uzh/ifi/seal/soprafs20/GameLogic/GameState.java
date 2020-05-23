@@ -1,4 +1,4 @@
-package ch.uzh.ifi.seal.soprafs20.GameLogic.gameStates;
+package ch.uzh.ifi.seal.soprafs20.GameLogic;
 
 public enum GameState {
     PICK_WORD_STATE,

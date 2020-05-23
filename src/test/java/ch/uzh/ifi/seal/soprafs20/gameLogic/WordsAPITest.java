@@ -32,6 +32,6 @@ public class WordsAPITest {
         assertTrue(highestScore.getScore() > 0);
         assertFalse(highestScore.getWord().isBlank());
         //The PoS tags of the word are ignored since not needed
-        assertNull(highestScore.getTags());
+        assertTrue(highestScore.getTags().isEmpty());
     }
 }
