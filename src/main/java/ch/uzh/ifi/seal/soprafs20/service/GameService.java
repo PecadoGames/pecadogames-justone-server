@@ -430,7 +430,6 @@ public class GameService{
      * Central timer logic for each game. Sets timer for each state,
      * If state is complete before the timer ends, the game transitions into the next state with a new timer.
      * Timer also takes care of all the logic set up for the next state if no user input was entered
-     * TODO: Implement the game logic changes for each state if no input is received and the timer ends
      *
      * @param g - takes a game instance as input
      */

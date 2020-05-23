@@ -139,6 +139,7 @@ public class User implements Serializable {
         this.birthday = birthday;
     }
 
+    @JsonFormat(pattern = "dd.MM.yyyy")
     public LocalDate getBirthday() {
         return birthday;
     }

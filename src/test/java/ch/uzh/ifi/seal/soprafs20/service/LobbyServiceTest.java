@@ -199,11 +199,6 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void removePlayerFromLobby_newHost_success() {
-
-    }
-
-    @Test
     public void removeLobbyLeaderFromLobby_fail(){
 
         //second user

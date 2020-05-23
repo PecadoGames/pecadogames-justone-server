@@ -7,7 +7,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class WordReader {
     private final List<String> words = new ArrayList<>();
 
-    //ToDo: Catch exceptions
     public WordReader() {
         TextFile wordsFile = new TextFile();
         String wordsAsString = wordsFile.getWords();

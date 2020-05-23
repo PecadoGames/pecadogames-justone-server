@@ -20,9 +20,7 @@ public class NLP {
 
         if(clueStem.equals(wordStem)) {return false;}
 
-        if(clueStem.contains(wordStem) || wordStem.contains(clueStem)) { return false; }
-
-        return true;
+        return !clueStem.contains(wordStem) && !wordStem.contains(clueStem);
     }
 
     public String stemWord(String word) {
