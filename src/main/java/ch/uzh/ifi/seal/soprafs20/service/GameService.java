@@ -628,7 +628,7 @@ public class GameService{
         game.getTimer().setCancel(false);
     }
 
-    public void fgenerateCluesForBots(Game game) {
+    public void generateCluesForBots(Game game) {
         Lobby lobby;
         Optional<Lobby> foundLobby = lobbyRepository.findByLobbyId(game.getLobbyId());
         if(foundLobby.isPresent()) {
