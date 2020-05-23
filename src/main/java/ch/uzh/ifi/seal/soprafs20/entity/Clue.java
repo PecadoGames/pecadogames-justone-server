@@ -16,7 +16,6 @@ public class Clue implements Serializable {
     @GeneratedValue
     private Long clueId;
 
-    @Column(nullable = false)
     private Long playerId;
 
     @NotBlank

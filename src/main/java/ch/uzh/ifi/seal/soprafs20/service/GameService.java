@@ -489,6 +489,7 @@ public class GameService{
                 //VoteState
                 else if(game[0].getTime() >= voteTime && game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0]) && game[0].getGameState().equals(GameState.VOTE_ON_CLUES_STATE)){
                     game[0].getTimer().cancel();
+
                     vote(game[0]);
                     game[0].setGameState(getNextState(game[0]));
                     System.out.println("Timer ran out, next state: " + game[0].getGameState());
@@ -662,6 +663,7 @@ public class GameService{
                         Clue clueFromBot = new Clue();
                         clueFromBot.setPlayerId(0L);
                         clueFromBot.setActualClue(potentialClue);
+                        clueFromBot = clueRepository.saveAndFlush(clueFromBot);
                         if(!game.getEnteredClues().contains(clueFromBot)) {
                             game.getEnteredClues().add(clueFromBot);
                             break;
@@ -669,7 +671,6 @@ public class GameService{
                     }
                 }
             }
-            gameRepository.saveAndFlush(game);
         } catch (JsonProcessingException ex) {
             ex.getMessage();
         }
@@ -713,6 +714,9 @@ public class GameService{
     }
 
     public void checkVotes(Game game, int threshold) {
+        if(game.getPlayers().size() < 2) {
+            return;
+        }
         List<Clue> actualInvalidClues = new ArrayList<>();
         Iterator<Clue> iterator = game.getEnteredClues().iterator();
         while(iterator.hasNext()) {
