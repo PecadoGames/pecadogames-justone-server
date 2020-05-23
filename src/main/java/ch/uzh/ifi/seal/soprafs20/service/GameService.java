@@ -329,9 +329,9 @@ public class GameService{
         for(Player p : game.getPlayers()){
             p.setClueIsSent(false);
             p.setVoted(false);
+            p.setGuessIsSent(false);
             p.getClues().clear();
         }
-        game.getCurrentGuesser().setGuessIsSent(false);
         game.getEnteredClues().clear();
         game.getInvalidClues().clear();
         game.setGameState(GameState.PICK_WORD_STATE);
@@ -568,8 +568,6 @@ public class GameService{
         }
     }
 
-
-
     public Lobby getUpdatedLobby(Long lobbyId) {
         Optional<Lobby> currentLobby = lobbyRepository.findByLobbyId(lobbyId);
         if(currentLobby.isPresent()){
@@ -630,7 +628,7 @@ public class GameService{
         game.getTimer().setCancel(false);
     }
 
-    public void generateCluesForBots(Game game) {
+    public void fgenerateCluesForBots(Game game) {
         Lobby lobby;
         Optional<Lobby> foundLobby = lobbyRepository.findByLobbyId(game.getLobbyId());
         if(foundLobby.isPresent()) {
