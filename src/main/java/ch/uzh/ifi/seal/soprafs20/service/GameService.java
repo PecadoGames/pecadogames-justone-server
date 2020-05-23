@@ -648,12 +648,12 @@ public class GameService{
         RestTemplate restTemplate = new RestTemplate();
         String result = restTemplate.getForObject(uri, String.class);
         // In the case of a game with 3 players, a bot submits two clues instead of one
-        //int amountOfClues = (game.isSpecialGame() ? lobby.getCurrentNumBots()*2 : lobby.getCurrentNumBots());
+        int amountOfClues = (game.isSpecialGame() ? lobby.getCurrentNumBots()*2 : lobby.getCurrentNumBots());
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             List<APIResponse> response = objectMapper.readValue(result, new TypeReference<List<APIResponse>>(){});
             Iterator<APIResponse> iterator = response.iterator();
-            for(int i = 0; i < lobby.getCurrentNumBots(); i++) {
+            for(int i = 0; i < amountOfClues; i++) {
                 while(iterator.hasNext()) {
                     APIResponse apiResponse = iterator.next();
                     String potentialClue = apiResponse.getWord();
@@ -661,9 +661,10 @@ public class GameService{
                         Clue clueFromBot = new Clue();
                         clueFromBot.setPlayerId(0L);
                         clueFromBot.setActualClue(potentialClue);
-                        clueFromBot = clueRepository.saveAndFlush(clueFromBot);
+                        clueRepository.saveAndFlush(clueFromBot);
                         if(!game.getEnteredClues().contains(clueFromBot)) {
                             game.getEnteredClues().add(clueFromBot);
+                            clueRepository.saveAndFlush(clueFromBot);
                             break;
                         }
                     }
