@@ -91,6 +91,9 @@ public class LobbyService {
                 throw new ConflictException("There are no more players or bots allowed in this lobby!");
             }
         }
+        if(receivedValues.getRounds() != null && (receivedValues.getRounds() >= 3 || receivedValues.getRounds() <= 13)){
+            lobby.setRounds(receivedValues.getRounds());
+        }
         return lobby;
     }
 

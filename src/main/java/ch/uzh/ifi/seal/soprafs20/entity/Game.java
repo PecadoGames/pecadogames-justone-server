@@ -68,6 +68,9 @@ public class Game {
     @Column
     private long time;
 
+    @Column
+    private Integer rounds;
+
 
     @OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     private InternalTimer timer;
@@ -239,5 +242,13 @@ public class Game {
     @Override
     public int hashCode() {
         return Objects.hash(getLobbyId());
+    }
+
+    public Integer getRounds() {
+        return rounds;
+    }
+
+    public void setRounds(Integer rounds) {
+        this.rounds = rounds;
     }
 }

@@ -39,7 +39,6 @@ public class GameService{
     private final ClueRepository clueRepository;
     private final LobbyScoreRepository lobbyScoreRepository;
     private final PlayerRepository playerRepository;
-    private static final int ROUNDS = 13;
     private static final int pickWordTime = 10;
     private static final int enterCluesTime = 30;
     private static final int voteTime = 15;
@@ -108,6 +107,7 @@ public class GameService{
         newGame.setLobbyId(lobby.getLobbyId());
         newGame.setGameState(GameState.PICK_WORD_STATE);
         newGame.setLobbyName(lobby.getLobbyName());
+        newGame.setRounds(lobby.getRounds());
 
 
         for (Player player : lobby.getPlayersInLobby()) {
@@ -440,19 +440,20 @@ public class GameService{
             public void run() {
                 game[0] = getUpdatedGame(game[0]);
                 game[0].setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game[0].getStartTimeSeconds());
-
                 //pickwordState
-                if(game[0].getTime() >= pickWordTime && game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0]) && game[0].getGameState().equals(GameState.PICK_WORD_STATE)){
+                if(game[0].getTime() >= pickWordTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.PICK_WORD_STATE)){
                     game[0].getTimer().cancel();
                     pickWord(game[0]);
+
                     game[0].setGameState(getNextState(game[0]));
                     System.out.println("Timer ran out, next state: " + game[0].getGameState());
                     game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+
                     gameRepository.saveAndFlush(game[0]);
                 }
 
                 //EnterCluesState
-                else if(game[0].getTime() >= enterCluesTime && game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0]) && game[0].getGameState().equals(GameState.ENTER_CLUES_STATE)){
+                else if(game[0].getTime() >= enterCluesTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.ENTER_CLUES_STATE)){
                     game[0].getTimer().cancel();
                     sendClue(game[0]);
                     game[0].setGameState(getNextState(game[0]));
@@ -462,7 +463,7 @@ public class GameService{
                 }
 
                 //VoteState
-                else if(game[0].getTime() >= voteTime && game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0]) && game[0].getGameState().equals(GameState.VOTE_ON_CLUES_STATE)){
+                else if(game[0].getTime() >= voteTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.VOTE_ON_CLUES_STATE)){
                     game[0].getTimer().cancel();
 
                     vote(game[0]);
@@ -472,7 +473,7 @@ public class GameService{
                     gameRepository.saveAndFlush(game[0]);
                 }
                 //GuessState
-                else if(game[0].getTime() >= guessTime && game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0]) && game[0].getGameState().equals(GameState.ENTER_GUESS_STATE)){
+                else if(game[0].getTime() >= guessTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.ENTER_GUESS_STATE)){
                     game[0].getTimer().cancel();
                     game[0].setGuessCorrect(false);
                     game[0].setGameState(getNextState(game[0]));
@@ -484,12 +485,12 @@ public class GameService{
                     gameRepository.saveAndFlush(game[0]);
                 }
                 //TransitionState
-                else if(game[0].getTime() >= transitionTime && game[0].getRoundsPlayed() <= ROUNDS && !getCancel(game[0]) && game[0].getGameState().equals(GameState.TRANSITION_STATE)){
+                else if(game[0].getTime() >= transitionTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.TRANSITION_STATE)){
                     game[0].getTimer().cancel();
                     startNewRound(game[0]);
-                    if(game[0].getRoundsPlayed() > ROUNDS){
+                    if(game[0].getRoundsPlayed() > game[0].getRounds()){
                         game[0].setGameState(GameState.END_GAME_STATE);
-                        game[0].setRoundsPlayed(ROUNDS);
+                        game[0].setRoundsPlayed(game[0].getRounds());
                     } else {
                         game[0].setGameState(getNextState(game[0]));
                     }
@@ -528,7 +529,7 @@ public class GameService{
                     gameRepository.flush();
                 }
                 //player input cancels timer
-                else if (getCancel(game[0]) && game[0].getRoundsPlayed() <= ROUNDS && !game[0].getGameState().equals(GameState.END_GAME_STATE)) {
+                else if (getCancel(game[0]) && game[0].getRoundsPlayed() <= game[0].getRounds() && !game[0].getGameState().equals(GameState.END_GAME_STATE)) {
                     game[0].getTimer().cancel();
                     game[0] = getUpdatedGame(game[0]);
                     System.out.println("Timer updated because of player, Word is: " + game[0].getCurrentWord() + ", new State: " + game[0].getGameState());
@@ -538,7 +539,7 @@ public class GameService{
                 }
             }
         };
-        if(game[0].getRoundsPlayed() <= ROUNDS) {
+        if(game[0].getRoundsPlayed() <= game[0].getRounds()) {
             game[0].getTimer().schedule(timerTask, 0, 1000);
         }
     }

@@ -13,8 +13,6 @@ public class LobbyGetDTO {
 
     private Long hostId;
 
-    private boolean voiceChat;
-
     private long lobbyScore;
 
     private boolean isPrivate;
@@ -33,6 +31,8 @@ public class LobbyGetDTO {
 
     List<PlayerGetDTO> playersInLobby = new ArrayList<>();
 
+    private Integer rounds;
+
 
     public String getLobbyName() {
         return lobbyName;
@@ -42,13 +42,6 @@ public class LobbyGetDTO {
         this.lobbyName = lobbyName;
     }
 
-    public boolean isVoiceChat() {
-        return voiceChat;
-    }
-
-    public void setVoiceChat(boolean voiceChat) {
-        this.voiceChat = voiceChat;
-    }
 
     public Long getHostId() {
         return hostId;
@@ -139,5 +132,13 @@ public class LobbyGetDTO {
     public void addPlayersInLobby(Player player) {
         PlayerGetDTO playerGetDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(player);
         this.playersInLobby.add(playerGetDTO);
+    }
+
+    public Integer getRounds() {
+        return rounds;
+    }
+
+    public void setRounds(Integer rounds) {
+        this.rounds = rounds;
     }
 }

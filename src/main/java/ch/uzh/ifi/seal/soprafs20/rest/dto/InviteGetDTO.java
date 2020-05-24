@@ -5,8 +5,6 @@ public class InviteGetDTO {
 
     private String lobbyName;
 
-    private boolean voiceChat;
-
     private String privateKey;
 
     private String hostName;
@@ -21,14 +19,6 @@ public class InviteGetDTO {
 
     public void setLobbyName(String lobbyName) {
         this.lobbyName = lobbyName;
-    }
-
-    public boolean isVoiceChat() {
-        return voiceChat;
-    }
-
-    public void setVoiceChat(boolean voiceChat) {
-        this.voiceChat = voiceChat;
     }
 
     public String getPrivateKey() {

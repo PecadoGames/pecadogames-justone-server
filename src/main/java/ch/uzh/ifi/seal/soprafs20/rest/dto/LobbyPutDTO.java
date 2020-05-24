@@ -6,6 +6,7 @@ public class LobbyPutDTO {
     private Integer numberOfBots;
     private Long playerToKickId;
     private String hostToken;
+    private Integer rounds;
 
     public Integer getMaxNumberOfPlayersAndBots() {
         return maxNumberOfPlayersAndBots;
@@ -35,5 +36,11 @@ public class LobbyPutDTO {
         this.hostToken = hostToken;
     }
 
+    public Integer getRounds() {
+        return rounds;
+    }
 
+    public void setRounds(Integer rounds) {
+        this.rounds = rounds;
+    }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -27,9 +28,6 @@ public class Lobby implements Serializable {
 
     @Column
     private boolean gameIsStarted;
-
-    @Column(nullable = false)
-    private boolean voiceChat;
 
     //user id of lobby creator
     @Column(nullable = false)
@@ -68,6 +66,9 @@ public class Lobby implements Serializable {
     @Fetch(value = FetchMode.SUBSELECT)
     private Set<Player> playersInLobby = new HashSet<>();
 
+    @Column(nullable = false)
+    private Integer rounds;
+
     public Long getLobbyId() {
         return lobbyId;
     }
@@ -80,14 +81,6 @@ public class Lobby implements Serializable {
 
     public void setLobbyName(String lobbyName) {
         this.lobbyName = lobbyName;
-    }
-
-    public boolean isVoiceChat() {
-        return voiceChat;
-    }
-
-    public void setVoiceChat(boolean voiceChat) {
-        this.voiceChat = voiceChat;
     }
 
     public Long getHostId() {
@@ -181,5 +174,13 @@ public class Lobby implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(getLobbyId());
+    }
+
+    public void setRounds(int rounds) {
+      this.rounds = rounds;
+    }
+
+    public Integer getRounds(){
+        return this.rounds;
     }
 }

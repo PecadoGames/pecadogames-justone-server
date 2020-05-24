@@ -5,13 +5,12 @@ public class LobbyPostDTO {
 
     private Integer maxPlayersAndBots;
 
-    private boolean voiceChat;
+    private Integer rounds;
 
     private Long hostId;
 
     private String hostToken; //user token!
 
-    private boolean isPrivate;
 
 
 
@@ -31,12 +30,12 @@ public class LobbyPostDTO {
         this.maxPlayersAndBots = maxPlayersAndBots;
     }
 
-    public boolean isVoiceChat() {
-        return voiceChat;
+    public Integer getRounds() {
+        return rounds;
     }
 
-    public void setVoiceChat(boolean voiceChat) {
-        this.voiceChat = voiceChat;
+    public void setRounds(int rounds) {
+        this.rounds = rounds;
     }
 
     public Long getHostId() {
@@ -55,11 +54,4 @@ public class LobbyPostDTO {
         this.hostToken = hostToken;
     }
 
-    public boolean isPrivate() {
-        return isPrivate;
-    }
-
-    public void setPrivate(boolean isPrivate) {
-        this.isPrivate = isPrivate;
-    }
 }

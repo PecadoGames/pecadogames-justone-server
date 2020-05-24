@@ -22,6 +22,7 @@ public class GameGetDTO {
     private boolean specialGame;
     private boolean isGuessCorrect;
     private String currentGuess;
+    private Integer rounds;
 
 
     public List<PlayerGetDTO> getPlayers() {
@@ -132,4 +133,12 @@ public class GameGetDTO {
     public String getCurrentGuess() { return currentGuess; }
 
     public void setCurrentGuess(String guess) { currentGuess = guess; }
+
+    public Integer getRounds() {
+        return rounds;
+    }
+
+    public void setRounds(Integer rounds) {
+        this.rounds = rounds;
+    }
 }
