@@ -100,6 +100,7 @@ public interface DTOMapper {
     @Mapping(source = "lobbyName", target = "lobbyName")
     @Mapping(source = "specialGame", target = "specialGame")
     @Mapping(source = "currentGuess", target = "currentGuess")
+    @Mapping(source = "rounds", target = "rounds")
     GameGetDTO convertEntityToGameGetDTO(Game game);
 
     @Mapping(source = "messageId", target = "messageId")
