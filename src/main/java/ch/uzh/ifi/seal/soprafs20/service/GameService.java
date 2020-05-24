@@ -39,12 +39,12 @@ public class GameService{
     private final ClueRepository clueRepository;
     private final LobbyScoreRepository lobbyScoreRepository;
     private final PlayerRepository playerRepository;
-    private static final int pickWordTime = 10;
-    private static final int enterCluesTime = 30;
-    private static final int voteTime = 15;
-    private static final int guessTime = 30;
-    private static final int transitionTime = 5;
-    private static final int endTime = 10;
+    private static final int PICK_WORD_TIME = 10;
+    private static final int ENTER_CLUES_TIME = 30;
+    private static final int VOTE_TIME = 15;
+    private static final int GUESS_TIME = 30;
+    private static final int TRANSITION_TIME = 5;
+    private static final int END_TIME = 10;
     private final Random rand = new Random();
     NLP nlp = new NLP();
 
@@ -73,17 +73,17 @@ public class GameService{
 
     public int getMaxTime(Game game){
         if(game.getGameState().equals(GameState.END_GAME_STATE))
-            return endTime;
+            return END_TIME;
         else if(game.getGameState().equals(GameState.PICK_WORD_STATE))
-            return pickWordTime;
+            return PICK_WORD_TIME;
         else if(game.getGameState().equals(GameState.TRANSITION_STATE))
-            return transitionTime;
+            return TRANSITION_TIME;
         else if(game.getGameState().equals(GameState.ENTER_CLUES_STATE))
-            return enterCluesTime;
+            return ENTER_CLUES_TIME;
         else if(game.getGameState().equals(GameState.VOTE_ON_CLUES_STATE))
-            return voteTime;
+            return VOTE_TIME;
         else
-            return guessTime;
+            return GUESS_TIME;
     }
 
     /**
@@ -147,7 +147,7 @@ public class GameService{
             Clue clue = new Clue();
             clue.setPlayerId(player.getId());
             clue.setActualClue(cluePutDTO.getMessage());
-            clue.setTimeNeeded(enterCluesTime - (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds()));
+            clue.setTimeNeeded(ENTER_CLUES_TIME - (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds()));
             player.addClue(clue);
             player.setClueIsSent(true);
             // if the same clue is sent twice, remove it from list of entered clues
@@ -186,7 +186,7 @@ public class GameService{
             }
         }
 
-        if(game.getEnteredClues().size() > 0) {
+        if(game.getEnteredClues().isEmpty()) {
             checkClues(game);
         }
         generateCluesForBots(game);
@@ -217,12 +217,12 @@ public class GameService{
         Clue firstClue = new Clue();
         firstClue.setPlayerId(player.getId());
         firstClue.setActualClue(cluePutDTO.getMessage());
-        firstClue.setTimeNeeded(enterCluesTime - (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds()));
+        firstClue.setTimeNeeded(ENTER_CLUES_TIME - (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds()));
         player.addClue(firstClue);
 
         Clue secondClue = new Clue();
         secondClue.setPlayerId(player.getId());
-        secondClue.setTimeNeeded(enterCluesTime - (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds()));
+        secondClue.setTimeNeeded(ENTER_CLUES_TIME - (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game.getStartTimeSeconds()));
         if(cluePutDTO.getMessage2() != null) {
             secondClue.setActualClue(cluePutDTO.getMessage2());
             player.addClue(secondClue);
@@ -252,7 +252,7 @@ public class GameService{
         }
 
         game.getCurrentGuesser().setGuessIsSent(true);
-        game.setGuessCorrect(messagePutDTO.getMessage().toLowerCase().equals(game.getCurrentWord().toLowerCase()));
+        game.setGuessCorrect(messagePutDTO.getMessage().equalsIgnoreCase(game.getCurrentWord()));
         game.setCurrentGuess(messagePutDTO.getMessage());
         guesserScore(game, time);
         gameRepository.saveAndFlush(game);
@@ -263,10 +263,10 @@ public class GameService{
         int score = 0;
         if(game.isGuessCorrect()){
             if(game.isSpecialGame()){
-                score = (int)((guessTime - time)*10);
+                score = (int)((GUESS_TIME - time)*10);
 
             } else {
-                score = (int) ((guessTime - time)*5);
+                score = (int) ((GUESS_TIME - time)*5);
             }
             game.setOverallScore(game.getOverallScore() + score);
             game.getCurrentGuesser().setScore(pastScore + score);
@@ -436,8 +436,8 @@ public class GameService{
             public void run() {
                 game[0] = getUpdatedGame(game[0]);
                 game[0].setTime(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - game[0].getStartTimeSeconds());
-                //pickwordState
-                if(game[0].getTime() >= pickWordTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.PICK_WORD_STATE)){
+                //PickwordState
+                if(game[0].getTime() >= PICK_WORD_TIME && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.PICK_WORD_STATE)){
                     game[0].getTimer().cancel();
                     game[0].getTimer().purge();
                     pickWord(game[0]);
@@ -449,7 +449,7 @@ public class GameService{
                 }
 
                 //EnterCluesState
-                else if(game[0].getTime() >= enterCluesTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.ENTER_CLUES_STATE)){
+                else if(game[0].getTime() >= ENTER_CLUES_TIME && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.ENTER_CLUES_STATE)){
                     game[0].getTimer().cancel();
                     game[0].getTimer().purge();
                     sendClue(game[0]);
@@ -459,7 +459,7 @@ public class GameService{
                 }
 
                 //VoteState
-                else if(game[0].getTime() >= voteTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.VOTE_ON_CLUES_STATE)){
+                else if(game[0].getTime() >= VOTE_TIME && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.VOTE_ON_CLUES_STATE)){
                     game[0].getTimer().cancel();
                     game[0].getTimer().purge();
                     vote(game[0]);
@@ -468,19 +468,19 @@ public class GameService{
                     gameRepository.saveAndFlush(game[0]);
                 }
                 //GuessState
-                else if(game[0].getTime() >= guessTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.ENTER_GUESS_STATE)){
+                else if(game[0].getTime() >= GUESS_TIME && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.ENTER_GUESS_STATE)){
                     game[0].getTimer().cancel();
                     game[0].getTimer().purge();
                     game[0].setGuessCorrect(false);
                     game[0].setGameState(getNextState(game[0]));
                     updateScores(game[0]);
-                    guesserScore(game[0],guessTime);
+                    guesserScore(game[0], GUESS_TIME);
 
                     game[0].setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
                     gameRepository.saveAndFlush(game[0]);
                 }
                 //TransitionState
-                else if(game[0].getTime() >= transitionTime && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.TRANSITION_STATE)){
+                else if(game[0].getTime() >= TRANSITION_TIME && game[0].getRoundsPlayed() <= game[0].getRounds() && !getCancel(game[0]) && game[0].getGameState().equals(GameState.TRANSITION_STATE)){
                     game[0].getTimer().cancel();
                     game[0].getTimer().purge();
                     startNewRound(game[0]);
@@ -495,7 +495,7 @@ public class GameService{
                 }
 
                 //EndGameState
-                else if (game[0].getTime() >= endTime && !getCancel(game[0]) && game[0].getGameState().equals(GameState.END_GAME_STATE)){
+                else if (game[0].getTime() >= END_TIME && !getCancel(game[0]) && game[0].getGameState().equals(GameState.END_GAME_STATE)){
                     game[0].getTimer().cancel();
                     game[0].getTimer().purge();
                     g.getTimer().cancel();
