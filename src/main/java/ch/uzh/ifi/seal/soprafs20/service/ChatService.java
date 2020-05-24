@@ -41,7 +41,6 @@ public class ChatService {
     }
 
     public void addChatMessage(Lobby lobby, String token, Message message) {
-        // Long id = chatPutDTO.getUserId();
         for (Player player : lobby.getPlayersInLobby()) {
             if (player.getToken().equals(token)) {
                 message.setAuthorUsername(player.getUsername());

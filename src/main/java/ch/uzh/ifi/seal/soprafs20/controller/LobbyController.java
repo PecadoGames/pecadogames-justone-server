@@ -103,7 +103,6 @@ public class LobbyController {
         }
         Game createdGame = gameService.createGame(lobby, gamePostDTO);
         gameService.setTimer(createdGame);
-        System.out.println("Game is starting!");
         gameService.timer(createdGame);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/game")
@@ -207,7 +206,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         if(lobby.isGameStarted()) {
             Game game = gameService.getGame(lobbyId);
-            if(game.getCurrentWord().toLowerCase().equals(message.getText().toLowerCase())) {
+            if(game.getCurrentWord().equalsIgnoreCase(message.getText())) {
                 message.setText("I'm a cheetah!");
             }
         }

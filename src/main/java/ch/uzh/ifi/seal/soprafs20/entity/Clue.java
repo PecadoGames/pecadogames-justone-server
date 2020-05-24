@@ -55,7 +55,7 @@ public class Clue implements Serializable {
         if (this == o) { return true; }
         if (!(o instanceof Clue)) { return false; }
         Clue other = (Clue) o;
-        return actualClue.toLowerCase().equals(other.getActualClue().toLowerCase());
+        return actualClue.equalsIgnoreCase(other.getActualClue());
     }
 
     @Override

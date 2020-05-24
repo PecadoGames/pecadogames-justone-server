@@ -4,7 +4,6 @@ import ch.uzh.ifi.seal.soprafs20.constant.AvatarColor;
 
 public class PlayerGetDTO {
     private String username;
-//    private UserStatus status;
     private boolean clueIsSent;
     private boolean isVoted;
     private Long id;
@@ -18,14 +17,6 @@ public class PlayerGetDTO {
     public void setUsername(String username) {
         this.username = username;
     }
-
-//    public UserStatus getStatus() {
-//        return status;
-//    }
-//
-//    public void setStatus(UserStatus status) {
-//        this.status = status;
-//    }
 
     public boolean isClueIsSent() {
         return clueIsSent;

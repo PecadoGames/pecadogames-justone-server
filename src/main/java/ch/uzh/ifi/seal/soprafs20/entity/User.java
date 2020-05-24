@@ -135,7 +135,7 @@ public class User implements Serializable {
 
     @JsonFormat(pattern = "dd.MM.yyyy")
     @JsonInclude(value = JsonInclude.Include.NON_EMPTY)
-    public void setBirthday(LocalDate birthday) throws JsonParseException {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 

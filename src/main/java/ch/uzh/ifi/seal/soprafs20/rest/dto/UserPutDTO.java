@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 
-//import ch.uzh.ifi.seal.soprafs20.exceptions.GlobalExceptionAdvice;
 
 public class UserPutDTO {
 
@@ -21,7 +20,6 @@ public class UserPutDTO {
         this.username = username;
     }
 
-    //@JsonFormat(pattern="dd.MM.yyyy")
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
