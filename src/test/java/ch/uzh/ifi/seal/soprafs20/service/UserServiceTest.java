@@ -233,7 +233,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(user);
 
         assertThrows(ConflictException.class, () -> userService.updateUser(testUser, userPutDTO));
-        assertEquals("testname", testUser.getUsername());
+        assertEquals(testUser.getUsername(), "testname");
     }
 
     @Test
