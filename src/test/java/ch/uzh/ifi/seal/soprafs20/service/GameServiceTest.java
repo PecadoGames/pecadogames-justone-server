@@ -366,18 +366,6 @@ class GameServiceTest {
     }
 
     @Test
-    void startNewRound_validInput_success() {
-        RequestPutDTO requestPutDTO = new RequestPutDTO();
-        requestPutDTO.setToken(testHost.getToken());
-
-        gameService.startNewRound(testGame, requestPutDTO);
-
-        assertEquals(1, testGame.getRoundsPlayed());
-        assertEquals(player2, testGame.getCurrentGuesser());
-        assertEquals(GameState.PICK_WORD_STATE, testGame.getGameState());
-    }
-
-    @Test
     void allCluesSent_normalGame_returnsTrue() {
         //assume there are more than 3 players in the game
         Player player3 = new Player();
@@ -1404,6 +1392,62 @@ class GameServiceTest {
         assertEquals(60,player3.getScore());
         assertEquals(120,player4.getScore());
         assertEquals(player3.getScore() + player4.getScore(), testGame.getOverallScore());
+    }
+
+    @Test
+    void vote(){
+        Player player3 = new Player();
+        player3.setId(3L);
+        player3.setToken("tesToken3");
+        player3.setClueIsSent(true);
+
+        Player player4 = new Player();
+        player4.setId(4L);
+        player4.setToken("tesToken4");
+        player4.setClueIsSent(true);
+        player4.setVoted(true);
+
+        testHost.setVoted(true);
+
+        Lobby lobby = new Lobby();
+        lobby.setLobbyId(testGame.getLobbyId());
+        lobby.setCurrentNumBots(1);
+
+        Clue clue3 = new Clue();
+        clue3.setActualClue("plants");
+        clue3.setClueId(1L);
+        clue3.setPlayerId(player3.getId());
+        clue3.setTimeNeeded(10L);
+
+
+        Clue clue4 = new Clue();
+        clue4.setActualClue("zombies");
+        clue4.setClueId(1L);
+        clue4.setPlayerId(player4.getId());
+        clue4.setTimeNeeded(20L);
+
+
+        player3.getClues().add(clue3);
+        player4.getClues().add(clue4);
+
+        testGame.setLobbyId(1L);
+        testGame.setGameState(GameState.ENTER_CLUES_STATE);
+        testGame.setLobbyName("Test");
+        testGame.addPlayer(player3);
+        testGame.addPlayer(player4);
+        testGame.setCurrentGuesser(testHost);
+        testGame.setCurrentWord("nuclear power");
+        testGame.addClue(clue3);
+        testGame.addClue(clue4);
+        testGame.setRoundsPlayed(1);
+        testGame.setTimer(new InternalTimer());
+        testGame.setSpecialGame(true);
+        testGame.setGuessCorrect(true);
+        List<String> invalidWords = new ArrayList<>();
+        invalidWords.add("zombie");
+
+        assertTrue(gameService.vote(testGame,player3,invalidWords));
+        assertTrue(player3.isVoted());
     }
 
     @Test
