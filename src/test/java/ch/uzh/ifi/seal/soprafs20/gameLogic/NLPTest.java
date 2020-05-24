@@ -79,4 +79,12 @@ public class NLPTest {
         assertFalse(nlp.checkClue(clue, word));
     }
 
+    @Test
+    public void editDistance_isOne() {
+        String clue = "syrup";
+        String word = "sirup";
+
+        assertFalse(nlp.checkClue(clue, word));
+    }
+
 }
