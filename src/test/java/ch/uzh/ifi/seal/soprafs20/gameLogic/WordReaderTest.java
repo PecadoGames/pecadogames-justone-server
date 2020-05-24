@@ -25,6 +25,6 @@ class WordReaderTest {
         WordReader reader = new WordReader();
         List<String> randWords = reader.getRandomWords(13);
 
-        assertEquals(randWords.size(), 13);
+        assertEquals(13, randWords.size());
     }
 }
