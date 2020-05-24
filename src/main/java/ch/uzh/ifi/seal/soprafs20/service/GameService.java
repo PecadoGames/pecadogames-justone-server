@@ -285,11 +285,6 @@ public class GameService{
                 game.setOverallScore(Math.max(game.getOverallScore() + score, 0));
             }
         }
-        Optional<User> optionalUser = userRepository.findById(game.getCurrentGuesser().getId());
-        if(optionalUser.isPresent()){
-            User user = optionalUser.get();
-            user.setScore(Math.max(user.getScore() + score,0));
-        }
     }
 
     public void startNewRound(Game game) {
@@ -387,18 +382,24 @@ public class GameService{
                     else {
                         game.setOverallScore(Math.max(game.getOverallScore() + newScore, 0));
                     }
-                    Optional<User> optionalUser = userRepository.findById(player.getId());
-                    if (optionalUser.isPresent()) {
-                        User user = optionalUser.get();
-                        user.setScore(Math.max(user.getScore() + newScore, 0));
-                        userRepository.saveAndFlush(user);
-                    }
                 }
+            }
+        }
+    }
 
+    void updateUserDatabase(Game game){
+        for(Player player: game.getPlayers()){
+            Optional<User> optionalUser = userRepository.findById(player.getId());
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                user.setScore(user.getScore() + player.getScore());
+                userRepository.saveAndFlush(user);
             }
         }
 
     }
+
+
 
     /**
      * Central timer logic for each game. Sets timer for each state,
@@ -479,7 +480,7 @@ public class GameService{
                     g.getTimer().cancel();
                     g.getTimer().purge();
 
-
+                    updateUserDatabase(game[0]);
                     Lobby currentLobby = getUpdatedLobby(game[0].getLobbyId());
                     currentLobby.setGameIsStarted(false);
                     lobbyRepository.saveAndFlush(currentLobby);
