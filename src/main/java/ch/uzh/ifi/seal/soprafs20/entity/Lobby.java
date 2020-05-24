@@ -177,7 +177,11 @@ public class Lobby implements Serializable {
     }
 
     public void setRounds(int rounds) {
-      this.rounds = rounds;
+        if(rounds > 13){
+            this.rounds = 13;
+        } else {
+            this.rounds = rounds;
+        }
     }
 
     public Integer getRounds(){

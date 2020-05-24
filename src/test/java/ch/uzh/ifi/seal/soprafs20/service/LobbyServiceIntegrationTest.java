@@ -69,7 +69,7 @@ public class LobbyServiceIntegrationTest {
         assertEquals(createdLobby.getHostToken(), host.getToken());
         assertTrue(createdLobby.getPlayersInLobby().contains(host));
         assertEquals(createdLobby.getMaxPlayersAndBots(), lobby.getMaxPlayersAndBots());
-        assertEquals(13,createdLobby.getRounds());
+        assertEquals(2,createdLobby.getRounds());
 
     }
 
