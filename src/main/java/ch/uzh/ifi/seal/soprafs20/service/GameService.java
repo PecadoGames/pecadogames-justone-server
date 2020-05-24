@@ -292,28 +292,6 @@ public class GameService{
         }
     }
 
-
-    public void startNewRound(Game game, RequestPutDTO requestPutDTO) {
-        if (!game.getCurrentGuesser().getToken().equals(requestPutDTO.getToken())) {
-            throw new UnauthorizedException("User is not allowed to start a new round!");
-        }
-        game.setRoundsPlayed(game.getRoundsPlayed() + 1);
-
-        int index = game.getPlayers().indexOf(game.getCurrentGuesser());
-        Player currentGuesser = game.getPlayers().get((index + 1) % game.getPlayers().size());
-        game.setCurrentGuesser(currentGuesser);
-
-        for(Player p : game.getPlayers()){
-            p.setClueIsSent(false);
-            p.setVoted(false);
-            p.setGuessIsSent(false);
-            p.getClues().clear();
-        }
-        game.getEnteredClues().clear();
-        game.getInvalidClues().clear();
-        game.setGameState(GameState.PICK_WORD_STATE);
-    }
-
     public void startNewRound(Game game) {
         game.setRoundsPlayed(game.getRoundsPlayed() + 1);
 
@@ -662,7 +640,6 @@ public class GameService{
             if(p.isVoted())
                 counter++;
         }
-
         if(counter == game.getPlayers().size() - 1) {
             checkVotes(game, (int)Math.ceil(((float)game.getPlayers().size() - 1 )/2));
             game.getTimer().setCancel(true);
