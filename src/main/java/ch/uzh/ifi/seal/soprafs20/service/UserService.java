@@ -10,7 +10,6 @@ import ch.uzh.ifi.seal.soprafs20.rest.dto.FriendPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.LobbyAcceptancePutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.RequestPutDTO;
 import ch.uzh.ifi.seal.soprafs20.rest.dto.UserPutDTO;
-import com.fasterxml.jackson.core.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +112,7 @@ public class UserService {
         }
     }
 
-    public void updateUser(User user, UserPutDTO receivedValues) throws JsonParseException {
+    public void updateUser(User user, UserPutDTO receivedValues) {
 
         if (!user.getUsername().equals(receivedValues.getUsername()) && userRepository.findByUsername(receivedValues.getUsername()) != null) {
             throw new ConflictException("This username already exists.");

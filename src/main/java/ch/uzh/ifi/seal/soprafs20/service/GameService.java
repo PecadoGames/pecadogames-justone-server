@@ -379,7 +379,7 @@ public class GameService{
         game = getUpdatedGame(game);
         int counter = 0;
         for(Clue clue: game.getEnteredClues()){
-            if(!(clue.getPlayerId()==0L)){
+            if((clue.getPlayerId()!=0L)){
                 counter++;
             }
         }
@@ -389,14 +389,14 @@ public class GameService{
                 if(game.getEnteredClues().contains(player.getClue(i))) {
                     int newScore = 0;
                     if (!game.isSpecialGame() && game.isGuessCorrect()){
-                        newScore = (int) ((player.getClue(i).getTimeNeeded()) * ((game.getPlayers().size() - counter)));
+                        newScore = (int) (player.getClue(i).getTimeNeeded() * ((game.getPlayers().size() - counter)));
                     }
                     if (!game.isSpecialGame() && !game.isGuessCorrect()) {
                         newScore = - 15;
                     }
 
                     if (game.isSpecialGame() && game.isGuessCorrect()) {
-                        newScore = (int) ((player.getClue(i).getTimeNeeded()) * ((game.getPlayers().size() * 2 - counter)));
+                        newScore = (int) (player.getClue(i).getTimeNeeded() * ((game.getPlayers().size() * 2 - counter)));
                     }
 
                     if (game.isSpecialGame() && !game.isGuessCorrect()) {
