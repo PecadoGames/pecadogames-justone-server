@@ -206,7 +206,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobby(lobbyId);
         if(lobby.isGameStarted()) {
             Game game = gameService.getGame(lobbyId);
-            if(game.getCurrentWord().equalsIgnoreCase(message.getText())) {
+            if(isContained(game.getCurrentWord(), messagePutDTO.getMessage())) {
                 message.setText("I'm a cheetah!");
             }
         }
@@ -263,6 +263,10 @@ public class LobbyController {
             lobbyScoreGetDTOs.add(DTOMapper.INSTANCE.convertEntityToLobbyScoreGetDTO(lb));
         }
         return lobbyScoreGetDTOs;
+    }
+
+    public boolean isContained(String aString, String bString) {
+        return (aString.toLowerCase().contains(bString.toLowerCase()) || bString.toLowerCase().contains(aString.toLowerCase()));
     }
 
 
