@@ -61,7 +61,7 @@ public class LobbyControllerTest {
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setMaxPlayersAndBots(5);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
         lobby.setHostId(1234);
         lobby.setCurrentNumBots(0);
         lobby.setCurrentNumPlayers(1);
@@ -80,7 +80,7 @@ public class LobbyControllerTest {
                 .andExpect(jsonPath("$[0].lobbyName", is(lobby.getLobbyName())))
                 .andExpect(jsonPath("$[0].currentNumPlayers", is(lobby.getCurrentNumPlayers())))
                 .andExpect(jsonPath("$[0].maxPlayersAndBots",is(lobby.getMaxPlayersAndBots())))
-                .andExpect(jsonPath("$[0].voiceChat", is(lobby.isVoiceChat())))
+                .andExpect(jsonPath("$[0].rounds", is(lobby.getRounds())))
                 .andExpect(jsonPath(("$[0].hostId"), is(lobby.getHostId().intValue())));
     }
 
@@ -119,7 +119,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void createLobby_validInput_publicLobby() throws Exception {
+    public void createLobby_validInput_3Rounds() throws Exception {
        // given
         User host = new User();
         host.setId(1L);
@@ -129,13 +129,13 @@ public class LobbyControllerTest {
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setMaxPlayersAndBots(5);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
         lobby.setHostId(host.getId());
 
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
         lobbyPostDTO.setLobbyName("Badbunny");
         lobbyPostDTO.setMaxPlayersAndBots(5);
-        lobbyPostDTO.setVoiceChat(false);
+        lobbyPostDTO.setRounds(3);
         lobbyPostDTO.setHostId(host.getId());
         lobbyPostDTO.setHostToken(host.getToken());
 
@@ -153,7 +153,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void createLobby_validInput_privateLobby() throws Exception {
+    public void createLobby_invalidRounds() throws Exception {
         // given
         User host = new User();
         host.setId(1L);
@@ -163,7 +163,7 @@ public class LobbyControllerTest {
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setMaxPlayersAndBots(5);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(15);
         lobby.setHostId(host.getId());
         lobby.setPrivate(true);
         lobby.setPrivateKey("1010");
@@ -171,9 +171,9 @@ public class LobbyControllerTest {
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
         lobbyPostDTO.setLobbyName("Badbunny");
         lobbyPostDTO.setMaxPlayersAndBots(5);
-        lobbyPostDTO.setVoiceChat(false);
+        lobbyPostDTO.setRounds(15);
         lobbyPostDTO.setHostId(host.getId());
-        lobbyPostDTO.setPrivate(true);
+        lobbyPostDTO.setRounds(15);
         lobbyPostDTO.setHostToken(host.getToken());
 
         given(lobbyService.createLobby(Mockito.any(),Mockito.any())).willReturn(lobby);
@@ -185,7 +185,6 @@ public class LobbyControllerTest {
 
         mockMvc.perform(postRequest)
                 .andExpect(status().isCreated())
-                //.andExpect(content().string(lobby.getPrivateKey()))
                 .andExpect(header().exists("Location"));
     }
 
@@ -253,7 +252,7 @@ public class LobbyControllerTest {
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setMaxPlayersAndBots(5);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
         lobby.setHostId(1234);
         lobby.setCurrentNumBots(0);
         lobby.setCurrentNumPlayers(1);
@@ -295,7 +294,7 @@ public class LobbyControllerTest {
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
         lobby.setMaxPlayersAndBots(5);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
         lobby.setHostId(1L);
         lobby.setCurrentNumBots(0);
         lobby.setCurrentNumPlayers(2);

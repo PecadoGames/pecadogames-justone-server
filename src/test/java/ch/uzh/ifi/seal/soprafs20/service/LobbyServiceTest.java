@@ -38,7 +38,7 @@ public class LobbyServiceTest {
         testLobby.setLobbyName("BadBunny");
         testLobby.setHostToken("1");
         testLobby.setMaxPlayersAndBots(5);
-        testLobby.setVoiceChat(false);
+        testLobby.setRounds(13);
         testLobby.setHostId(1L);
         testLobby.setCurrentNumPlayers(1);
         testLobby.setLobbyId(1L);

@@ -59,7 +59,7 @@ public class LobbyServiceIntegrationTest {
         lobby.setLobbyName("BadBunny");
         lobby.setPrivate(true);
         lobby.setMaxPlayersAndBots(7);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(2);
 
         Lobby createdLobby = lobbyService.createLobby(lobby, host);
 
@@ -69,7 +69,7 @@ public class LobbyServiceIntegrationTest {
         assertEquals(createdLobby.getHostToken(), host.getToken());
         assertTrue(createdLobby.getPlayersInLobby().contains(host));
         assertEquals(createdLobby.getMaxPlayersAndBots(), lobby.getMaxPlayersAndBots());
-        assertFalse(createdLobby.isVoiceChat());
+        assertEquals(13,createdLobby.getRounds());
 
     }
 
@@ -89,7 +89,7 @@ public class LobbyServiceIntegrationTest {
         lobby.setLobbyName("BadBunny");
         lobby.setPrivate(false);
         lobby.setMaxPlayersAndBots(7);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
 
         Lobby createdLobby = lobbyService.createLobby(lobby, badbunny);
 
@@ -98,7 +98,7 @@ public class LobbyServiceIntegrationTest {
         assertEquals(createdLobby.getHostId(), badbunny.getId());
         assertEquals(createdLobby.getHostToken(), badbunny.getToken());
         assertEquals(createdLobby.getMaxPlayersAndBots(), lobby.getMaxPlayersAndBots());
-        assertFalse(createdLobby.isVoiceChat());
+        assertEquals(13,createdLobby.getRounds());
     }
 
     @Test
@@ -117,7 +117,7 @@ public class LobbyServiceIntegrationTest {
         lobby.setLobbyName("Bad Bunny");
         lobby.setPrivate(false);
         lobby.setMaxPlayersAndBots(7);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
 
         assertThrows(NotAcceptableException.class, () -> lobbyService.createLobby(lobby, host));
         assertTrue(lobbyRepository.findByHostId(lobby.getHostId()).isEmpty());
@@ -139,7 +139,7 @@ public class LobbyServiceIntegrationTest {
         lobby.setLobbyName("BadBunny");
         lobby.setPrivate(false);
         lobby.setMaxPlayersAndBots(7);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
 
         Lobby createdLobby = lobbyService.createLobby(lobby, host);
         Exception ex = assertThrows(ConflictException.class, () -> lobbyService.createLobby(lobby, host));
@@ -162,7 +162,7 @@ public class LobbyServiceIntegrationTest {
         lobby.setLobbyName("BadBunny");
         lobby.setPrivate(false);
         lobby.setMaxPlayersAndBots(7);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
         lobby.setCurrentNumBots(0);
         lobby.setCurrentNumPlayers(1);
 

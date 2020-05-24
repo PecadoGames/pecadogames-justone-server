@@ -78,7 +78,7 @@ public class GameServiceIntegrationTest {
         lobby.setLobbyName("BadBunny");
         lobby.setPrivate(true);
         lobby.setMaxPlayersAndBots(7);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
         lobby.addPlayerToLobby(host);
         lobby.setCurrentNumBots(0);
         lobby.setCurrentNumPlayers(1);
@@ -119,7 +119,7 @@ public class GameServiceIntegrationTest {
         lobby.setLobbyName("BadBunny");
         lobby.setPrivate(true);
         lobby.setMaxPlayersAndBots(7);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(5);
         lobby.addPlayerToLobby(host);
         lobby.setCurrentNumBots(0);
         lobby.setCurrentNumPlayers(1);

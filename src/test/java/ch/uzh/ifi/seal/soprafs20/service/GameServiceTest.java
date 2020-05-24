@@ -73,6 +73,7 @@ public class GameServiceTest {
         testGame.addPlayer(player2);
         testGame.addPlayer(testHost);
         testGame.setCurrentGuesser(testHost);
+        testGame.setRounds(13);
 
         Mockito.when(gameRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testGame));
         Mockito.when(gameRepository.save(Mockito.any())).thenReturn(testGame);

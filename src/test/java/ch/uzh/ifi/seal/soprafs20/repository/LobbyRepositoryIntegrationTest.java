@@ -35,7 +35,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.setHostToken("hostToken");
         lobby.setHostId(1L);
         lobby.addPlayerToLobby(player);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
         lobby.setPrivate(true);
         lobby.setCurrentNumPlayers(1);
         lobby.setCurrentNumBots(0);
@@ -52,7 +52,7 @@ public class LobbyRepositoryIntegrationTest {
         assertEquals(lobby.getHostToken(), actualLobby.getHostToken());
         assertEquals(lobby.getHostId(), actualLobby.getHostId());
         assertTrue(actualLobby.getPlayersInLobby().contains(player));
-        assertFalse(lobby.isVoiceChat());
+        assertEquals(13, lobby.getRounds());
         assertTrue(lobby.isPrivate());
         assertEquals(lobby.getCurrentNumPlayers(), actualLobby.getCurrentNumPlayers());
         assertEquals(lobby.getMaxPlayersAndBots(), actualLobby.getMaxPlayersAndBots());
@@ -64,7 +64,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.setLobbyName("Ballerz");
         lobby.setHostToken("hostToken");
         lobby.setHostId(1L);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
         lobby.setPrivate(true);
         lobby.setCurrentNumPlayers(1);
         lobby.setCurrentNumBots(0);
@@ -92,7 +92,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.setHostToken("hostToken");
         lobby.setHostId(1L);
         lobby.addPlayerToLobby(player);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(20);
         lobby.setPrivate(true);
         lobby.setCurrentNumPlayers(1);
         lobby.setCurrentNumBots(0);
@@ -109,7 +109,7 @@ public class LobbyRepositoryIntegrationTest {
         assertEquals(lobby.getHostToken(), actualLobby.getHostToken());
         assertEquals(lobby.getHostId(), actualLobby.getHostId());
         assertTrue(actualLobby.getPlayersInLobby().contains(player));
-        assertFalse(lobby.isVoiceChat());
+        assertEquals(13,lobby.getRounds());
         assertTrue(lobby.isPrivate());
         assertEquals(lobby.getCurrentNumPlayers(), actualLobby.getCurrentNumPlayers());
         assertEquals(lobby.getMaxPlayersAndBots(), actualLobby.getMaxPlayersAndBots());
@@ -130,7 +130,7 @@ public class LobbyRepositoryIntegrationTest {
         lobby.setHostToken("hostToken");
         lobby.setHostId(1L);
         lobby.addPlayerToLobby(player);
-        lobby.setVoiceChat(false);
+        lobby.setRounds(13);
         lobby.setPrivate(true);
         lobby.setCurrentNumPlayers(1);
         lobby.setCurrentNumBots(0);
