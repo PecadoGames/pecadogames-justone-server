@@ -11,10 +11,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class WordsAPITest {
+class WordsAPITest {
 
     @Test
-    public void test_externalAPI() throws IOException {
+    void test_externalAPI() throws IOException {
         final String uri = "https://api.datamuse.com/words?ml=nuclear+power";
 
         RestTemplate restTemplate = new RestTemplate();

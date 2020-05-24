@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameServiceTest {
+class GameServiceTest {
 
     @Mock
     private GameRepository gameRepository;
@@ -49,7 +49,7 @@ public class GameServiceTest {
     private Player player2;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
 
         testHost = new Player();
@@ -107,7 +107,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void sendClue_normalGame_success(){
+    void sendClue_normalGame_success(){
         testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(false);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
@@ -161,7 +161,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void sendClue_normalGame_fail_unauthorizedUser(){
+    void sendClue_normalGame_fail_unauthorizedUser(){
         testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(false);
         //testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
@@ -194,7 +194,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void sendClue_normalGame_invalidState() {
+    void sendClue_normalGame_invalidState() {
         testGame.setGameState(GameState.ENTER_GUESS_STATE);
         testGame.setSpecialGame(false);
         testGame.setCurrentGuesser(player2);
@@ -211,7 +211,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void sendClue_normalGame_clueAlreadySent() {
+    void sendClue_normalGame_clueAlreadySent() {
         testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(false);
         testGame.setCurrentGuesser(player2);
@@ -227,7 +227,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void sendClue_specialGame_success(){
+    void sendClue_specialGame_success(){
         testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setSpecialGame(true);
         testGame.setStartTimeSeconds(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
@@ -256,7 +256,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void sendClue_allCluesSent_generateCluesForBots() {
+    void sendClue_allCluesSent_generateCluesForBots() {
         Lobby lobby = new Lobby();
         lobby.setCurrentNumBots(1);
         lobby.setLobbyId(testGame.getLobbyId());
@@ -285,7 +285,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void pickWord_validInput_success() {
+    void pickWord_validInput_success() {
         List<String> someWordAsList = new ArrayList<>();
         someWordAsList.add("Erdbeermarmeladebrot");
         testGame.setWords(someWordAsList);
@@ -321,7 +321,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void submitGuess_validInput_guessIncorrect_success() {
+    void submitGuess_validInput_guessIncorrect_success() {
         testGame.setGameState(GameState.ENTER_GUESS_STATE);
         testGame.setCurrentWord("Star Wars");
         testGame.setStartTimeSeconds(60);
@@ -336,7 +336,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void submitGuess_invalidState_throwsException() {
+    void submitGuess_invalidState_throwsException() {
         testGame.setGameState(GameState.ENTER_CLUES_STATE);
         testGame.setCurrentWord("Star Wars");
         testGame.setStartTimeSeconds(60);
@@ -351,7 +351,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void submitGuess_invalidToken_throwsException() {
+    void submitGuess_invalidToken_throwsException() {
         testGame.setGameState(GameState.ENTER_GUESS_STATE);
         testGame.setCurrentWord("Star Wars");
         testGame.setStartTimeSeconds(60);
@@ -366,7 +366,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void startNewRound_validInput_success() {
+    void startNewRound_validInput_success() {
         RequestPutDTO requestPutDTO = new RequestPutDTO();
         requestPutDTO.setToken(testHost.getToken());
 
@@ -378,7 +378,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void allCluesSent_normalGame_returnsTrue() {
+    void allCluesSent_normalGame_returnsTrue() {
         //assume there are more than 3 players in the game
         Player player3 = new Player();
         Player player4 = new Player();
@@ -419,7 +419,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void checkClues_identicalClue_removed() {
+    void checkClues_identicalClue_removed() {
         testGame.setCurrentWord("Banana");
         Clue clue1 = new Clue();
         clue1.setActualClue("Banana");
@@ -445,7 +445,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void checkVote_eliminateOneClue() {
+    void checkVote_eliminateOneClue() {
         Clue clue1 = new Clue();
         clue1.setPlayerId(1L);
         clue1.setActualClue("Apple");
@@ -484,7 +484,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void checkVote_allCluesEliminated() {
+    void checkVote_allCluesEliminated() {
         Clue clue1 = new Clue();
         clue1.setPlayerId(1L);
         clue1.setActualClue("banana");
@@ -504,7 +504,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void checkInvalidClues_afterCheckVotes_oneOfTwoEliminated() {
+    void checkInvalidClues_afterCheckVotes_oneOfTwoEliminated() {
         Clue clue1 = new Clue();
         clue1.setPlayerId(1L);
         clue1.setActualClue("Apple");
@@ -525,7 +525,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void checkInvalidClues_afterCheckVotes_twoOfTwoEliminated() {
+    void checkInvalidClues_afterCheckVotes_twoOfTwoEliminated() {
         Clue clue1 = new Clue();
         clue1.setPlayerId(1L);
         clue1.setActualClue("Apple");
@@ -560,7 +560,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void requestLessTransitionPickWord_EnterClue() throws InterruptedException {
+    void requestLessTransitionPickWord_EnterClue() throws InterruptedException {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
@@ -596,7 +596,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void requestLessTransitionEnterClue_Vote() throws InterruptedException {
+    void requestLessTransitionEnterClue_Vote() throws InterruptedException {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -634,7 +634,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void requestLessTransitionVote_EnterGuess() throws InterruptedException {
+    void requestLessTransitionVote_EnterGuess() throws InterruptedException {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -671,7 +671,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void requestLessTransitionEnterGuess_Transition() throws InterruptedException {
+    void requestLessTransitionEnterGuess_Transition() throws InterruptedException {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -755,7 +755,7 @@ public class GameServiceTest {
 
 
     @Test
-    public void requestLessStartNewRound() throws InterruptedException {
+    void requestLessStartNewRound() throws InterruptedException {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
@@ -808,7 +808,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void requestLessEndGame() throws InterruptedException {
+    void requestLessEndGame() throws InterruptedException {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
@@ -861,7 +861,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void deleteGame() throws InterruptedException {
+    void deleteGame() throws InterruptedException {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
@@ -916,7 +916,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void userPickedWord() throws InterruptedException {
+    void userPickedWord() throws InterruptedException {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -959,7 +959,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void generateCluesForBots_firstClue() throws JsonProcessingException {
+    void generateCluesForBots_firstClue() throws JsonProcessingException {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -998,7 +998,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void generateCluesForBots_clueAlreadyEntered_getSecondResponse() throws JsonProcessingException {
+    void generateCluesForBots_clueAlreadyEntered_getSecondResponse() throws JsonProcessingException {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -1040,7 +1040,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void generateCluesForBots_twoBotsInGame_firstClues() throws JsonProcessingException {
+    void generateCluesForBots_twoBotsInGame_firstClues() throws JsonProcessingException {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -1083,7 +1083,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void generateCluesForBots_firstWordInvalid() throws JsonProcessingException {
+    void generateCluesForBots_firstWordInvalid() throws JsonProcessingException {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -1124,7 +1124,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void generateCluesForBots_currentWordIsTwoWords() throws JsonProcessingException {
+    void generateCluesForBots_currentWordIsTwoWords() throws JsonProcessingException {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("testToken");
@@ -1165,7 +1165,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void updateClueScores_NormalGame_GuessCorrect() {
+    void updateClueScores_NormalGame_GuessCorrect() {
 
 
         Player player3 = new Player();
@@ -1223,7 +1223,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void updateClueScores_NormalGame_GuessWrong() {
+    void updateClueScores_NormalGame_GuessWrong() {
 
         Player player3 = new Player();
         player3.setId(3L);
@@ -1283,7 +1283,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void updateClueScores_SpecialGame_GuessWrong() {
+    void updateClueScores_SpecialGame_GuessWrong() {
 
         Player player3 = new Player();
         player3.setId(3L);
@@ -1344,7 +1344,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void updateClueScores_SpecialGame_GuessCorrect() {
+    void updateClueScores_SpecialGame_GuessCorrect() {
 
 
         Player player3 = new Player();
@@ -1407,19 +1407,19 @@ public class GameServiceTest {
     }
 
     @Test
-    public void getTime_PickWord(){
+    void getTime_PickWord(){
         testGame.setGameState(GameState.PICK_WORD_STATE);
         int time = gameService.getMaxTime(testGame);
         assertEquals(10,time);
     }
     @Test
-    public void getTime_EnterClue(){
+    void getTime_EnterClue(){
         testGame.setGameState(GameState.ENTER_CLUES_STATE);
         int time = gameService.getMaxTime(testGame);
         assertEquals(30,time);
     }
     @Test
-    public void getTime_Vote(){
+    void getTime_Vote(){
         testGame.setGameState(GameState.VOTE_ON_CLUES_STATE);
         int time = gameService.getMaxTime(testGame);
         assertEquals(15,time);
@@ -1432,13 +1432,13 @@ public class GameServiceTest {
     }
 
     @Test
-    public void getTime_Transition(){
+    void getTime_Transition(){
         testGame.setGameState(GameState.TRANSITION_STATE);
         int time = gameService.getMaxTime(testGame);
         assertEquals(5,time);
     }
     @Test
-    public void getTime_End(){
+    void getTime_End(){
         testGame.setGameState(GameState.END_GAME_STATE);
         int time = gameService.getMaxTime(testGame);
         assertEquals(10,time);

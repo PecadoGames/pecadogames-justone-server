@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * DTOMapperTest
  * Tests if the mapping between the internal and the external/API representation works.
  */
-public class DTOMapperTest {
+class DTOMapperTest {
     @Test
-    public void testCreateUser_fromUserPostDTO_toUser_success() {
+    void testCreateUser_fromUserPostDTO_toUser_success() {
         // create UserPostDTO
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("username");
@@ -35,7 +35,7 @@ public class DTOMapperTest {
     }
 
     @Test
-    public void testGetUser_fromUser_toUserGetDTO_success() throws ParseException, JsonParseException {
+    void testGetUser_fromUser_toUserGetDTO_success() throws ParseException, JsonParseException {
 
         // create User
         User user = new User();
@@ -57,7 +57,7 @@ public class DTOMapperTest {
     }
 
     @Test
-    public void testGetUser_fromLoginPutDTO_toUser_success(){
+    void testGetUser_fromLoginPutDTO_toUser_success(){
         // create LoginPutDTO
         LoginPutDTO loginPutDTO = new LoginPutDTO();
         loginPutDTO.setUsername("username");
@@ -72,7 +72,7 @@ public class DTOMapperTest {
     }
 
     @Test
-    public void testGetUser_fromLogoutPutDTO_toUser_success(){
+    void testGetUser_fromLogoutPutDTO_toUser_success(){
         // create LogoutPutDTO
         LogoutPutDTO logoutPutDTO = new LogoutPutDTO();
         logoutPutDTO.setId(1);

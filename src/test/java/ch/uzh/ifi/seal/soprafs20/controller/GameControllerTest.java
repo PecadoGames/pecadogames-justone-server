@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(GameController.class)
-public class GameControllerTest {
+class GameControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,7 +44,7 @@ public class GameControllerTest {
 
 
     @Test
-    public void givenGame_whenGetGame_returnJson() throws Exception {
+    void givenGame_whenGetGame_returnJson() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -91,7 +91,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void givenGameWithBots_whenGetGame_returnBotsInJson() throws Exception {
+    void givenGameWithBots_whenGetGame_returnBotsInJson() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setUsername("username1");
@@ -141,7 +141,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void getGame_guesserToken_returnJson() throws Exception {
+    void getGame_guesserToken_returnJson() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -178,7 +178,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void getGame_invalidToken_throwsException() throws Exception{
+    void getGame_invalidToken_throwsException() throws Exception{
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -205,7 +205,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void sendClue_validInput() throws Exception{
+    void sendClue_validInput() throws Exception{
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -243,7 +243,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void sendClue_validInput_wrongState() throws Exception {
+    void sendClue_validInput_wrongState() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -278,7 +278,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void pickWord_validInput_success() throws Exception {
+    void pickWord_validInput_success() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -310,7 +310,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void pickWord_validInput_wrongState() throws Exception {
+    void pickWord_validInput_wrongState() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -336,7 +336,7 @@ public class GameControllerTest {
         mockMvc.perform(getRequest).andExpect(status().is4xxClientError());
     }
     @Test
-    public void sendGuess_validInput_success() throws Exception {
+    void sendGuess_validInput_success() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -367,7 +367,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void vote_validInput_success() throws Exception {
+    void vote_validInput_success() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -404,7 +404,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void vote_validInput_wrongState() throws Exception {
+    void vote_validInput_wrongState() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -474,7 +474,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void getTime_Authorized() throws Exception {
+    void getTime_Authorized() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -500,7 +500,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void getTime_Unauthorized() throws Exception {
+    void getTime_Unauthorized() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");
@@ -553,7 +553,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void getTime_actualTime() throws Exception {
+    void getTime_actualTime() throws Exception {
         Player player1 = new Player();
         player1.setId(1L);
         player1.setToken("token1");

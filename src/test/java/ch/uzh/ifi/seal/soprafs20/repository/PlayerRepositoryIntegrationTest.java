@@ -12,7 +12,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class PlayerRepositoryIntegrationTest {
+class PlayerRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -21,7 +21,7 @@ public class PlayerRepositoryIntegrationTest {
     private PlayerRepository playerRepository;
 
     @Test
-    public void findById_success() {
+    void findById_success() {
         Player playa = new Player();
         playa.setId(1L);
         playa.setUsername("Bad Bunny");
@@ -42,7 +42,7 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
-    public void findById_unsuccessful() {
+    void findById_unsuccessful() {
         Player playa = new Player();
         playa.setId(1L);
         playa.setUsername("Bad Bunny");

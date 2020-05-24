@@ -13,7 +13,7 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ChatServiceTest {
+class ChatServiceTest {
 
     @Mock
     private ChatRepository chatRepository;
@@ -24,7 +24,7 @@ public class ChatServiceTest {
     private Chat testChat;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
 
         testChat = new Chat();
@@ -35,14 +35,14 @@ public class ChatServiceTest {
     }
 
     @Test
-    public void createChat_success() {
+    void createChat_success() {
         chatService.createChat(1L);
 
         Mockito.verify(chatRepository,Mockito.times(1)).save(Mockito.any());
     }
 
     @Test
-    public void addMessage_validInput_success() {
+    void addMessage_validInput_success() {
         Message message = new Message();
         message.setText("Hello world");
 
@@ -61,7 +61,7 @@ public class ChatServiceTest {
     }
 
     @Test
-    public void addMessage_invalidToken_throwsException() {
+    void addMessage_invalidToken_throwsException() {
         Message message = new Message();
         message.setText("Hello world");
 

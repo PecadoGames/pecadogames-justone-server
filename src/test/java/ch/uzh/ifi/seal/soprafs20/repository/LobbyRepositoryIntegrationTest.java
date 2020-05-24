@@ -12,7 +12,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class LobbyRepositoryIntegrationTest {
+class LobbyRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -21,7 +21,7 @@ public class LobbyRepositoryIntegrationTest {
     private LobbyRepository lobbyRepository;
 
     @Test
-    public void findByLobbyId_success() {
+    void findByLobbyId_success() {
         Player player = new Player();
         player.setId(1L);
         player.setToken("hostToken");
@@ -59,7 +59,7 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByLobbyId_unsuccessful() {
+    void findByLobbyId_unsuccessful() {
         Lobby lobby = new Lobby();
         lobby.setLobbyName("Ballerz");
         lobby.setHostToken("hostToken");
@@ -78,7 +78,7 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByHostId_success() {
+    void findByHostId_success() {
         Player player = new Player();
         player.setId(1L);
         player.setToken("hostToken");
@@ -116,7 +116,7 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByHostId_unsuccessful() {
+    void findByHostId_unsuccessful() {
         Player player = new Player();
         player.setId(1L);
         player.setToken("hostToken");

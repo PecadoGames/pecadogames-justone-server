@@ -12,7 +12,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class UserRepositoryIntegrationTest {
+class UserRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -22,7 +22,7 @@ public class UserRepositoryIntegrationTest {
 
 
     @Test
-    public void findByUsername_success() {
+    void findByUsername_success() {
         // given
         User user = new User();
         user.setUsername("firstname@lastname");
@@ -47,7 +47,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void findById_success() {
+    void findById_success() {
         // given
         User user = new User();
         user.setUsername("firstname@lastname");
@@ -74,7 +74,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByToken_success() {
+    void findByToken_success() {
         // given
         User user = new User();
         user.setUsername("firstname@lastname");
@@ -101,7 +101,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByToken_unsuccessful() {
+    void findByToken_unsuccessful() {
         // given
         User user = new User();
         user.setUsername("firstname@lastname");
@@ -121,7 +121,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByUsername_unsuccessful() {
+    void findByUsername_unsuccessful() {
         // given
         User user = new User();
         user.setUsername("firstname@lastname");
@@ -141,7 +141,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByName_unsuccessful() {
+    void findByName_unsuccessful() {
         // given
         User user = new User();
         user.setUsername("firstname@lastname");
@@ -161,7 +161,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void findById_unsuccessful() {
+    void findById_unsuccessful() {
         // given
         User user = new User();
         user.setUsername("firstname@lastname");

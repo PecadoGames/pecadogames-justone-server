@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(LobbyController.class)
-public class LobbyControllerTest {
+class LobbyControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,7 +56,7 @@ public class LobbyControllerTest {
 
 
     @Test
-    public void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
+    void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
@@ -119,7 +119,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void createLobby_validInput_3Rounds() throws Exception {
+    void createLobby_validInput_3Rounds() throws Exception {
        // given
         User host = new User();
         host.setId(1L);
@@ -153,7 +153,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void createLobby_invalidRounds() throws Exception {
+    void createLobby_invalidRounds() throws Exception {
         // given
         User host = new User();
         host.setId(1L);
@@ -189,7 +189,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void updateExistingLobby_existingLobby() throws Exception {
+    void updateExistingLobby_existingLobby() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
@@ -211,7 +211,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void updateExistingLobby_NotFound() throws Exception {
+    void updateExistingLobby_NotFound() throws Exception {
         //given
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
@@ -247,7 +247,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void handleLobbyInvite_validInput_success() throws Exception {
+    void handleLobbyInvite_validInput_success() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("Badbunny");
@@ -281,7 +281,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void kickPlayer_validInput_success() throws Exception {
+    void kickPlayer_validInput_success() throws Exception {
         Player host = new Player();
         host.setId(1L);
         host.setToken("testToken");
@@ -316,7 +316,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void getChat_validInput_returnsJson() throws Exception {
+    void getChat_validInput_returnsJson() throws Exception {
 
         Player player = new Player();
         player.setToken("hostToken");
@@ -362,7 +362,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void getChat_invalidLobbyId_throwsException() throws Exception {
+    void getChat_invalidLobbyId_throwsException() throws Exception {
 
         given(lobbyService.getLobby(Mockito.anyLong())).willThrow(new NotFoundException("ex"));
 
@@ -375,7 +375,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void getChat_playerNotInLobby_throwsException() throws Exception {
+    void getChat_playerNotInLobby_throwsException() throws Exception {
         Player player = new Player();
         player.setToken("wrongToken");
 
@@ -419,7 +419,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void invitePlayerToLobby_success() throws Exception {
+    void invitePlayerToLobby_success() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setCurrentNumPlayers(1);
         lobby.setLobbyName("Flacko");
@@ -442,7 +442,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void invitePlayerToLobby_unauthorized() throws Exception {
+    void invitePlayerToLobby_unauthorized() throws Exception {
 
         InvitePutDTO invitePutDTO = new InvitePutDTO();
         invitePutDTO.setToken("notHostToken");
@@ -460,7 +460,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void invitePlayerToLobby_autoInviteConflict() throws Exception {
+    void invitePlayerToLobby_autoInviteConflict() throws Exception {
 
         InvitePutDTO invitePutDTO = new InvitePutDTO();
         invitePutDTO.setToken("notHostToken");
@@ -503,7 +503,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void joinLobby_lobbyFull_fail() throws Exception {
+    void joinLobby_lobbyFull_fail() throws Exception {
         User joiner = new User();
         joiner.setId(1L);
         joiner.setToken("joinToken");
@@ -552,7 +552,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void leaveLobby_validInput_success() throws Exception {
+    void leaveLobby_validInput_success() throws Exception {
         Player playerToRemove = new Player();
         Player player2 = new Player();
         playerToRemove.setToken("token1");
@@ -583,7 +583,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void createGame_validInput_success() throws Exception {
+    void createGame_validInput_success() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setCurrentNumPlayers(2);

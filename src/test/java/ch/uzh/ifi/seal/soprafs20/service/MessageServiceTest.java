@@ -11,7 +11,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MessageServiceTest {
+class MessageServiceTest {
 
     @Mock
     private MessageRepository messageRepository;
@@ -20,12 +20,12 @@ public class MessageServiceTest {
     private MessageService messageService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    public void createMessage_success() {
+    void createMessage_success() {
         Message message = new Message();
         message.setText("Hello World");
         message.setAuthorUsername("username");

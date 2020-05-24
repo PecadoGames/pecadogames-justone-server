@@ -19,7 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class PlayerServiceTest {
+class PlayerServiceTest {
 
     @Mock
     private PlayerRepository playerRepository;
@@ -30,7 +30,7 @@ public class PlayerServiceTest {
     private Player testPlayer;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.initMocks(this);
 
         // given
@@ -47,7 +47,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void getPlayer_validInput_success() {
+    void getPlayer_validInput_success() {
         Player player = playerService.getPlayer(testPlayer.getId());
 
         Mockito.verify(playerRepository, Mockito.times(1)).findById(Mockito.any());
@@ -59,14 +59,14 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void getPlayer_invalidInput_throwsException() {
+    void getPlayer_invalidInput_throwsException() {
         Mockito.when(playerRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> playerService.getPlayer(2L));
     }
 
     @Test
-    public void getPlayerByToken_validInput_success() {
+    void getPlayerByToken_validInput_success() {
         Player player = playerService.getPlayerByToken(testPlayer.getToken());
 
         Mockito.verify(playerRepository, Mockito.times(1)).findByToken(Mockito.any());
@@ -78,14 +78,14 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void getPlayerByToken_invalidInput_throwsException() {
+    void getPlayerByToken_invalidInput_throwsException() {
         Mockito.when(playerRepository.findByToken(Mockito.any())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> playerService.getPlayerByToken("wrongToken"));
     }
 
     @Test
-    public void convertUserToPlayer_validInput_success() {
+    void convertUserToPlayer_validInput_success() {
         User user = new User();
         user.setId(1L);
         user.setUsername("testUsername");
@@ -103,7 +103,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void convertUserToPlayer_alreadyConverted_throwsException() {
+    void convertUserToPlayer_alreadyConverted_throwsException() {
         User user = new User();
         user.setId(1L);
         user.setUsername("testUsername");
@@ -114,7 +114,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void checkPlayerToken_invalidInput_throwsException() {
+    void checkPlayerToken_invalidInput_throwsException() {
         assertThrows(UnauthorizedException.class, () -> playerService.checkPlayerToken(testPlayer.getToken(), "wrongToken"));
     }
 }

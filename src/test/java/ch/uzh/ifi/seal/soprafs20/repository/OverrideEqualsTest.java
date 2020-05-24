@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OverrideEqualsTest {
+class OverrideEqualsTest {
 
     @Test
     public void chatEquals_success() {
@@ -31,7 +31,7 @@ public class OverrideEqualsTest {
     }
 
     @Test
-    public void chatNotEquals_success() {
+    void chatNotEquals_success() {
         Message message1 = new Message();
         message1.setText("Hello world");
         message1.setCreationDate();

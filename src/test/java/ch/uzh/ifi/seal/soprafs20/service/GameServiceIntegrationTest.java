@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @WebAppConfiguration
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class GameServiceIntegrationTest {
+class GameServiceIntegrationTest {
 
     @Autowired
     private GameRepository gameRepository;
@@ -46,7 +46,7 @@ public class GameServiceIntegrationTest {
     }
 
     @AfterAll
-    public void cleanUp() {
+    void cleanUp() {
         List<Game> allGames = gameRepository.findAll();
         for(Game g : allGames) {
             g.getPlayers().clear();
@@ -62,7 +62,7 @@ public class GameServiceIntegrationTest {
     }
 
     @Test
-    public void createGame_validInput_success() {
+    void createGame_validInput_success() {
         Player host = new Player();
         host.setId(1L);
         host.setToken("hostToken");
@@ -103,7 +103,7 @@ public class GameServiceIntegrationTest {
     }
 
     @Test
-    public void createGame_gameAlreadyStarted_throwsException() {
+    void createGame_gameAlreadyStarted_throwsException() {
         Player host = new Player();
         host.setId(1L);
         host.setToken("hostToken");

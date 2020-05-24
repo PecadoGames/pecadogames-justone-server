@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @WebAppConfiguration
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class LobbyServiceIntegrationTest {
+class LobbyServiceIntegrationTest {
 
     @Autowired
     private LobbyRepository lobbyRepository;
@@ -33,7 +33,7 @@ public class LobbyServiceIntegrationTest {
     private LobbyService lobbyService;
 
     @AfterAll
-    public void setup() {
+    void setup() {
         List<Lobby> allLobbies = lobbyRepository.findAll();
         for(Lobby l : allLobbies) {
             l.replacePlayersInLobby(null);
@@ -44,7 +44,7 @@ public class LobbyServiceIntegrationTest {
     }
 
     @Test
-    public void createLobby_private_validInput_success() {
+    void createLobby_private_validInput_success() {
         Player host = new Player();
         host.setId(1L);
         host.setToken("hostToken1");
@@ -74,7 +74,7 @@ public class LobbyServiceIntegrationTest {
     }
 
     @Test
-    public void createLobby_public_validInput_success() {
+    void createLobby_public_validInput_success() {
         Player badbunny = new Player();
         badbunny.setId(2L);
         badbunny.setToken("hostToken2");
@@ -102,7 +102,7 @@ public class LobbyServiceIntegrationTest {
     }
 
     @Test
-    public void createLobby_invalidLobbyName_throwsException() {
+    void createLobby_invalidLobbyName_throwsException() {
         Player host = new Player();
         host.setId(3L);
         host.setToken("hostToken3");
@@ -124,7 +124,7 @@ public class LobbyServiceIntegrationTest {
     }
 
     @Test
-    public void createLobby_lobbyAlreadyExists_throwsException() {
+    void createLobby_lobbyAlreadyExists_throwsException() {
         Player host = new Player();
         host.setId(4L);
         host.setToken("hostToken4");

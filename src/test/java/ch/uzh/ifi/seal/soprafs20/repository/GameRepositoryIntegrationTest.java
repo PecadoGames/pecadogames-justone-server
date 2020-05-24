@@ -14,7 +14,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class GameRepositoryIntegrationTest {
+class GameRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -23,7 +23,7 @@ public class GameRepositoryIntegrationTest {
     private GameRepository gameRepository;
 
     @Test
-    public void findById_success() {
+    void findById_success() {
         //given
         Player player = new Player();
         player.setId(1L);
@@ -53,7 +53,7 @@ public class GameRepositoryIntegrationTest {
     }
 
     @Test
-    public void findById_unsuccessful() {
+    void findById_unsuccessful() {
         Game game = new Game();
         game.setLobbyId(2L);
         game.setSpecialGame(true);
@@ -68,7 +68,7 @@ public class GameRepositoryIntegrationTest {
     }
 
     @Test
-    public void createGame_validInput_findById_success() {
+    void createGame_validInput_findById_success() {
         // Use the Word Reader class to read random words into the game's list of words
         WordReader reader = new WordReader();
 

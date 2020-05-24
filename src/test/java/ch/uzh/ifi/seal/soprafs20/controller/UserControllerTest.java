@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * This tests if the UserController works.
  */
 @WebMvcTest(UserController.class)
-public class UserControllerTest {
+class UserControllerTest {
 
     @Mock
     private UserRepository userRepository;
@@ -50,7 +50,7 @@ public class UserControllerTest {
     private UserService userService;
 
     @Test
-    public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
+    void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
         // given
         User user = new User();
         user.setUsername("firstname@lastname");
@@ -75,7 +75,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void givenUser_whenGetUser_thenReturnJson() throws Exception {
+    void givenUser_whenGetUser_thenReturnJson() throws Exception {
         User user = new User();
         user.setId(1L);
         user.setUsername("testUsername");
@@ -97,7 +97,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_validInput_userCreated() throws Exception {
+    void createUser_validInput_userCreated() throws Exception {
         // given
         User user = new User();
 
@@ -135,7 +135,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void loginUser_whenUserIsOffline() throws Exception {
+    void loginUser_whenUserIsOffline() throws Exception {
         User user = new User();
 
         LoginPutDTO loginPutDTO = new LoginPutDTO();
@@ -153,7 +153,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void loginUser_whenUserAlreadyLoggedIn() throws Exception {
+    void loginUser_whenUserAlreadyLoggedIn() throws Exception {
         LoginPutDTO loginPutDTO = new LoginPutDTO();
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
@@ -169,7 +169,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void loginUser_invalidInput() throws Exception {
+    void loginUser_invalidInput() throws Exception {
         LoginPutDTO loginPutDTO = new LoginPutDTO();
         loginPutDTO.setUsername("testUsername");
         loginPutDTO.setPassword("1");
@@ -203,7 +203,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void logoutUser_unauthorized() throws Exception {
+    void logoutUser_unauthorized() throws Exception {
         LogoutPutDTO logoutPutDTO = new LogoutPutDTO();
         logoutPutDTO.setId(1L);
         logoutPutDTO.setToken("1");
@@ -219,7 +219,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void logoutUser_UserNotFound() throws Exception {
+    void logoutUser_UserNotFound() throws Exception {
         LogoutPutDTO logoutPutDTO = new LogoutPutDTO();
         logoutPutDTO.setId(1L);
         logoutPutDTO.setToken("1");
@@ -236,7 +236,7 @@ public class UserControllerTest {
 
 
     @Test
-    public void updateUser_invalidBirthday() throws InvalidFormatException {
+    void updateUser_invalidBirthday() throws InvalidFormatException {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = "{\"token\" : \"1\", \"birthday\" : \"123\"}";
 
@@ -245,7 +245,7 @@ public class UserControllerTest {
 
 
     @Test
-    public void updateUser_validInput() throws Exception {
+    void updateUser_validInput() throws Exception {
         User user = new User();
         user.setId(1L);
         user.setUsername("testUsername");
@@ -288,7 +288,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getFriendRequests_invalidToken_unauthorized() throws Exception {
+    void getFriendRequests_invalidToken_unauthorized() throws Exception {
         User user1 = new User();
         user1.setId(1L);
         user1.setToken("testToken");
@@ -310,7 +310,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void sendFriendRequest_validInput_success() throws Exception {
+    void sendFriendRequest_validInput_success() throws Exception {
         User user1 = new User();
         user1.setId(1L);
 
@@ -331,7 +331,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void givenFriends_whenGetFriends_thenReturnJsonArray() throws Exception {
+    void givenFriends_whenGetFriends_thenReturnJsonArray() throws Exception {
         User user1 = new User();
         user1.setId(1L);
         user1.setUsername("BadBunny");
@@ -355,7 +355,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getFriends_unauthorized_throwsException() throws Exception {
+    void getFriends_unauthorized_throwsException() throws Exception {
         User user1 = new User();
         user1.setId(1L);
         user1.setUsername("BadBunny");
@@ -377,7 +377,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void handleFriendRequest_accept_success() throws Exception {
+    void handleFriendRequest_accept_success() throws Exception {
         User sender = new User();
         sender.setId(1L);
 
@@ -401,7 +401,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getLobbyInvites_validInput_success() throws Exception {
+    void getLobbyInvites_validInput_success() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("lobbyName");
@@ -429,7 +429,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getLobbyInvites_userNotFound_throwsException() throws Exception {
+    void getLobbyInvites_userNotFound_throwsException() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("lobbyName");
@@ -451,7 +451,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getLobbyInvites_wrongUserId_throwsException() throws Exception {
+    void getLobbyInvites_wrongUserId_throwsException() throws Exception {
         Lobby lobby = new Lobby();
         lobby.setLobbyId(1L);
         lobby.setLobbyName("lobbyName");

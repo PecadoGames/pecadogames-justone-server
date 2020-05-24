@@ -17,7 +17,7 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class LobbyServiceTest {
+class LobbyServiceTest {
 
     @Mock
     private LobbyRepository lobbyRepository;
@@ -55,7 +55,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void createLobby_validInput_publicLobby(){
+    void createLobby_validInput_publicLobby(){
         testLobby.setPrivate(false);
         Lobby lobby = lobbyService.createLobby(testLobby, host);
 
@@ -69,7 +69,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void createLobby_validInput_privateLobby(){
+    void createLobby_validInput_privateLobby(){
         testLobby.setPrivate(true);
         Lobby lobby = lobbyService.createLobby(testLobby, host);
 
@@ -95,7 +95,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void updateExistingLobby_unauthorizedUser(){
+    void updateExistingLobby_unauthorizedUser(){
         testLobby.setPrivate(false);
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setMaxNumberOfPlayersAndBots(3);
@@ -105,7 +105,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void updateExistingLobby_tooManyPlayers(){
+    void updateExistingLobby_tooManyPlayers(){
         testLobby.setPrivate(false);
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setMaxNumberOfPlayersAndBots(9);
@@ -119,7 +119,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void updateExistingLobby_tooLittlePlayers(){
+    void updateExistingLobby_tooLittlePlayers(){
         testLobby.setPrivate(false);
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setMaxNumberOfPlayersAndBots(2);
@@ -131,7 +131,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void updateExistingLobby(){
+    void updateExistingLobby(){
         testLobby.setPrivate(false);
         Player player1 = new Player();
         Player player2 = new Player();
@@ -153,7 +153,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void getLobby(){
+    void getLobby(){
         testLobby.setPrivate(false);
         Lobby lobby = lobbyService.createLobby(testLobby, host);
         Lobby foundLobby = lobbyService.getLobby(lobby.getLobbyId());
@@ -178,7 +178,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void kickPlayerFromLobby_success(){
+    void kickPlayerFromLobby_success(){
         //second user
         Player player2 = new Player();
         player2.setToken("123");
@@ -199,7 +199,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void removeLobbyLeaderFromLobby_fail(){
+    void removeLobbyLeaderFromLobby_fail(){
 
         //second user
         Player player2 = new Player();
@@ -225,7 +225,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void joinLobby_success(){
+    void joinLobby_success(){
 
         //second user
         Player player2 = new Player();
@@ -243,7 +243,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void joinLobby_fail_userAlreadyInLobby(){
+    void joinLobby_fail_userAlreadyInLobby(){
 
         //second user
         Player player2 = new Player();
@@ -261,7 +261,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void joinLobby_fail_hostIsAlreadyInLobby(){
+    void joinLobby_fail_hostIsAlreadyInLobby(){
 
         //second user
         Player player2 = new Player();
@@ -310,7 +310,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void joinLobby_fail_gameIsStarted(){
+    void joinLobby_fail_gameIsStarted(){
 
         //second user
         Player player2 = new Player();
@@ -342,7 +342,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void leaveLobby_success_hostIsAloneAndLeaves(){
+    void leaveLobby_success_hostIsAloneAndLeaves(){
 
         //lobby setup
         testLobby.setPrivate(false);
@@ -357,7 +357,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void leaveLobby_success_newHostIsChosen(){
+    void leaveLobby_success_newHostIsChosen(){
         //second user
         Player player2 = new Player();
         player2.setToken("123");
@@ -387,7 +387,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void leaveLobby_fail_gameAlreadyStarted(){
+    void leaveLobby_fail_gameAlreadyStarted(){
 
         //second user
         Player player2 = new Player();

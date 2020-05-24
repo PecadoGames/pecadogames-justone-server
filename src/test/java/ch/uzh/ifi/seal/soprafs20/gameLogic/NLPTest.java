@@ -8,31 +8,31 @@ import org.junit.jupiter.api.TestInstance;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class NLPTest {
+class NLPTest {
 
     private NLP nlp;
 
     @BeforeAll
-    public void setUp() {
+    void setUp() {
         nlp = new NLP();
     }
 
     @Test
-    public void porterStemmer_test() {
+    void porterStemmer_test() {
         String word = "laughing";
         String stem = nlp.stemWord(word);
         assertNotEquals(word, stem);
     }
 
     @Test
-    public void porterStemmer_fictionalWord_test() {
+    void porterStemmer_fictionalWord_test() {
         String elvishWord = "suilon";
         String stem = nlp.stemWord(elvishWord);
         assertEquals(elvishWord, stem);
     }
 
     @Test
-    public void regex_twoWords() {
+    void regex_twoWords() {
         String twoWords = "James Bond";
         String word = "agent";
 
@@ -40,7 +40,7 @@ public class NLPTest {
     }
 
     @Test
-    public void regex_charsAndDigits() {
+    void regex_charsAndDigits() {
         String charsAndDigits = "mus1c";
         String word = "piano";
 
@@ -48,7 +48,7 @@ public class NLPTest {
     }
 
     @Test
-    public void regex_charsOnly() {
+    void regex_charsOnly() {
         String charsOnly = "music";
         String word = "piano";
 
@@ -64,7 +64,7 @@ public class NLPTest {
     }
 
     @Test
-    public void clue_contains_word() {
+    void clue_contains_word() {
         String clue = "rainumbrella";
         String word = "umbrella";
 
@@ -72,7 +72,7 @@ public class NLPTest {
     }
 
     @Test
-    public void word_contains_clue() {
+    void word_contains_clue() {
         String clue = "electric";
         String word = "electricity";
 
@@ -80,7 +80,7 @@ public class NLPTest {
     }
 
     @Test
-    public void editDistance_isOne() {
+     void editDistance_isOne() {
         String clue = "syrup";
         String word = "sirup";
 

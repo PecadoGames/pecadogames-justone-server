@@ -11,7 +11,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class MessageRepositoryIntegrationTest {
+class MessageRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -20,7 +20,7 @@ public class MessageRepositoryIntegrationTest {
     private MessageRepository messageRepository;
 
     @Test
-    public void findByMessageId_success() {
+    void findByMessageId_success() {
         Message message = new Message();
         message.setAuthorId(1L);
         message.setAuthorUsername("Shakespeare");
@@ -41,7 +41,7 @@ public class MessageRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByMessageId_unsuccessful() {
+    void findByMessageId_unsuccessful() {
         Message message = new Message();
         message.setAuthorId(1L);
         message.setAuthorUsername("Shakespeare");
