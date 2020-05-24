@@ -133,7 +133,7 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(falseUser);
         assertThrows(NotFoundException.class, () -> userService.loginUser(testUser));
-        assertEquals(testUser.getStatus(), UserStatus.OFFLINE);
+        assertEquals(UserStatus.OFFLINE, testUser.getStatus());
     }
 
     @Test
@@ -149,7 +149,7 @@ public class UserServiceTest {
         testUser.setStatus(UserStatus.ONLINE);
 
         userService.logoutUser(testUser);
-        assertEquals(testUser.getStatus(), UserStatus.OFFLINE);
+        assertEquals(UserStatus.OFFLINE, testUser.getStatus());
         assertNull(testUser.getToken());
     }
 
@@ -171,7 +171,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(Mockito.any())).thenReturn(java.util.Optional.ofNullable(testUser));
 
         assertThrows(UnauthorizedException.class, () -> userService.logoutUser(testUser2));
-        assertEquals(testUser2.getStatus(), UserStatus.ONLINE);
+        assertEquals(UserStatus.ONLINE, testUser2.getStatus());
     }
 
     @Test
@@ -219,7 +219,7 @@ public class UserServiceTest {
         userPutDTO.setToken("wrongToken");
 
         assertThrows(UnauthorizedException.class, () -> userService.updateUser(testUser, userPutDTO));
-        assertEquals(testUser.getUsername(), "testname");
+        assertEquals("testname", testUser.getUsername());
     }
 
     @Test
@@ -233,7 +233,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(user);
 
         assertThrows(ConflictException.class, () -> userService.updateUser(testUser, userPutDTO));
-        assertEquals(testUser.getUsername(), "testname");
+        assertEquals("testname", testUser.getUsername());
     }
 
     @Test
