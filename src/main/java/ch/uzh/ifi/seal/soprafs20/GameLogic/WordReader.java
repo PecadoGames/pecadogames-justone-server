@@ -12,7 +12,7 @@ public class WordReader {
         String wordsAsString = wordsFile.getWords();
         String[] wordsInList = wordsAsString.split("\n");
         for(String string : wordsInList) {
-            if(!string.isEmpty()) {
+            if(!string.isEmpty() && (string.length() <= 12)) {
                 this.words.add(string);
             }
         }
