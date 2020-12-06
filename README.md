@@ -97,7 +97,7 @@ The following are the top 3 features we would like to implement in the future:
 
 ## Authors & Acknowledgements
 ### Backend Developers
- - [Ramon Solo de Saldivar](https://github.com/solodezaldivar) (aka. Bad Bunny), BSc Computer Science, University of Zurich
+ - [Ramon Solo de Zaldivar](https://github.com/solodezaldivar) (aka. Bad Bunny), BSc Computer Science, University of Zurich
  - [Marion Dübendorfer](https://github.com/tsunama) (aka. Märlinde), BSc Computer Science, University of Zurich
  
 ### Supervision & Guidance
